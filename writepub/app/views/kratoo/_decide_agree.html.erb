@@ -1,0 +1,26 @@
+<%
+	if $member.is_guest
+%>
+	<%=render :partial=>"kratoo/unagree",:locals=>{:entity=>entity}%>
+<%
+	else
+		decision = entity.is_agree_or_disagree($member.id)
+%>
+	<%
+		if decision == Kratoo::AGREEABLE_TYPE_AGREE
+	%>
+		<%=render :partial=>"kratoo/agree",:locals=>{:entity=>entity}%>
+	<%
+		elsif decision == Kratoo::AGREEABLE_TYPE_DISAGREE
+	%>
+		<%=render :partial=>"kratoo/disagree",:locals=>{:entity=>entity}%>
+	<%
+		else
+	%>
+		<%=render :partial=>"kratoo/unagree",:locals=>{:entity=>entity}%>
+	<%
+		end
+	%>
+<%
+	end
+%>

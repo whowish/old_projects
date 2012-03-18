@@ -1,0 +1,58 @@
+<%= javascript_include_tag "top_right_login.js"%>
+<span class="example-bubble-login">
+	<ul>
+		<li>
+			<a id="top_right_facebook_login_button" href="https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://#{DOMAIN_NAME}/facebook_registration#{request.path.sub('/facebook_registration','')}")%>">
+                <img src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_medium_short.gif"  alt="Login with Facebook"/>
+            </a>
+		</li>
+		<li>
+			<input type="text" class="textbox_input span-26" placeholder="<%=word_for_attr :username%>" value="" id="top_right_login_username">
+		</li>
+		<li>
+			<input class="textbox_input span-26" placeholder="<%=word_for_attr :password%>" value="" id="top_right_login_password" type="password" onkeypress="if(event.keyCode==13)top_right_login_handler.submit($('#top_right_login_submit_button')[0],'<%=request.path%>');">
+		</li>
+		<li>
+			<input id="top_right_login_remember_me" class="float-left margin-top-4px" type="checkbox" value="yes" />
+			<span class="float-left margin-left-1 font12 normal_font medium_gray">
+				<%=word_for :remember_me%>
+			</span>
+		</li>
+		<li>
+			<a href="#" class="green_button font30" id="top_right_login_submit_button" onclick="top_right_login_handler.submit(this,'<%=request.path%>');return false;">
+				<%=word_for :login%>
+			</a>
+			<span id="top_right_login_error_panel">
+				
+			</span>
+		</li>
+		<li>
+			<a href="/member/forget_password_form" class="forgetPass">
+				<%=word_for :forget_password%>
+			</a>
+		</li>
+	</ul>
+</span>
+
+
+
+
+<script language="javascript">
+	var top_right_login_validator = new validator("top_right_login_error_panel");
+	top_right_login_validator.register_validation("username","top_right_login_username",null,
+										null,
+										[{
+											f: validator_helper.presence,
+											m: "<%=global_word_for('login','username_presence')%>"
+										}]);
+										
+	top_right_login_validator.register_validation("password","top_right_login_password",null,
+										null,
+										[{
+											f: validator_helper.presence,
+											m: "<%=global_word_for('login','password_presence')%>"
+										}]);
+</script>	
+	
+
+

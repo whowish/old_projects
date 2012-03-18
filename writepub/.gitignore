@@ -1,0 +1,11 @@
+.bundle
+db/*.sqlite3
+*log/
+tmp/
+log/sunspot-solr-development.log.lck
+*solr/data
+*solr/lib
+/test.log
+*.rdb
+/public/uploads/*
+/Gemfile.lock

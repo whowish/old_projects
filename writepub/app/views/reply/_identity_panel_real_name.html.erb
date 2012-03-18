@@ -1,0 +1,28 @@
+<span class="form_unit" id="reply_real_name_panel" style="<%='display:none;' if !display%>">
+	<span class="span-48">
+		<span class="float-left margin-right-1 font14 normal_font medium_gray">
+			<%=word_for :from%>
+		</span>
+		<span class="username">
+			<%=$member.username%>
+		</span>
+		<span class="float-right">
+		<%
+			if allow_toggle
+		%>
+			<span class="font14 lightgreen_button" id="reply_use_anonymous_name_button" onclick="reply_handler.show_anonymous_name_panel();return false;">
+				<%=word_for :use_anonymous_name%>
+			</span>
+		<%
+			end
+		%>
+		
+		</span>
+	</span>
+	<span class="textbox_explane">
+		<p class="tip">
+			<%=word_for :identity_instruction%>
+		</p>
+	</span>
+</span>
+

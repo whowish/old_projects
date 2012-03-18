@@ -1,0 +1,12 @@
+development:
+    host: localhost
+    port: 6380
+    
+test:
+    host: localhost
+    port: 6380
+    
+production:
+    host: localhost
+    port: 6380
+

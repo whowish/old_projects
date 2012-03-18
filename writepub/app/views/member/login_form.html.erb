@@ -1,0 +1,27 @@
+<%= javascript_include_tag "/javascripts/member/login_form.js"%>
+<input type="hidden" id="login_form_redirect_url" value="<%=params[:redirect_url]%>"><br/>
+<%=word_for(:username)%> <input type="text" id="login_form_username"><br/>
+<%=word_for(:password)%> <input type="password" id="login_form_password"><br/>
+<span id="login_form_submit_button" onclick="login_form_handler.submit(this);" class="green_button">
+	<%=word_for(:login)%>
+</span>
+<span id="login_form_error_panel">
+	
+</span>
+<script language="javascript">
+	var login_form_validator = new validator("login_form_error_panel");
+	login_form_validator.register_validation("username","login_form_username",null,
+										null,
+										[{
+											f: validator_helper.presence,
+											m: "<%=global_word_for('login','username_presence')%>"
+										}]);
+										
+	login_form_validator.register_validation("password","login_form_password",null,
+										null,
+										[{
+											f: validator_helper.presence,
+											m: "<%=global_word_for('login','password_presence')%>"
+										}]);
+</script>	
+	

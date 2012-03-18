@@ -1,0 +1,16 @@
+<a href="/tag">All top tags</a>
+<hr/>
+Current tag: <span id="current_tag"></span><br/>
+Origin: <span id="origin_tag"></span><br/>
+
+<%=stylesheet_link_tag "/autocomplete/jquery.autocomplete.css"%>
+<%=javascript_include_tag "/autocomplete/jquery.autocomplete.js"%>
+<%=render :partial=>"tag/tag_javascript",:locals=>{:tag_id=>@tag.id,:is_alias => true}%>
+<script language="javascript">
+	$("#current_tag").html(tag_unit({id:"<%=@tag.id%>",name:"<%=@tag.name%>"}));
+
+<%
+	@origin = Tag.find(@tag.alias_with_tag)
+%>
+	$("#origin_tag").append(tag_unit({id:"<%=@origin.id%>",name:"<%=@origin.name%>"}));
+</script>

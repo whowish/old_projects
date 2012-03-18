@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>Error demo</title>
+		<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="validator.js"></script>
+		<script language="javascript">
+			
+			var single_validator = new validator("error_summary_panel");
+			
+			single_validator.register_validation("name","name","error_panel_for_name",
+												"OK",
+												[{
+													f: validator_helper.presence,
+													m: "Title cannot be blank."
+												},null,
+												{
+													f:validator_helper.max_length(20),
+													m: "Title is too long."
+												}]);
+												
+			single_validator.register_validation("hobby","hobby","error_panel_for_hobby",
+												"OK",
+												[{
+													f: validator_helper.presence,
+													m: "Title cannot be blank."
+												},null,
+												{
+													f:validator_helper.max_length(20),
+													m: "Title is too long."
+												}]);
+												
+			function single_show_error_from_server() {
+				single_validator.show_error({
+											title: ["test 1","test 2"],
+											title2: ["test 3"]
+										});
+			}
+			
+		</script>
+	</head>
+	<body>
+		
+		<h1>Single Test</h1>
+		<input type="text" id="name">
+		<span id="error_panel_for_name"></span><br/>
+		
+		<input type="text" id="hobby">
+		<span id="error_panel_for_hobby">
+			
+		</span><br/>
+		<input type="button" value="Submit" onclick="single_validator.validate_all();">
+		<input type="button" value="Error from server" onclick="single_show_error_from_server();">
+		<span id="error_summary_panel"></span>
+		
+	</body>
+</html>

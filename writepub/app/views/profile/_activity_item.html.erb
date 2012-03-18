@@ -1,0 +1,27 @@
+<%
+	if activity.instance_of?(PostMemberAction) and activity.entity.instance_of?(KratooActionEntity)
+%>
+		<%=render :partial=>"/profile/activity_create_kratoo_item",:locals=>{:activity=>activity}%>
+<%
+	elsif activity.instance_of?(PostMemberAction) and (activity.entity.instance_of?(ReplyActionEntity) or activity.entity.instance_of?(ReplyOfReplyActionEntity))
+%>
+		<%=render :partial=>"/profile/activity_reply_item",:locals=>{:activity=>activity}%>
+<%
+	elsif activity.instance_of?(AgreeMemberAction) and activity.entity.instance_of?(KratooActionEntity)
+%>
+		<%=render :partial=>"/profile/activity_love_item",:locals=>{:activity=>activity}%>
+<%
+	elsif activity.instance_of?(DisagreeMemberAction) and activity.entity.instance_of?(KratooActionEntity)
+%>
+		<%=render :partial=>"/profile/activity_hate_item",:locals=>{:activity=>activity}%>
+<%
+	elsif activity.instance_of?(AgreeMemberAction) and (activity.entity.instance_of?(ReplyActionEntity) or activity.entity.instance_of?(ReplyOfReplyActionEntity))
+%>
+		<%=render :partial=>"/profile/activity_agree_item",:locals=>{:activity=>activity}%>
+<%
+	elsif activity.instance_of?(DisagreeMemberAction) and (activity.entity.instance_of?(ReplyActionEntity) or activity.entity.instance_of?(ReplyOfReplyActionEntity))
+%>
+		<%=render :partial=>"/profile/activity_disagree_item",:locals=>{:activity=>activity}%>
+<%
+	end
+%>

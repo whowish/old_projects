@@ -1,0 +1,3 @@
+class AgreeableNotificationException < Exception
+  
+end

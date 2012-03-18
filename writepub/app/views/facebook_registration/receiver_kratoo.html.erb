@@ -1,0 +1,28 @@
+<div id="identity_panel" style="display:none;">
+	<%=render :partial=>"kratoo/identity_panel"%>
+</div>
+<h1>You have successfully logged in with Facebook. Now please switch back to the kratoo window.</h1>
+This page will be closed in <span id="countdown"></span> seconds
+
+<script language="javascript">
+	window.opener.kratoo_handler.facebook_login_callback($('#identity_panel').html());
+
+	
+	var countdown = 3;
+	function count() {
+		countdown--;
+		$('#countdown').html(""+countdown);
+		
+		if (countdown == 0) {
+			window.close();
+			return;
+		}
+		
+		setTimeout("count();",1000);
+	}
+	
+	$(function() {
+		count();
+	})
+</script>
+

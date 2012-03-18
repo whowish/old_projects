@@ -1,0 +1,14 @@
+
+img {
+	display:block;
+	margin-top:10px;
+	margin-bottom:10px;
+	width: auto !important;
+	height: auto !important;
+}
+
+iframe {
+	display:block;
+	margin-top:10px;
+	margin-bottom:10px;
+}

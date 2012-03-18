@@ -1,0 +1,3 @@
+class MemberActionEntityNotExist < Exception
+  
+end

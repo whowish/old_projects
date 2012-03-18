@@ -1,0 +1,26 @@
+# *** YAML2LOG4R ***
+log4r_config:
+  # define all loggers ...
+  loggers:
+    - name      : default
+      level     : DEBUG
+      additive  : 'false'
+      trace     : 'true'      
+      outputters:
+        - datefilelog
+
+  # define all outputters (incl. formatters)      
+  outputters:
+    - type        : DateFileOutputter
+      name        : datefilelog
+      level       : DEBUG
+      date_pattern: 'resque_%Y%m%d'
+      trunc       : 'false'
+      dirname     : "#{RAILS_ROOT}/log"
+      formatter   :
+        date_pattern: '%y%m%d %H:%M:%S'
+        #pattern     : '%d %l: %m '
+        pattern     : "[%l] %d :: %m"
+        type        : PatternFormatter
+  
+        

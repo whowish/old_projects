@@ -1,0 +1,73 @@
+<%
+	notifications = Notification.where(:notified_member_id=>$member.id).desc(:created_date).entries
+	
+%>
+<%
+	if notifications.length == 0
+%>
+	<%= render :partial=>"/notification/no_notification"%>
+<%else%>
+<%
+	last_date = (notifications.first.created_date.to_i / 86400).to_i
+	day_notification = []
+%>
+<span class="contentContainer">
+	<span class="rowSplit-lastChild">
+		<span class="span-20">
+			<span class="page_name">
+				<h1>
+      				<%=word_for(:Notification_title)%><br>
+					<em>
+						<%=word_for(:notification_desc)%>
+					</em>
+				</h1>				
+			</span>
+		</span>
+		<span class="span-79 margin-left-1">
+			<span class="span-79 height-3">
+				<span class="filterToolbar">
+					<ul>
+						<li class="onSelect">
+							<a href="#">
+								<%=word_for(:view_all)%>
+							</a>
+						</li>
+						<li>
+							<a href="#">
+								<%=word_for(:reply)%>
+							</a>
+						</li>
+						<li>
+							<a href="#">
+								<%=word_for(:reply_of_reply)%>
+							</a>
+						</li>
+						<li>
+							<a href="#">
+								<%=word_for(:agree_disagree)%>
+							</a>
+						</li>
+					</ul>
+				</span>
+			</span>
+			<span class="notificationList">
+				<%
+					notifications.each do |notification|
+						if (notification.created_date.to_i / 86400).to_i == last_date
+							day_notification.push(notification)
+						else
+							
+				%>
+							<%= render :partial=>"/notification/day_notification", :locals=>{:day=>Time.at(last_date * 86400),:day_notification=>day_notification}%>
+						<%
+							last_date = (notification.created_date.to_i / 86400).to_i
+							day_notification = []
+							end
+						%>	
+				<%end%>
+				<%= render :partial=>"/notification/day_notification", :locals=>{:day=>Time.at(last_date * 86400),:day_notification=>day_notification}%>
+			</span>
+		</span>
+	</span>
+</span>
+<%end%>

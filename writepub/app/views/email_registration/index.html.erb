@@ -1,0 +1,76 @@
+<span class="contentContainer">
+	<span class="newtopic_form" id="register_form">
+		<span class="span-78 font40 medium_dark_gray bold_font">
+			<%==word_for :confirm_register_for,:name=>params[:email].downcase%> 
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<input type="text" class="textbox_input span-46" placeholder="<%=word_for_attr :username%>" value="" id="email_registration_username">
+			</span>
+			<span class="textbox_explane" id="email_registration_username_error_panel">
+				<p class="tip">
+					<%==word_for(:username_instruction)%>
+				</p>
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<input class="textbox_input span-46" placeholder="<%=word_for_attr :password%>" value="" id="email_registration_password" type="password">
+			</span>
+			<span class="textbox_explane" id="email_registration_password_error_panel">
+				<p class="tip">
+					<%==word_for(:password_instruction)%>
+				</p>
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-78">
+				<a href="#" class="gray_button span-74">
+					<%=word_for(:rules_title)%>
+				</a>
+			</span>
+			<span class="span-78  margin-top-2 font14 normal_font medium_gray">
+				<%=word_for(:rules)%>
+			</span>
+		</span>
+		<span class="span-79 cutlineRow">
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<span class="font26 green_button" id="email_registration_submit_button" onclick="submit_email_registration();return false;">
+					<%=word_for(:agree_and_register)%>
+				</span>
+				<span class="span-48" id="email_registration_error_panel">
+					
+				</span>
+			</span>
+		</span>					
+	</span>
+</span>
+
+<input type="hidden" value="<%=params[:email]%>" id="email_registration_email"/>
+<input type="hidden" value="<%=params[:unique_key]%>" id="email_registration_unique_key"/>
+
+<%=javascript_include_tag "/javascripts/email_registration/index.js"%>
+<script language="javascript">
+	var email_registration_validator = new validator("email_registration_error_panel");
+	email_registration_validator.register_validation("username",
+														"email_registration_username",
+														"email_registration_username_error_panel",
+														"<%=word_for(:username_ok)%>",
+														[{
+															f: validator_helper.presence,
+															m: "<%=global_word_for('member','username_presence')%>"
+														}]);
+														
+	email_registration_validator.register_validation("password",
+														"email_registration_password",
+														"email_registration_password_error_panel",
+														"<%=word_for(:password_ok)%>",
+														[{
+															f: validator_helper.presence,
+															m: "<%=global_word_for('member','password_presence')%>"
+														}]);
+</script>
+	
+

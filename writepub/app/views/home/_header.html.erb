@@ -1,0 +1,93 @@
+<div id="navigator" class="clearfix">
+	<span id="navigator_container">
+		<span class="logo">
+		</span>
+		<%if !$member.is_guest%>
+			<span class="featureContainer">
+				<%=render :partial=>"notification/hover_panel"%>
+			</span>
+		<%end%>
+		<span>
+			<input type="text" id="search_kratoo" class="searchBox" placeholder="<%=word_for_attr :search%>" onkeypress="if (event.which == 13) search();" />
+			<span class="searchButton" onclick="search();"></span>
+		</span>
+		
+		<span class="float-right">
+			<span class="menuList">
+				<ul>
+					<li>
+						<a href="/" class="<%=(params[:controller] == 'home')?'focus':''%>">
+							<%=word_for :home%>
+						</a>
+					</li>
+					<li>
+						<a href="/kratoo/list" class="<%=(request.path == '/kratoo/list')?'focus':''%>">
+							<%=word_for :kratoo_list%>
+						</a>
+					</li>
+					<li>
+						<a href="/kratoo" class="<%=(request.path == '/kratoo')?'focus':''%>">
+							<%=word_for :new_kratoo%>
+						</a>
+					</li>
+					<%
+						if !$member.is_guest
+					%>
+						<li>
+							<a id="logout_button" href="/member/logout?redirect_url=<%=CGI.escape(request.path)%>">
+								 <%=word_for :logout%>
+							</a>
+							<a href="/profile">
+								(<%=$member.username%>)
+							</a>
+						</li>
+					<%
+						end
+					%>
+				</ul>
+			</span>
+			<%
+				if $member.is_guest
+			%>
+				<span class="menuList_login" >
+					<ul>
+						<li>
+							<a href="/member" class="lightgreen_button">
+								<%=word_for :register%>
+							</a>
+						</li>
+						<li>
+							<span id="top_right_bubble_login_panel" style="position:relative;">
+								<span>
+									<span id="top_right_login_bubble_button" class="green_button pop_panel_button" style="position:relative;">
+										<%=word_for :login%>
+									</span>
+								</span>
+								<span style="display:none;">
+									<span class="green_button pop_panel_button">
+										<%=word_for :login%>
+									</span>
+									<span style="display:block;position:absolute;left:-230px;top:22px;">
+										<%=render :partial=>"/home/top_right_login"%>
+									</span>
+								</span>
+							</span>
+						</li>
+					</ul>
+				</span>
+				<script type="text/javascript">
+					$(function() {
+					    $("#top_right_bubble_login_panel").pop_panel();
+					});
+				</script>
+			<%
+				end
+			%>
+		</span>
+	</span>
+</div>
+<script language="javascript">
+	function search() {
+		location.href = "/search?q="+$('#search_kratoo').val();
+	}
+</script>

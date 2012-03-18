@@ -1,0 +1,134 @@
+<%
+    params[:offset] ||= 0
+    params[:limit] ||= 1000
+	params[:offset] = params[:offset].to_i
+ 	params[:limit] =  params[:limit].to_i
+
+	count = kratoo.replies.length
+%>
+<span class="rowSplit-lastChild" id="comment_panel">
+	<span class="span-79">
+		
+		<span class="topic-commentList">
+			<ul>
+			
+				<%
+	            	kratoo.replies[params[:offset]..params[:offset]+params[:limit]-1].each do |reply|
+	        	%>
+					
+		            <%=render :partial=>"/reply/unit",:locals=>{:entity=>reply}%>
+					
+	        	<%
+					end
+				%>
+				<span id="new_reply"></span>
+			
+				
+				<%
+			        if count > params[:limit].to_i
+			    %>
+			    <span class="span-68 clearfix margin-top-1">
+			        <span class="span-68 clearfix">
+			
+			        </span>
+			        <span class="span-68">
+			            <span class="margin-left-4px total_page squeks_blue_bg">
+			            	<%=word_for :paging, :from=>(params[:offset].to_i+1), :to=>([(params[:offset].to_i+params[:limit].to_i),count].min),:total=>count%>
+			            </span>
+			            <span class="page_number">
+			                <ul>
+			                	<%
+									pages = []
+			
+									current_page = (params[:offset] / params[:limit])+1
+			
+									number_of_pages = (count.to_f/params[:limit].to_f).ceil
+									if number_of_pages > 10
+										pages = [current_page]
+			
+										
+										# span on current page
+										(1..5).each { |i|
+											pages.unshift(current_page-i) if (current_page-i) >= 1
+											pages.push(current_page+i)  if (current_page+i) <= number_of_pages
+										}
+			
+			
+										# add head and tail
+										[3,2,1].each { |i|
+											logger.debug { "#{i} #{pages.first}" }
+											pages = pages.unshift(i) if i < pages.first
+											pages = pages.push(number_of_pages - i + 1) if (number_of_pages - i + 1) > pages.last
+										}
+										
+									else
+										pages = (1..number_of_pages)
+									end
+			
+									last = 0
+									pages.each do |i|
+									
+										if i > (last+1)
+								%>
+											<li>...</li>
+								<%
+										end
+								%>
+										<li><a href="#" onclick="go_to_comment_offset(<%=params[:limit]*(i-1)%>,'<%=params[:sort]%>');return false;" <%='class="active"' if i == current_page%>><%=i%></a></li>
+								<%
+										last = i
+									end
+								%>
+			                </ul>
+			            </span>
+			        </span>
+			        <span class="span-20 clearfix">
+			        </span>
+			    </span>
+			    <%
+			        end
+			    %>	
+			</ul>
+		</span>
+		
+		<%=render :partial=>"/reply/add",:locals=>{:kratoo=>kratoo}%>
+	</span>
+	<span class="span-20 height-3">
+		<span class="float-right">
+			<a href="#" class="lightblue_button">
+				<%=word_for :reply%>
+			</a>
+		</span>
+	</span>
+	<!--<span class="span-20  margin-left-1">
+		<span class="advertisement">
+			<ul>
+				<li>
+					ผู้สนับสนุนเวปไซต์
+				</li>
+				<li>
+					<a href="#">
+						ลุ้นสุดมันส์ตลอด 24ชม.
+					</a>
+					<span class="closeAd">
+					</span>
+					<img src="images/testAd/01.jpg" alt="" />
+					<p>
+						ส่งตรงบาคาร่าให้คุณร่วมสนุกได้ตลอด24ชั่วโมง เล่นออนไลน์ได้เลยไม่ต้องติดตั้งพร้อมรับโบนัส ฟรี 15%
+					</p>
+				</li>
+				<li>
+					<a href="#">
+						ผลิตภัณฑ์เนื้อหมู
+					</a>
+					<span class="closeAd">
+					</span>
+					<img src="images/testAd/02.jpg" alt="" />
+					<p>
+						ส่งตรงบาคาร่าให้คุณร่วมสนุกได้ตลอด24ชั่วโมง เล่นออนไลน์ได้เลยไม่ต้องติดตั้งพร้อมรับโบนัส ฟรี 15%
+					</p>
+				</li>
+			</ul>
+		</span>
+	</span>-->
+</span>

@@ -1,0 +1,45 @@
+<%=stylesheet_link_tag "/stylesheets/tag/tag.css"%>
+<%
+	params[:view] =  Kratoo::TYPE_GENERAL if !params[:view]
+%>
+<%=stylesheet_link_tag "/autocomplete/jquery.autocomplete.css"%>
+<%=javascript_include_tag "/autocomplete/jquery.autocomplete.js"%>
+
+
+<script id="tag_unit" type="text/x-handlebars-template">
+	<span class="tag_{{cid}} lightgreen_button">
+		{{name}}
+		<a href="#" class="deleteTag-button" onclick="kratoo_handler.tags.remove(kratoo_handler.tags.getByCid('{{cid}}'));return false;"></a>
+	</span>
+</script>
+
+<span class="contentContainer">
+	
+	<span class="rowSplit-lastChild">
+		<span class="span-20">
+			<span class="page_name">
+				<h1>
+      				<%=word_for(:create_kratoo)%><br>
+					<em>
+						<%=word_for(:create_kratoo_desc)%>
+					</em>
+				</h1>				
+			</span>
+		</span>
+		<span class="span-79 margin-left-1">
+			
+			<%
+				if params[:view] == Kratoo::TYPE_GENERAL
+			%>
+				<%= render :partial=>"/kratoo/new_general"%>
+			<%
+				elsif params[:view] == Kratoo::TYPE_VOTE
+			%>
+				<%= render :partial=>"/kratoo/new_vote"%>
+			<%end%>
+		</span>
+	</span>
+</span>
+
+<%=javascript_include_tag "/javascripts/kratoo/index.js"%>
+

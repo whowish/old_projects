@@ -1,0 +1,458 @@
+<%=stylesheet_link_tag "/stylesheets/tag/tag.css"%>
+<%=stylesheet_link_tag "/stylesheets/tag/button.css"%>
+<%=stylesheet_link_tag "/stylesheets/tag/dialog_box.css"%>
+
+<div id="tag_edit_dialog_box" class="dialog_box" style="position: fixed; width: 400px; z-index: 1001; top: 50%; left: 50%; display: block; margin-top: -200.0px; margin-left: -203px;display:none;">
+	<div style="display:block;">
+		<h1>
+			Rename Tag
+		</h1>
+		<span class="dialog_box_row">
+			<p>
+				Name:
+			</p>
+			<input type="text" class="dialog_box_textbox_input" id="tag_edit_dialog_box_name"/>
+		</span>
+		<span class="dialog_box_row">
+			<span id="tag_edit_dialog_box_edit_button" class="green_button" onclick="save_edit_tag(this);">Save</span>
+			<span id="tag_edit_dialog_box_close_button" class="gray_button" onclick="close_tag_edit_dialog_box();">Close</span>
+		</span>
+		<span class="dialog_box_row">
+			<hr/>
+		</span>
+	</div>
+	<div style="display:block;">
+		<h1>
+			Merged to:
+		</h1>
+		<span class="dialog_box_row">
+			<p>
+				Name:
+			</p>
+			<input type="text" class="dialog_box_textbox_input" id="tag_merge_dialog_box_name"/>
+		</span>
+		<span class="dialog_box_row">
+			<span id="tag_edit_dialog_box_edit_button" class="green_button" onclick="merge_tag(this);">Merge</span>
+			<span id="tag_edit_dialog_box_close_button" class="gray_button" onclick="close_tag_edit_dialog_box();">Close</span>
+		</span>
+		<span class="dialog_box_row">
+			<hr/>
+		</span>
+	</div>
+	<div style="display:block;">
+		<h1>
+			Alias with:
+		</h1>
+		<span class="dialog_box_row">
+			<p>
+				Name:
+			</p>
+			<input type="text" class="dialog_box_textbox_input" id="tag_alias_dialog_box_name"/>
+		</span>
+		<span class="dialog_box_row">
+			<span id="tag_edit_dialog_box_edit_button" class="green_button" onclick="alias_tag(this);">Make it an alias</span>
+			<span id="tag_edit_dialog_box_close_button" class="gray_button" onclick="close_tag_edit_dialog_box();">Close</span>
+		</span>
+	</div>
+</div>
+<script id="tag_unit" type="text/x-handlebars-template">
+	<span class="tag_{{id}} post-tag">
+		<a class="tag_name" href="/tag/show?id={{id}}">{{name}}</a>
+		<a href="#" class="edit-icon" onclick="open_tag_edit_dialog_box('{{id}}');return false;"></a>
+		<a href="#" class="trash-icon" onclick="remove_tag(this,'{{id}}');return false;"></a>
+	</span>
+</script>
+<script language="javascript">
+	var tag_unit = Handlebars.compile($("#tag_unit").html());
+	
+	var edit_tag_id = "";
+	
+	function open_tag_edit_dialog_box(id)
+	{
+		if ($('#dialog_box_overlay').length == 0) {
+			$("body").append('<div id="dialog_box_overlay" class="dialog_box_overlay"></div>');
+		}
+		
+		edit_tag_id = id;
+		$('#tag_edit_dialog_box_name').val($('.tag_'+id).children('.tag_name').html());
+		
+		$('#dialog_box_overlay').show();
+		$('#tag_edit_dialog_box').fadeIn();
+	}
+	
+	function save_edit_tag(sender) {
+		$(sender).loading_button(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/tag/edit',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"name":$('#tag_edit_dialog_box_name').val(),
+				"id":edit_tag_id
+			},
+			success: function(data){
+				$(sender).loading_button(false);
+				if (data.ok == true)
+				{
+					var tags = $('.tag_'+data.tag_id);
+					
+					for (i=0;i<tags.length;i++) {
+						$(tags[i]).children('.tag_name').html(data.tag_name);
+					}
+					
+					close_tag_edit_dialog_box();
+				} else {
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+	function merge_tag(sender) {
+		$(sender).loading_button(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/tag/merge',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"name":$('#tag_edit_dialog_box_name').val(),
+				"id":edit_tag_id,
+				"target_name": $('#tag_merge_dialog_box_name').val()
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					location.href = "/tag/show?id="+data.tag_id;
+				} else {
+					$(sender).loading_button(false);
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+	function alias_tag(sender) {
+		$(sender).loading_button(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/tag/alias_with',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"name":$('#tag_edit_dialog_box_name').val(),
+				"id":edit_tag_id,
+				"target_name": $('#tag_alias_dialog_box_name').val()
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					location.href = "/tag/show?id="+data.tag_id;
+				} else {
+					$(sender).loading_button(false);
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+	function close_tag_edit_dialog_box() {
+		$('#dialog_box_overlay').hide();
+		$('#tag_edit_dialog_box').hide();
+	}
+	
+	
+	function create_tag(sender)
+	{
+		if ($('#tag_name').val() == "") {
+			alert("Please insert tag name.");
+			return;
+		}
+		
+		$(sender).loading_icon(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/tag/add',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"name":$('#tag_name').val()
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					location.href = "/tag/show?id="+data.tag_id;
+				} else {
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_icon(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+
+	function remove_tag(sender, id){
+		if ($(sender).parents('#parents').length > 0) {
+			remove_parent(sender,id);
+		} else if ($(sender).parents('#children').length > 0) {
+			remove_child(sender,id);	
+		} else {
+			
+			delete_tag(sender, id, $('.tag_'+id).children('.tag_name').html());
+		}
+	} 
+	
+	
+	function remove_child(sender,id,name) {
+		
+		$(sender).loading_icon(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/tag/remove_child',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"child_id": id,
+				"id": '<%=tag_id%>'
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					$('#children').children('.tag_'+id).fadeOut(function() {$(this).remove();});
+				} else {
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+	function remove_parent(sender,id,name) {
+		
+		$(sender).loading_icon(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/tag/remove_parent',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"parent_id": id,
+				"id": '<%=tag_id%>'
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					$('#parents').children('.tag_'+id).fadeOut(function() {$(this).remove();});
+				} else {
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+	function delete_tag(sender,id,name) {
+		if (!confirm("Are you sure to completely delete tag '"+name+"'?")) return;
+		
+		$(sender).loading_icon(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/tag/delete',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"id":id
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					location.href = "/tag";
+				} else {
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+
+	
+	function add_child(sender)
+	{
+		if ($('#child_tag_name').val() == "") {
+			alert("Please insert tag name.");
+			return;
+		}
+		
+		$(sender).loading_button(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/tag/add_child',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"child_name":$('#child_tag_name').val(),
+				"id":'<%=tag_id%>'
+			},
+			success: function(data){
+				$(sender).loading_button(false);
+				if (data.ok == true)
+				{
+					if ($('#children').children('.tag_'+data.tag_id).length == 0)
+						$("#children").append(tag_unit({id:data.tag_id,name:data.tag_name}));
+						
+					$('#child_tag_name').val("");
+					
+				} else {
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+	function add_parent(sender)
+	{
+		if ($('#parent_tag_name').val() == "") {
+			alert("Please insert tag name.");
+			return;
+		}
+		
+		$(sender).loading_button(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/tag/add_parent',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"parent_name":$('#parent_tag_name').val(),
+				"id":'<%=tag_id%>'
+			},
+			success: function(data){
+				$(sender).loading_button(false);
+				if (data.ok == true)
+				{
+					if ($('#parents').children('.tag_'+data.tag_id).length == 0)
+						$("#parents").append(tag_unit({id:data.tag_id,name:data.tag_name,no_delete:(data.tag_id=="0")}));
+						
+					$('#parent_tag_name').val("");
+				} else {
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+	$('#tag_merge_dialog_box_name').autocomplete('/tag/autosuggest', {
+		width:298,
+		scroll: false,
+		minChars: 2,
+		extraParams: {
+			id:  function() { return edit_tag_id; }
+		},
+		parse: function(data)
+		{
+			if (data.ok == false) return [];
+
+			var parsed = [];
+			for (var i=0; i < data.results.length; i++) {
+				parsed.push({
+					data: data.results[i],
+					value: data.results[i].name,
+					result: function(data) {
+						return data.name;
+					}
+				});
+			}
+			return parsed;
+		},
+		formatItem: function(data, i, n, value) {
+			return value;
+		}
+	});
+	
+	$('#tag_alias_dialog_box_name').autocomplete('/tag/autosuggest', {
+		width:298,
+		scroll: false,
+		minChars: 2,
+		extraParams: {
+			id: function() { return edit_tag_id; }
+		},
+		parse: function(data)
+		{
+			if (data.ok == false) return [];
+
+			var parsed = [];
+			for (var i=0; i < data.results.length; i++) {
+				parsed.push({
+					data: data.results[i],
+					value: data.results[i].name,
+					result: function(data) {
+						return data.name;
+					}
+				});
+			}
+			return parsed;
+		},
+		formatItem: function(data, i, n, value) {
+			return value;
+		}
+	});
+</script>

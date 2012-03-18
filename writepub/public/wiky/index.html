@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+		<script type="text/javascript" src="wiky.js"></script>
+		<script type="text/javascript" src="wiky_base_editor.js"></script>
+		<script type="text/javascript" src="wiky_editor.js"></script>
+		<script type="text/javascript" src="wiky_uploader.js"></script>
+		<link href="wiky_editor.css" type="text/css" rel="stylesheet">
+		<link href="wiky.css" type="text/css" rel="stylesheet">
+		<title>Untitled Document</title>
+		<style>
+			.button_hover {
+				background-color: blue;
+			}
+			
+			.button_down {
+				background-color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<span class="wiky_toolbar">
+			<input type="button" class="bold_button" onclick="$('#textarea').wiky_editor_tools('b');">
+			<input type="button" class="italic_button" onclick="$('#textarea').wiky_editor_tools('i');">
+			<input type="button" class="h2_button" onclick="$('#textarea').wiky_editor_tools('h');">
+			<input type="button" class="h3_button" onclick="$('#textarea').wiky_editor_tools('h');">
+			<input type="button" class="order-list_button" onclick="$('#textarea').wiky_editor_tools('h');">
+			<input type="button" class="unorder-list_button" onclick="$('#textarea').wiky_editor_tools('h');">
+			<input type="button" class="indent-left_button" onclick="$('#textarea').wiky_editor_tools('h');">
+			<input type="button" class="indent-right_button" onclick="$('#textarea').wiky_editor_tools('h');">
+			<input type="button" class="link_button" onclick="$('#textarea').wiky_editor_tools('open_link');">
+			<input type="button" class="image_button" onclick="$('#textarea').wiky_editor_tools('open_image');">
+			<input type="button" class="vdo_button" onclick="$('#textarea').wiky_editor_tools('open_video');">
+		</span><br/>
+		<textarea id="textarea" placeholder="Your Content Here" class="wiky_textarea" style="width:500px;height:200px;"></textarea><br/>
+		<hr/>
+		<span id="preview_area" class="wiky_preview_area">
+			
+		</span>
+		<div id="wiky_link_dialog_box" class="wiky_link_dialog_box" style="position: fixed; width: 400px; z-index: 1001; top: 50%; left: 50%; display: block; margin-top: -75.5px; margin-left: -203px;display:none;">
+			<div style="display:block;">
+				<h1>
+					Link
+				</h1>
+				<span class="wiky_dialog_box_row">
+					<p>
+						Name:
+					</p>
+					<input type="text" id="wiky_link_dialog_box_name" class="wiky_dialog_textbox_input" placeholder="Title"/>
+				</span>
+				<span class="wiky_dialog_box_row">
+					<p>
+						URL:
+					</p>				
+					<input type="text" id="wiky_link_dialog_box_url" class="wiky_dialog_textbox_input" placeholder="URL" onkeyup="if (event.which==13) $.wiky_editor_link_dialog_box_insert_link();"/><br/>
+				</span>
+				<span class="wiky_dialog_box_row">
+					<input type="button" class="blue_button" value="Add" onclick="$.wiky_editor_link_dialog_box_insert_link();"/>
+					<input type="button" class="gray_button" value="Close" onclick="$.wiky_editor_close_dialog_box();"/>
+				</span>
+			</div>
+		</div>
+		
+		<div id="wiky_video_dialog_box" class="wiky_video_dialog_box" style="position: fixed; width: 400px; z-index: 1001; top: 50%; left: 50%; display: block; margin-top: -75.5px; margin-left: -203px;display:none;">
+			<div style="display:block;">
+				<h1>
+					Youtube
+				</h1>
+				<span class="wiky_dialog_box_row">
+					<p>
+						URL:
+					</p> 
+					<input type="text" id="wiky_video_dialog_box_url" class="wiky_dialog_textbox_input" placeholder="URL Link" onkeyup="if (event.which==13) $.wiky_editor_video_dialog_box_insert_video();"/><br/>
+				</span>
+				<span class="wiky_dialog_box_row">
+					<input type="button" class="blue_button" value="Add" onclick="$.wiky_editor_video_dialog_box_insert_video();"/>
+					<input type="button" class="gray_button" value="Close" onclick="$.wiky_editor_close_dialog_box();"/>
+				</span>
+			</div>
+		</div>
+		<div id="wiky_image_dialog_box" class="wiky_image_dialog_box" style="position: fixed; width: 430px;height:200px; z-index: 1001; top: 50%; left: 50%; display: block; margin-top: -75.5px; margin-left: -223px;display:none;">
+			<div style="display:block;">
+				<span id="wiky_image_super_container" style="width: 430px;height:170px;overflow:hidden;display:block;">
+					<span id="wiky_image_container" style="width: 430px;height:190px;overflow:scroll;display:block;">
+					</span>
+				</span>
+				<span class="wiky_dialog_box_row">
+					<input id="wiky_insert_image_button" class="green_button" type="button" value="Insert selected images" onclick="$.wiky_editor_image_dialog_box_insert_image();" /> 
+					<input id="wiky_upload_button" class="blue_button" type="button" value="Upload File" />       
+					<input type="button" class="gray_button" value="Close" onclick="$.wiky_editor_close_dialog_box();"/>
+				</span>
+			</div>
+		</div>
+	</body>
+</html>
+<script language="javascript">
+
+	$('#textarea').wiky_editor({preview_panel:$("#preview_area")[0]});
+	
+</script>

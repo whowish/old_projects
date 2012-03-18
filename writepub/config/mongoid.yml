@@ -1,0 +1,15 @@
+development:
+    host: localhost
+    port: 27017
+    database: writepub
+    
+test:
+    host: localhost
+    port: 27017
+    database: writepub_test
+    
+production:
+    host: localhost
+    port: 27017
+    database: writepub
+

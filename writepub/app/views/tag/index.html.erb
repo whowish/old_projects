@@ -1,0 +1,24 @@
+<a href="/admin_room">All rooms</a> | <a href="/tag">All top tags</a>
+<hr/>
+<span id="top_tag_list" style="display:block;"></span>
+<hr/>
+
+Create new tag: <input type="text" id="tag_name" name="<%=rand()%>" style="width:298px;" onkeypress="if (event.which == 13) create_tag($('#create_new_tag_loading'));"/>
+<span id="create_new_tag_loading"></span>
+
+
+<%=stylesheet_link_tag "/autocomplete/jquery.autocomplete.css"%>
+<%=javascript_include_tag "/autocomplete/jquery.autocomplete.js"%>
+<%=render :partial=>"tag/tag_javascript",:locals=>{:tag_id=>""}%>
+
+<script language="javascript">
+
+<%
+	Tag.any_of( {:incomings.size => 0 },{:incomings.exists=>false}).where(:alias_with_tag_id=>nil).each do |tag|
+%>
+	$("#top_tag_list").append(tag_unit({id:"<%=tag.id%>",name:"<%=tag.name%>"}));
+<%
+	end
+%>
+
+</script>

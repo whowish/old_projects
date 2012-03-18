@@ -1,0 +1,79 @@
+<span class="contentContainer" id="register_mail_form">
+	<span class="rowSplit">
+		<span class="span-20">
+			<span class="page_name">
+				<h1>
+      				<%=word_for(:register)%><br>
+					<em>
+						<%=word_for(:register_description)%>
+					</em>
+				</h1>				
+			</span>
+		</span>
+		<span class="span-79 margin-left-1">
+			<span class="span-79 height-20">
+				
+				<span class="registerType selected">
+					<span class="span-26 height-18">
+						<span class="span-20 font30 normal_font dark_gray">
+							<%=word_for(:facebook)%>
+						</span>
+						<span class="float-left margin-top-4 margin-left-1">
+							<a id="facebook_registration_button" href="https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://#{DOMAIN_NAME}/facebook_registration/")%>" style="margin-top:10px;cursor:pointer;display:block;">
+				                <img src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_medium_short.gif"  alt="Login with Facebook"/>
+				            </a>
+						</span>
+					</span>
+				</span>
+				
+				<span class="registerType margin-left-1" >
+					<span class="span-26 height-18">
+						<span class="span-26 font30 normal_font dark_gray">
+							<%=word_for(:email)%>
+						</span>
+						<span class="span-25 font12 normal_font medium_dark_gray align_left">
+							&nbsp;
+						</span>
+						<span class="float-left margin-top-2">
+							<input type="text" class="textbox_input span-25 margin-top-1" placeholder="<%=word_for_attr :email%>" id="email_registration_email">
+							<a href="#" class="green_button margin-top-1" id="email_registration_submit_button" onclick="submit_email_registration();return false;">
+								<span class="font16">
+									<%=word_for(:submit_register)%>
+								</span>
+							</a>
+							<span id="email_registration_error_panel">
+								
+							</span>
+						
+						</span>
+					</span>
+				</span>
+				
+			</span>
+			<span class="span-79">
+				<span class="span-78 margin-top-2 font30 medium_dark_gray bold_font">
+					Facebook
+				</span>
+				<span class="span-78 margin-top-1 font14 medium_gray normal_font">
+					ตั้งกระทู้ / ตอบกระทู้ / กด agree/disagree ได้ <br />
+					** หากเพื่อนน้อยกว่า30คน คุณไม่สามารถ สมัครด้วยวิธีนี้ได้
+				</span>
+			</span>
+			<span class="span-79 cutlineRow">
+			</span>
+		</span>
+	</span>
+</span>
+<%=javascript_include_tag "/javascripts/member/index.js"%>
+<script language="javascript">
+	var email_registration_validator = new validator("email_registration_error_panel");
+	email_registration_validator.register_validation("email","email_registration_email",null,"",
+										[{
+											f: validator_helper.presence,
+											m: "<%=global_word_for('email_registration','email_presence')%>"
+										},null,
+										{
+											f:validator_helper.email,
+											m: "<%=global_word_for('email_registration','email_email')%>"
+										}]);
+</script>

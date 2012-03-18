@@ -1,0 +1,23 @@
+<%if notification.instance_of?(AgreeNotification) or notification.instance_of?(UnagreeNotification)%>
+	<%if notification.entity.instance_of?(KratooAgreeableEntity)%>
+		<%= render :partial=>"/notification/item_agree_kratoo", :locals=>{:notification=>notification}%>
+	<%elsif notification.entity.instance_of?(ReplyAgreeableEntity)%>
+		<%= render :partial=>"/notification/item_agree_reply", :locals=>{:notification=>notification}%>
+	<%elsif notification.entity.instance_of?(ReplyOfReplyAgreeableEntity)%>
+		<%= render :partial=>"/notification/item_agree_ror", :locals=>{:notification=>notification}%>
+	<%end%>
+<%elsif notification.instance_of?(DisagreeNotification)%>
+	<%if notification.entity.instance_of?(KratooAgreeableEntity)%>
+		<%= render :partial=>"/notification/item_disagree_kratoo", :locals=>{:notification=>notification}%>
+	<%elsif notification.entity.instance_of?(ReplyAgreeableEntity)%>
+		<%= render :partial=>"/notification/item_disagree_reply", :locals=>{:notification=>notification}%>
+	<%elsif notification.entity.instance_of?(ReplyOfReplyAgreeableEntity)%>
+		<%= render :partial=>"/notification/item_disagree_ror", :locals=>{:notification=>notification}%>
+	<%end%>
+<%elsif notification.instance_of?(ReplyNotification)%>
+	<%= render :partial=>"/notification/item_reply", :locals=>{:notification=>notification}%>
+<%elsif notification.instance_of?(ReplyOfReplyNotification)%>
+	<%= render :partial=>"/notification/item_ror", :locals=>{:notification=>notification}%>
+<%else%>
+	Unknown notification type
+<%end%>

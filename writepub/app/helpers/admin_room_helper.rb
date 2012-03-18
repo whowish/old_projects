@@ -1,0 +1,2 @@
+module AdminRoomHelper
+end

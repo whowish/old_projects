@@ -1,0 +1,15 @@
+
+welcome <%=$member.username%> !
+<%if !$member.is_guest%>
+<a href="/member/change_password_form" >
+     <%= word_for :change_password%>
+</a>
+<br/>
+<a href="/member/logout?redirect_url=<%=CGI.escape(request.path)%>" >
+     <%= word_for :logout%>
+</a>
+<br/>
+fame : <%=$member.fame%>
+
+<%end%>
+<a href="/profile?user_id=4e2d2703aeddbf1f04000003" title="<%=word_for_attr :go_to_profile%>">ni_cs</a>

@@ -1,0 +1,3 @@
+class LogicException < Exception
+  
+end

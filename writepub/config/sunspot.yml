@@ -1,0 +1,9 @@
+development:
+    url: http://localhost:8390/solr
+    
+test:
+    url: http://localhost:8390/solr
+    
+production:
+    url: http://localhost:8390/solr
+

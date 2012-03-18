@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="../stylesheets/reset.css"/>
+<link rel="stylesheet" type="text/css" href="../stylesheets/writepub.css"/>
+<link rel="stylesheet" type="text/css" href="../stylesheets/button.css"/>
+<title>writepub</title>
+</head>
+
+<body>
+	
+	<div id="navigator" class="clearfix">
+		<span id="navigator_container">
+			<span class="logo">
+			</span>
+			<span class="featureContainer">
+				<span class="privateMessage onAlert">
+					<span class="alertBallon">
+						99
+					</span>
+				</span>
+				<span class="notification">
+				</span>
+			</span>
+			<span>
+				<input type="text" class="searchBox" placeholder="ค้นหา" />
+				<button class="searchButton"></button>
+			</span>
+			<span class="float-right">
+				<span class="menuList">
+					<ul>
+						<li>
+							<a href="#" class="focus">
+								หน้าแรก
+							</a>
+						</li>
+						<li>
+							<a href="#">
+								ดูกระทู้
+							</a>
+						</li>
+						<li>
+							<a href="#">
+								ดูกลุ่ม
+							</a>
+						</li>
+						<li>
+							<a href="#">
+								ตั้งกระทู้
+							</a>
+						</li>
+						<li>
+							<span class="profile">
+								<img src="images/profile.jpg" alt="" />
+							</span>
+						</li>
+					</ul>
+				</span>
+			</span>
+		</span>
+	</div>
+	
+	<div id="container" class="clearfix">
+		<div id="annoucement">
+			
+		</div>
+		
+		<span class="contentContainer">
+			
+			<span class="rowSplit">
+				<span class="span-20">
+					<span class="page_name">
+						<h1>
+              				สมัครสมาชิก<br>
+							<em>
+								ท่านสามารถสมัครสมาชิกได้ทั้งหมด 3วิธีง่ายๆ
+							</em>
+						</h1>				
+					</span>
+				</span>
+				<span class="span-79 margin-left-1">
+					<span class="span-79 height-20">
+						
+						<span class="registerType selected">
+							<span class="span-18 height-18">
+								<span class="span-20 font30 normal_font dark_gray">
+									Facebook
+								</span>
+								<span class="float-left margin-top-4 margin-left-1">
+									<div id="fb-root"></div>
+									<script src="http://connect.facebook.net/en_US/all.js">
+									</script>
+								  	<script>
+									 FB.init({ 
+										appId:'YOUR_APP_ID', cookie:true, 
+										status:true, xfbml:true 
+									 });
+								  </script>
+								  <fb:login-button>Login with Facebook</fb:login-button>
+								</span>
+							</span>
+						</span>
+						<span class="registerType margin-left-1">
+							<span class="span-26 height-18">
+								<span class="span-26 font30 normal_font dark_gray">
+									SMS
+								</span>
+								<span class="span-26 font12 normal_font medium_dark_gray align_left">
+									*เบอร์ใช่เพื่อยืนยันเท่านั้นทางเราจะไม่นำไปทำอย่างอื่น
+								</span>
+								<span class="float-left margin-top-2">
+									<span class="span-3 margin-top-1 font22 bold_font medium_dark_gray">
+										08
+									</span>
+									<input type="text" class="textbox_input span-21 margin-top-1" placeholder="เบอร์โทรศัพท์" value="">
+									<a href="#" class="green_button margin-top-1">
+										<span class="font16">
+											สมัครสมาชิก
+										</span>
+									</a>
+								</span>
+							</span>
+						</span>
+						<span class="registerType margin-left-1">
+							<span class="span-26 height-18">
+								<span class="span-26 font30 normal_font dark_gray">
+									Email
+								</span>
+								<span class="span-25 font12 normal_font medium_dark_gray align_left">
+									&nbsp;
+								</span>
+								<span class="float-left margin-top-2">
+									<input type="text" class="textbox_input span-25 margin-top-1" placeholder="email@email.com" value="">
+									<a href="#" class="green_button margin-top-1">
+										<span class="font16">
+											สมัครสมาชิก
+										</span>
+									</a>
+								</span>
+							</span>
+						</span>
+						
+					</span>
+					<span class="span-79">
+						<span class="span-78 margin-top-2 font30 medium_dark_gray bold_font">
+							Facebook
+						</span>
+						<span class="span-78 margin-top-1 font14 medium_gray normal_font">
+							ตั้งกระทู้ / ตอบกระทู้ / กด agree/disagree ได้ <br />
+							** หากเพื่อนน้อยกว่า30คน คุณไม่สามารถ สมัครด้วยวิธีนี้ได้
+						</span>
+					</span>
+					<span class="span-79 cutlineRow">
+					</span>
+					
+					<span class="newtopic_form">
+						<span class="span-78 font40 medium_dark_gray bold_font">
+							ยืนยัน การสมัครสมาชิก
+						</span>
+						<span class="form_unit">
+							<span class="span-48">
+								<input type="text" class="textbox_input span-46" placeholder="ชื่อของคุณ" value="">
+							</span>
+							<span class="textbox_explane">
+								<p class="tip error">
+									ชื่อนี้มีสมาชิกท่านอื่นใช้ไปแล้ว<br />
+									<a href="#">
+										แสดงสิทธิขอใช้ชื่อนี้
+									</a>
+								</p>
+							</span>
+						</span>
+						<span class="form_unit">
+							<span class="span-48">
+								<input type="text" class="textbox_input span-46" placeholder="รหัสผ่าน" value="">
+							</span>
+							<span class="textbox_explane">
+								<p class="tip">
+									คุณต้องใส่อย่างน้อย 6ตัวอักษร
+								</p>
+							</span>
+						</span>
+						<span class="form_unit">
+							<span class="span-78">
+								<a href="#" class="gray_button span-74">
+									กฏระเบียบ การใช้เวปไซต์
+								</a>
+							</span>
+							<span class="span-78  margin-top-2 font14 normal_font medium_gray">
+								เรียนสมาชิก ทราบ<br />
+								เนื่องจากสมาชิก เข้ามาแสดงความคิดเห็นในกระทู้ต่างๆ มากขึ้นเรื่อยๆ ซึ่งเกิดจากการแสดงความเห็นของบุคคลทั่วไปและสมาชิกบางคนเท่านั้น แต่เนื่องด้วยตอนนี้เกิดปัญหาจากสมาชิกบางท่านที่แสดงความคิดเห็นอันไม่พึ่ง ประสงค์จากเหตุดังนี้
+								<br />
+								แสดงความคิดเห็นในเชิงก่อกวนนอกประเด็น และหรือสร้างความรำคาญให้แก่สมาชิกท่านอื่นๆแสดงความคิดเห็นที่มีเจตนาประชาสัมพันธ์ขายสินค้า หรือโฆษณาแอบแฝง
+							</span>
+						</span>
+						<span class="span-79 cutlineRow">
+						</span>
+						<span class="form_unit">
+							<span class="span-48">
+								<button class="green_button">
+									<span class="font26">
+										ยอมรับ และ สมัครสมาชิก
+									</span>
+								</button>
+								
+							</span>
+						</span>					
+					</span>
+				</span>
+			</span>
+		</span>
+		
+	</div>
+	
+	<div id="footer" class="clearfix">
+		<span class="footerContainer">
+			<span class="copyRight">
+				&copy; 2011 Writepub 
+			</span>
+			<span class="bottomLink">
+				<ul>
+					<li>
+						<a href="#" class="focus">
+							เกี่ยวกับเรา
+						</a>
+						<span class="dot">
+						</span>
+					</li>
+					<li>
+						<a href="#" class="focus">
+							หน้าแรก
+						</a>
+						<span class="dot">
+						</span>
+					</li>
+					<li>
+						<a href="#" class="focus">
+							รวมกระทู้
+						</a>
+						<span class="dot">
+						</span>
+					</li>
+					<li>
+						<a href="#" class="focus">
+							กลุ่มทั้งหมด
+						</a>
+						<span class="dot">
+						</span>
+					</li>
+					<li>
+						<a href="#" class="focus">
+							ร่วมงาบกับเรา
+						</a>
+						<span class="dot">
+						</span>
+					</li>
+					<li>
+						<a href="#" class="focus">
+							ช่วยเหลือ
+						</a>
+						<span class="dot">
+						</span>
+					</li>
+					<li>
+						<a href="#" class="focus">
+							เงื่อนไข
+						</a>
+						<span class="dot">
+						</span>
+					</li>
+					<li>
+						<a href="#" class="focus">
+							วิธีใช้
+						</a>
+					</li>
+				</ul>
+			</span>
+		</span>
+	</div>
+	
+</body>
+</html>

@@ -1,0 +1,30 @@
+<li id="reply_of_reply_<%=entity.id%>">
+	<span class="reply" id="reply_of_reply_content_<%=entity.id%>">
+		<%if $member.is_admin or ((entity.post_owner.instance_of?(OwnerPublic) or entity.post_owner.instance_of?(OwnerAnonymous)) and ($member.id.to_s == entity.post_owner.member_id))%>
+			<a class="deleteReply_icon" id="delete_reply_<%=entity.id%>" href="#" onclick="reply_of_reply_handler.remove(this,'<%=entity.id%>');return false;">
+			</a>
+			<a class="editReply_icon" id="edit_reply_<%=entity.id%>" href="/reply_of_reply/edit_form?id=<%=entity.id%>" >
+			</a>
+		<%end%>
+		<p>
+			<a href="#" class="username" id="reply_of_reply_creator_<%=entity.id%>">
+				<%==entity.post_owner.get_badge%>
+			</a>
+			<%==entity.content.html%>
+		</p>
+	</span>
+	<span class="replyConsole">
+		<%= render :partial=>"/reply_of_reply/decide_agree", :locals=>{:entity=>entity}%>
+		<%=render :partial=>"/reply_of_reply/agree_list"%>
+		<span class="replyAndShare">
+			<span class="postingTime">
+				<%=semantic_time(entity.created_date)%>
+			</span>
+			<a href="#">
+				เผยแพร่ความเห็นนี้
+			</a>
+			
+		</span>
+	</span>
+</li>
+

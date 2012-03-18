@@ -1,0 +1,64 @@
+<%
+	@feeds = []
+	if !$member.is_guest
+		member_feeds = MemberFeed.new($member.id)
+		@feeds = member_feeds.get_feed
+	else
+		fields_to_queried = [:title,:created_date,:kratoo_type,:reply_count,:post_owner,:agrees]
+		@feeds = Kratoo.only(*fields_to_queried).desc(*@sort)
+
+	    if @sort == :created_date
+	      @feeds = @feeds.where(:created_date.lt => 0.week.ago)
+	      @feeds = @feeds.where(:created_date.gte => 1.week.ago)
+	    end
+	end
+	params[:tag] =  "all" if !params[:tag]
+%>
+<span class="contentContainer">
+	<span class="rowSplit-lastChild">
+		<span class="span-20">
+			<span class="page_name">
+				<h1>
+	  				<%=word_for :feed_title%><br>
+					<em>
+						<%=word_for :feed_desc%>
+					</em>
+				</h1>				
+			</span>
+			<%= render :partial=>"/home/side_room", :locals=>{:tag=>params[:tag]}%>
+			
+		</span>
+		<span class="span-79 margin-left-1">
+			<%if @feeds.count > 0%>
+			<span class="topicList">
+				<ul>
+					<%
+						@feeds.each do |feed|
+					%>
+						<li>
+							<%= render :partial=>"/home/feed_item", :locals=>{:entity=>feed}%>
+						</li>
+					<%
+						end
+					%>
+				</ul>
+			</span>
+			<%else%>
+			<span class="topicList">
+				<blockquote class="oval-quotes">
+					<p>
+						<%=word_for :no_feed_kratoo%>
+						<a href="/kratoo" class="orange_button margin-top-1">
+							<span class="font22">
+								<%=word_for :create_kratoo%>
+							</span>
+						</a>
+					</p>
+				</blockquote>
+			</span>
+			<%end%>
+		</span>
+	</span>
+
+</span>
+

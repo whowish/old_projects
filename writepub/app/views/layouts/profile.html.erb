@@ -1,0 +1,48 @@
+<% 
+	content_for :profile_layout do 
+%>
+	<span class="contentContainer">
+		<span class="rowSplit-lastChild">
+			<%=render :partial=>"profile/side_profile"%>
+			<span class="span-79 margin-left-1">
+				<span class="span-79">
+					<span class="font30 dark_gray bold_font">
+						<%=@current_member.username%>
+					</span>
+					<!--<span class="span-79 margin-top-1">
+						<span class="font12 normal_font medium_gray">
+							ตำแหน่ง :<br />
+						</span>	
+						<span class="font30 bold_font medium_dark_gray">
+							ซุปเปอร์ แอ๊ดมิน
+						</span>
+					</span>-->
+				</span>
+				<span class="span-79 height-3 margin-top-2">
+					<span class="profileTab">
+						<ul>
+							<li class="<%='onSelect' if params[:action] == 'index'%>">
+								<a href="/profile/<%=@current_member.id%>" >
+									<%=word_for(:activity)%>
+								</a>
+							</li>
+							<li class="<%='onSelect' if params[:action] == 'info'%>">
+								<a href="/profile/info/<%=@current_member.id%>">
+									<%=word_for(:information)%>
+								</a>
+							</li>
+						</ul>
+					</span>
+				</span>
+				<span class="span-79 cutlineRow">
+				</span>
+				<%= yield%>
+			</span>
+		</span>
+	</span>
+
+<%
+	end 
+%>
+
+<%= render :template => 'layouts/application' %>

@@ -1,0 +1,130 @@
+<a href="/admin_room">All rooms</a> | <a href="/tag">All top tags</a>
+<hr/>
+
+<%=stylesheet_link_tag "/stylesheets/tag/tag.css"%>
+<%=stylesheet_link_tag "/stylesheets/tag/button.css"%>
+<%=stylesheet_link_tag "/stylesheets/tag/dialog_box.css"%>
+
+<%=stylesheet_link_tag "/autocomplete/jquery.autocomplete.css"%>
+<%=javascript_include_tag "/autocomplete/jquery.autocomplete.js"%>
+
+
+<span id="rooms" style="display:block;"></span>
+<hr/>
+Tag as room: <input type="text" id="tag_name"/> 
+<span id="tag_submit_button" class="green_button" onclick="create_room(this);">Create</span>
+<span id="tag_error_panel">
+	
+</span>
+
+<script id="room_unit" type="text/x-handlebars-template">
+	<span class="post-tag" id="room_{{id}}">
+		<a class="tag_name" href="#">{{tag_name}}</a>
+		<a href="#" class="trash-icon" onclick="remove_room(this,'{{id}}');return false;"></a>
+	</span>
+</script>
+<script language="javascript">
+	
+	var room_unit = Handlebars.compile($("#room_unit").html());
+	
+	<%
+		Room.asc(:ordered_number).each do |room|
+			
+	%>
+		$("#rooms").append(room_unit({id:"<%=room.id%>",tag_name:"<%=room.tag%>"}));
+	<%
+		end
+	%>
+	
+	function remove_room(sender, room_id) {
+		$(sender).loading_icon(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/admin_room/remove',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"room_id": room_id
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					$('#rooms').children('#room_'+room_id).fadeOut(function() {$(this).remove();});
+				} else {
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+	function create_room(sender) {
+		
+		if ($('#tag_name').val() == "") {
+			alert("Please insert tag name.");
+			return;
+		}
+		
+		$(sender).loading_button(true);
+
+		$.ajax({
+			type: "POST",
+			url: '/admin_room/create',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"tag_name":$('#tag_name').val()
+			},
+			success: function(data){
+				$(sender).loading_button(false);
+				if (data.ok == true)
+				{
+					$("#rooms").append(room_unit({id:data.room_id, tag_name:data.tag_name}));
+						
+					$('#tag_name').val("");
+					
+				} else {
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+	$('#tag_name').autocomplete('/tag/autosuggest', {
+		width:298,
+		scroll: false,
+		minChars: 2,
+		parse: function(data)
+		{
+			if (data.ok == false) return [];
+
+			var parsed = [];
+			for (var i=0; i < data.results.length; i++) {
+				parsed.push({
+					data: data.results[i],
+					value: data.results[i],
+					result: function(data) {
+						return data;
+					}
+				});
+			}
+			return parsed;
+		},
+		formatItem: function(data, i, n, value) {
+			return data;
+		}
+	});
+
+</script>

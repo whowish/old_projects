@@ -1,0 +1,11 @@
+<%
+	if !$member.is_guest
+%>
+	<%=render :partial=>"kratoo/identity_panel_name"%>
+<%
+	else
+%>
+	<%=render :partial=>"kratoo/identity_panel_login_form"%>
+<%
+	end
+%>

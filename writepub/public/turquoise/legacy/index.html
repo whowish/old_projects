@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="stylesheet" type="text/css" href="turquoise.css"/>
+		<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="jquery-turquoise.js"></script>
+		<title>Turquoise dialog box</title>
+	</head>
+	<body>
+		<input type="button" value="Open" onclick="$('#test_turquoise').dialog('open');">
+		<div id="test_turquoise">
+			<span class="turquoise_holder">
+				<span class="turquoise_x">
+					<span>
+						ปิด
+					</span>
+				</span>
+				<span class="turquoise_border">
+					<span class="turquoise_content_container">
+						<span style="margin:10px;">
+							เนื้อหา
+						</span>
+					</span>
+				</span>
+			</span>
+		</div>
+		<script language="javascript">
+			$('#test_turquoise').dialog({ autoOpen: false });
+		</script>
+	</body>
+</html>

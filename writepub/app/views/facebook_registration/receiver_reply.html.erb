@@ -1,0 +1,32 @@
+<%
+	kratoo = Kratoo.find(params[:kratoo_id])
+%>
+<div id="reply_identity_panel" style="display:none;">
+	<%=render :partial=>"reply/identity_panel",:locals=>{:kratoo=>kratoo}%>
+</div>
+<div id="reply_of_reply_identity_panel" style="display:none;">
+	<%=render :partial=>"reply_of_reply/identity_panel",:locals=>{:kratoo=>kratoo}%>
+</div>
+<h1>You have successfully logged in with Facebook. Now please switch back to the kratoo window.</h1>
+This page will be closed in <span id="countdown"></span> seconds
+<script language="javascript">
+	window.opener.reply_handler.facebook_login_callback($('#reply_identity_panel').html(),$('#reply_of_reply_identity_panel').html());
+
+	var countdown = 3;
+	function count() {
+		countdown--;
+		$('#countdown').html(""+countdown);
+		
+		if (countdown == 0) {
+			window.close();
+			return;
+		}
+		
+		setTimeout("count();",1000);
+	}
+	
+	$(function() {
+		count();
+	})
+</script>
+

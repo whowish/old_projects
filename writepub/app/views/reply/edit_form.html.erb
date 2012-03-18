@@ -1,0 +1,17 @@
+<%
+	entity = Reply.first(:conditions=>{:id=>params[:id]})
+
+%>
+<%if entity%>
+	<%if $member.is_admin or ((entity.post_owner.instance_of?(OwnerPublic) or entity.post_owner.instance_of?(OwnerAnonymous)) and ($member.id.to_s == entity.post_owner.member_id))%>
+		<span class="contentContainer">
+		<%= render :partial=>"/reply/edit_general", :locals=>{:entity=>entity}%>
+		
+		<%= render :partial=>"/reply/versioning_reply", :locals=>{:entity=>entity}%>
+		</span>
+	<%else%>
+		<%=word_for(:no_auth)%>
+	<%end%>
+<%else%>
+<%=word_for(:reply_not_found)%>
+<%end%>

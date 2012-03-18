@@ -1,0 +1,26 @@
+<%
+	if !$member.is_guest
+
+		type = kratoo.get_post_owner_type($member)
+		if type == PostOwner::ANONYMOUS_TYPE
+%>
+			<%=render :partial=>"reply/identity_panel_anonymous_name",:locals=>{:display=>true,:allow_toggle=>false,:kratoo=>kratoo}%>
+	<%
+		elsif type == PostOwner::PUBLIC_TYPE
+	%>
+			<%=render :partial=>"reply/identity_panel_real_name",:locals=>{:display=>true,:allow_toggle=>false}%>
+	<%
+		else
+	%>
+			<%=render :partial=>"reply/identity_panel_anonymous_name",:locals=>{:display=>false,:allow_toggle=>true,:kratoo=>kratoo}%>
+			<%=render :partial=>"reply/identity_panel_real_name",:locals=>{:display=>true,:allow_toggle=>true}%>
+	<%
+		end
+	%>
+<%
+	else
+%>
+		<%=render :partial=>"reply/identity_panel_login_form",:locals=>{:kratoo=>kratoo}%>
+<%
+	end
+%>

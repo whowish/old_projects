@@ -1,0 +1,16 @@
+<span class="replyUnit" id="reply_panel_<%=reply.id%>">
+	<ul>
+		<%
+        	reply.replies.each do |r_o_r|
+    	%>
+            <%=render :partial=>"/reply_of_reply/unit",:locals=>{:entity=>r_o_r}%>
+    	<%end%>
+		<li id="new_reply_of_reply_<%=reply.id%>" style="display:none;"></li>
+	</ul>
+</span>
+
+
+	
+
+    
+

@@ -1,0 +1,22 @@
+<%
+	rooms = Room.all().asc(:ordered_number)
+%>
+<span class="sideMenu">
+	<ul>
+		<%
+			
+			rooms.each do |entity|
+		%>
+			<li>
+				<a  class="<%=(tag == entity.tag)?'selected':'tab'%>"  href="/kratoo/list/recent/<%=entity.tag%>">
+					<span>
+						<%=entity.tag%>
+					</span>
+					<p>
+						<%=entity.description%>
+					</p>
+				</a>
+			</li>
+		<%end%>
+	</ul>
+</span>

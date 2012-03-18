@@ -1,0 +1,30 @@
+<%
+	icon_class = "normalTopicIcon"
+	if entity.kratoo_type == Kratoo::TYPE_QUESTION
+		icon_class = "qaTopicIcon"
+	elsif entity.kratoo_type == Kratoo::TYPE_VOTE
+		icon_class = "voteTopicIcon"
+	end
+
+	class_is_read = ""
+	if entity.is_read($member.id)
+		class_is_read = "read"
+	end
+%>
+
+<a href="/kratoo/view/<%=entity.id%>" target="_kratoo_<%=entity.id%>" title="<%=word_for_attr :post_by_since ,:name=>entity.post_owner.username,:time=>semantic_time(entity.created_date)%>" 
+   class="<%=class_is_read%>">
+	<span class="<%=icon_class%>">
+	</span>
+	<span class="topicName">
+		<%=entity.title%> 
+	</span>
+	<p>
+		<%=semantic_time(entity.created_date)%>
+	</p>
+	<span class="voteScore">
+		<h2 style="margin-top:10px;">
+			<%=entity.reply_count%>
+		</h2>
+	</span>
+</a>

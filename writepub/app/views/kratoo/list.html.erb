@@ -1,0 +1,250 @@
+<%
+	if @tag_does_not_exist
+%>
+	<%==word_for :tag_not_found,:tag_name=>params[:tag]%> Tag '<%=params[:tag]%>' is not in our database. Therefore, there is no result for it. But there are other interesting kratoos.
+<%
+	end
+%>
+<span class="contentContainer">
+
+	<span class="rowSplit">
+		<span class="span-20">
+			<span class="page_name">
+				<h1>
+	  				<%=word_for :suggest_tag%><br>
+					<em>
+						<%=word_for :most_popular_tag%>
+					</em>
+				</h1>				
+			</span>
+		</span>
+		<span class="span-79 margin-left-1">
+			<%
+				if @tag
+			%>
+				<span class="span-79 tag_clound">
+					<%
+						parent_tags = Tag.where( :outgoings => @tag.id )
+
+						if parent_tags.length > 0
+
+							parent_tags.each do |tag|
+					%>
+								<a href="/kratoo/list/<%=params[:sort]%>?tag=<%=tag.name%>" class="lightgreen_button">
+									<%=tag.name%>
+								</a>
+					<%
+							end
+						else
+					%>
+							<a href="/kratoo/list" class="lightgreen_button">
+								<%=word_for :all_tag%>
+							</a>
+					<%
+						end
+					%>
+				</span>
+			<%
+				end
+			%>
+			<span class="span-79 margin-top-1 tag_clound">
+				<%
+					if @tag
+				%>
+					<a href="/kratoo/list?tag=<%=@tag.name%>" class="lightgreen_button">
+						<%=@tag.name%>
+					</a>
+					<%
+						friend_tags	= []
+
+						if parent_tags.length > 0	
+							friend_tag_ids = []	
+							parent_tags.each { |parent_tag|
+								friend_tag_ids = friend_tag_ids + parent_tag.outgoings
+							}		
+	
+							friend_tag_ids.uniq!	
+							friend_tag_ids.delete(@tag.id)	
+
+							friend_tags = Tag.where(:_id.in=>friend_tag_ids)
+						else
+							friend_tags = Tag.any_of( {:incomings.size => 0 },{:incomings.exists=>false}).where(:_id.ne=>@tag.id).where(:alias_with_tag_id=>nil)
+						end	
+
+						friend_tags.each do |tag| 
+					%>
+						<a href="/kratoo/list?tag=<%=tag.name%>" class="lightgreen_button">
+							<%=tag.name%>
+						</a>
+					<%
+						end
+					%>
+				<%
+					else
+				%>
+					<a href="/kratoo/list" class="lightgreen_button">
+						<%=word_for :all_tag%>
+					</a>
+				<%
+					end
+				%>
+				<%
+					children_tag = []
+
+					if @tag
+						children_tag = Tag.where(:_id.in=>(@tag.outgoings || []))
+					else
+						children_tag = Tag.any_of( {:incomings.size => 0 },{:incomings.exists=>false}).where(:alias_with_tag_id=>nil)
+					end
+
+					children_tag.each do |tag| 
+				%>	
+					<a href="/kratoo/list/<%=params[:sort]%>/<%=tag.name%>" class="lightblue_button">
+						<%=tag.name%>
+					</a>
+				<%
+					end
+				%>
+			</span>
+		</span>
+	</span>
+	<span class="rowSplit-lastChild">
+		<span class="span-20">
+			<span class="page_name">
+				<h1>
+	  				<%=word_for :Kratoo_title%><br>
+					<em>
+						<%=word_for :kratoo_description%>
+					</em>
+				</h1>				
+			</span>
+			<%= render :partial=>"/home/side_room", :locals=>{:tag=>params[:tag]}%>
+			
+		</span>
+		<span class="span-79 margin-left-1">
+			<span class="span-79 height-3">
+				<span class="filterToolbar">
+					<ul>
+						<li>
+							<a href="/kratoo/list/recent/<%=params[:tag]%>" class="<%=(params[:sort] == 'recent')?'actived':''%> ">
+								<%=word_for :sort_date%>
+							</a>
+						</li>
+						<li>
+							<a href="/kratoo/list/top/<%=params[:tag]%>" class="<%=(params[:sort] == 'top')?'actived':''%> ">
+								<%=word_for :sort_score%>
+							</a>
+						</li>
+						<!--<li>
+							<a href="/kratoo/list?view=top_agree" class="<%=(params[:sort] == 'top_agree')?'actived':''%> ">
+								เห็นด้วยมากสุด
+							</a>
+						</li>
+						<li>
+							<a href="/kratoo/list?view=top_reply" class="<%=(params[:sort] == 'top_reply')?'actived':''%> ">
+								ตอบมากสุด
+							</a>
+						</li>-->
+					</ul>
+				</span>
+				<span class="float-left margin-left-1">
+					<a href="/kratoo" class="orange_button">
+						<span class="font12">
+							<%=word_for :create_kratoo%>
+						</span>
+					</a>
+				</span>
+				
+			</span>
+			<%
+				if @kratoos.count > 0
+			%>
+				<span class="topicList">
+					<ul id="kratoo_list_container">
+						<%
+							@kratoos.each do |kratoo|
+						%>
+							<li>
+								<%= render :partial=>"/kratoo/kratoo_list_item", :locals=>{:entity=>kratoo}%>
+							</li>
+						<%
+							end
+						%>
+						
+					</ul>
+				</span>
+			<%
+				else
+			%>
+				<span class="topicList">
+					<blockquote class="oval-quotes">
+						<p>
+							<%=word_for :no_kratoo%>
+							<a href="/kratoo" class="orange_button margin-top-1">
+								<span class="font22">
+									<%=word_for :create_kratoo%>
+								</span>
+							</a>
+						</p>
+					</blockquote>
+				</span>
+			<%
+				end
+			%>
+			<%
+				if @sort == :created_date
+			%>
+				<span class="pageNumberContainer">
+					<%
+						page_data = get_pagination_data((params[:page]-1).week.ago, params[:page], 7, 32, 770)
+					%>
+					<span class="pageNumber">
+						<span class="months" style="left:<%=page_data.left%>px;">
+							<%
+								alter = true
+								total_width_of_months = 0
+
+								page_data.months.each do |month|
+									
+									total_width_of_months += month.width
+							%>
+								<span class="month_block <%='alter' if alter%>" style="width:<%=month.width%>px;">
+									<%=format_month(month)%>
+								</span>
+							<%
+									alter = !alter
+								end
+
+								
+							%>
+							
+						</span>
+						<span class="units" style="left:0px;">
+							<%
+								page_data.units.each do |unit|
+							%>
+								<a href="/kratoo/list/recent.<%=unit.page%>/<%=params[:tag]%>"
+								   class="unit_block <%='first_child' if page_data.units.first == unit%> <%='selected' if unit.is_selected%>">
+									<% if unit.is_selected == true %>
+										<span class="dayDetail"><%=format_selected_date((params[:page]-1).week.ago)%></span>
+									<% end%>
+								</a>
+							<%
+								end
+
+								total_width = 769
+								disabled_width = 769 - page_data.units.length * 32
+							%>
+							<span class="unit_block disabled" style="width:<%=disabled_width%>px;"></span>
+						</span>
+					</span>
+					<a href="/kratoo/list/recent.1/<%=params[:tag]%>" class="pageNumberJump">
+					</a>
+				</span>
+			<%
+				end
+			%>
+		</span>
+	</span>
+</span>
+

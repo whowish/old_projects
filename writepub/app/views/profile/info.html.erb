@@ -1,0 +1,136 @@
+<span class="span-79">
+	<span class="settingMenu" id="profile_info_unit">
+		<ul>
+			<li>
+				<%=word_for(:information)%>
+			</li>
+			<li>
+				<span class="settingToppic">
+					<h2>
+						<%=word_for(:username)%>
+					</h2>
+					<h3>
+						<%=@current_member.username%>
+					</h3>
+				</span>
+			</li>
+			<li>
+				<span class="settingToppic">
+					<h2>
+						<%=word_for(:join_since)%>
+					</h2>
+					<h3>
+						<%=semantic_time(@current_member.created_date)%>
+					</h3>
+				</span>
+			</li>
+			<li>
+				<span class="settingToppic">
+					<h2>
+						<%=word_for(:email)%>
+					</h2>
+					<h3>
+						<%=@current_member.email if @current_member.email%>
+					</h3>
+				</span>
+			</li>
+			<li>
+				<span class="settingToppic">
+					<h2>
+						<%=word_for(:gender)%>
+					</h2>
+					<h3>
+						<%=@current_member.gender%>
+					</h3>
+				</span>
+			</li>
+			<li>
+				<span class="settingToppic">
+					<h2>
+						<%=word_for(:quote)%>
+					</h2>
+					<h3>
+						<%=@current_member.quote%>
+					</h3>
+				</span>
+			</li>
+			<li>
+				<span class="settingToppic">
+					<h2>
+						<%=word_for(:about)%>
+					</h2>
+					<h3>
+						<%=@current_member.about%>
+					</h3>
+				</span>
+			</li>
+			
+		</ul>
+		<%if $member.id == @current_member.id or $member.is_admin%>
+			<a href="#" class="green_button margin-top-1" title="<%=word_for_attr :edit_info%>" id="show_edit_button"
+			    onclick="show_edit(this);return false;">edit</a>
+		<%end%>
+	</span>
+	
+</span>
+
+<script language="javascript">
+		
+		function show_edit(sender)
+        {
+            try {
+
+                $(sender).loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/profile/show_edit',
+                    cache: false,
+                    data: {
+	                        "member_id":"<%=@current_member.id%>"
+	                },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+                                    $(sender).loading_button(false);
+                                    
+                                    $('#profile_info_unit').replaceWith(data.html);
+    
+                            }
+                            else {
+								
+									$(sender).loading_button(false);
+									for (var i in data.error_message) {
+										try {
+											$('#user_info_' + i).ruby_box(true, data.error_message[i]);
+										} 
+										catch (e) {
+										
+										}
+									}
+								
+                            }
+
+                        }
+                        catch (e) {
+                            $(sender).loading_button(false);
+                            $.error_log('edit_user_info', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $(sender).loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $(sender).loading_button(false);
+                $.error_log('edit_user_info',e);
+                alert(e);
+            }
+        }
+ 
+</script>

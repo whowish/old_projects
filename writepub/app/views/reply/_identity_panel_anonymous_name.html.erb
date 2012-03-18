@@ -1,0 +1,31 @@
+<span class="form_unit" id="reply_anonymous_name_panel" style="<%='display:none;' if !display%>">
+	<span class="span-48">
+		<span class="float-left margin-right-1 font14 normal_font medium_gray">
+			<%=word_for :from%>
+		</span>
+		<%
+			if kratoo.get_post_owner_type($member) == PostOwner::ANONYMOUS_TYPE
+		%>
+			<input type="text" disabled="true" id="reply_username" class="textbox_input span-19" value="<%=kratoo.get_anonymous_name($member)%>" placeholder="<%=word_for_attr :anonymous_name%>">
+		<%else%>
+			<input type="text" class="textbox_input span-30" id="reply_username"  value="<%=kratoo.get_anonymous_name($member)%>" placeholder="<%=word_for_attr :anonymous_name%>">
+		<%end%>
+		<span class="float-right">
+			<%
+				if allow_toggle
+			%>
+				<span class="font14 lightgreen_button" id="reply_use_real_name_button" onclick="reply_handler.show_real_name_panel();return false;">
+					<%=word_for :use_real_name%>
+				</span>
+			<%
+				end	
+			%>
+			
+		</span>
+	</span>
+	<span class="textbox_explane" id="reply_username_error_panel">
+		<p class="tip">
+			<%=word_for :identity_anonymous_tip%>
+		</p>
+	</span>
+</span>

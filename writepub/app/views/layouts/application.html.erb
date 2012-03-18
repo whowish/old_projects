@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="P3Pv1" href="/w3c/p3p.xml">
+	<meta http-equiv="P3P" policyref="/w3c/p3p.xml"  content='CP="<%=COMPACT_POLICY%>"'>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<%= content_for?(:meta_tag) ? yield(:meta_tag) : "" %>
+	<%=csrf_meta_tag%>
+	<title>WritePub</title>
+	<script language="javascript">
+		var AUTH_TOKEN = "<%=form_authenticity_token%>";
+	</script>
+	<%= whowish_word_javascript_and_css%>
+	
+	<%= javascript_include_tag "jquery-1.6.2.min.js" %>
+	<%= javascript_include_tag "csrf_and_authenticity_token_hook.js" %>
+	<%= javascript_include_tag "underscore-min.js" %>
+	<%= javascript_include_tag "backbone-min.js" %>
+	<%= javascript_include_tag "handlebars.1.0.0.beta.3.js" %>
+	<%= javascript_include_tag "/pop_panel/jquery.pop_panel.js"%>
+	<%= javascript_include_tag "/loading_button/jquery.loading_button.js" %>
+	<%= javascript_include_tag "/validator/validator.js"%>
+	
+	<%=stylesheet_link_tag("/stylesheets/reset.css")%>
+	<%=stylesheet_link_tag("/stylesheets/writepub.css")%>
+	<%=stylesheet_link_tag("/stylesheets/button.css")%>
+</head>
+<body>
+<%=render :partial=>"home/header"%>
+<div id="container" class="clearfix">
+	<div id="annoucement">
+		
+	</div>
+	
+	<%= content_for?(:profile_layout) ? yield(:profile_layout) : yield %>
+	
+</div>
+<div id="footer" class="clearfix">
+	<span class="footerContainer">
+		<span class="copyRight">
+			&copy; 2011 Writepub 
+		</span>
+		<span class="bottomLink">
+			<ul>
+				<li>
+					<a href="/home/about_us" class="focus">
+						<%=word_for(:about_us)%>
+					</a>
+					<span class="dot">
+					</span>
+				</li>
+				<li>
+					<a href="/" class="focus">
+						<%=word_for(:home)%>
+					</a>
+					<span class="dot">
+					</span>
+				</li>
+				<li>
+					<a href="/kratoo/list" class="focus">
+						<%=word_for(:kratoo_list)%>
+					</a>
+					<span class="dot">
+					</span>
+				</li>
+				<li>
+					<a href="/kratoo" class="focus">
+						<%=word_for(:create_kratoo)%>
+					</a>
+					<span class="dot">
+					</span>
+				</li>
+				<li>
+					<a href="/home/help" class="focus">
+						<%=word_for(:help)%>
+					</a>
+					<span class="dot">
+					</span>
+				</li>
+			</ul>
+		</span>
+	</span>
+</div>
+</body>
+</html>

@@ -1,0 +1,8 @@
+Thumbnailism - Images, thumbnails, and files management for Rails
+- Tanin Na Nakorn
+===========================================================
+
+Here is how it works:
+
+- All images and files are kept under /public/uploads
+- All thumbnails are kept under /public/uploads/thumbnails/[width]x[height]/

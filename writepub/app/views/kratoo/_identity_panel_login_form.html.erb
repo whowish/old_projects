@@ -1,0 +1,82 @@
+<input type="button" id="test_button" value="HELLOOOO" onclick="console.log('hi')">
+<span class="loginWarning">
+	<h2>
+		<%=word_for(:you_not_register)%> <br />
+		<em>
+			<%=word_for(:please_register)%>
+		</em>
+	</h2>
+	<span class="newtopic_form margin-left-1">
+		<span class="form_unit">
+			<span class="span-48">
+				<a id="kratoo_facebook_login_button" href="https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://#{DOMAIN_NAME}/facebook_registration/receiver/kratoo")%>" target="_facebook_connect_<%=rand()%>">
+			        <img src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_medium_short.gif"  alt="Login with Facebook"/>
+			    </a>	
+			</span>
+			<span class="textbox_explane">
+				<p class="tip">
+					<%=word_for(:register_with_facebook)%>
+				</p>
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<%=word_for(:register_with_us)%>
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<input id="kratoo_login_username" type="text" class="textbox_input span-46" placeholder="<%=word_for_attr :username%>">
+			</span>
+			<span class="textbox_explane">
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<input id="kratoo_login_password" type="password" class="textbox_input span-46" placeholder="<%=word_for_attr :password%>">
+			</span>
+			<span class="textbox_explane">
+
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<input id="kratoo_login_remember_me" type="checkbox"> 
+				<%=word_for :remember_me%>
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<a href="/member/forget_password_form" class="font14">
+					<%=word_for(:forget_password)%>
+				</a>
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<span id="kratoo_login_button" class="font26 green_button" onclick="kratoo_handler.login(this);">
+					<%=word_for(:login)%>
+				</span>
+			</span>
+			<span id="kratoo_login_error_panel" class="textbox_explane">
+							
+			</span>
+		</span>					
+	</span>
+</span>
+<script language="javascript">
+	var kratoo_login_validator = new validator("kratoo_login_error_panel");
+	kratoo_login_validator.register_validation("username","kratoo_login_username",null,
+										null,
+										[{
+											f: validator_helper.presence,
+											m: "<%=global_word_for('login','username_presence')%>"
+										}]);
+										
+	kratoo_login_validator.register_validation("password","kratoo_login_password",null,
+										null,
+										[{
+											f: validator_helper.presence,
+											m: "<%=global_word_for('login','password_presence')%>"
+										}]);
+</script>

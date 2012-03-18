@@ -1,0 +1,31 @@
+<%
+	editor = Member.first(:conditions=>{:id=>entity.editor_member_id})
+	
+%>
+<span class="editUnit">
+	<span class="span-100">
+		<span class="versionOfEdit">
+			<span class="float-left margin-left-1">
+				แก้ไขเมื่อ
+				<em>
+					<%=semantic_time(entity.created_date)%>
+				</em>
+			</span>
+			<span class="float-right margin-right-1">
+				<span class="createDetail">
+					<span class="profileThumb">
+						<img src="images/profile02.jpg" alt="" />
+					</span>
+					<span class="topicCreater">
+						<a href="#">
+							<%==editor.get_badge%>
+						</a>
+					</span>
+				</span>
+			</span>
+		</span>
+		<span class="editDescription">
+			<%==entity.object_data.content.html%>
+		</span>
+	</span>
+</span>	

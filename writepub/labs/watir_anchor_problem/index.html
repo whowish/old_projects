@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>Untitled Document</title>
+		<link type="text/css" rel="stylesheet" href="jquery-turquoise.css">
+		<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="jquery-turquoise.js"></script>
+		<link type="text/css" rel="stylesheet" href="writepub.css">
+	</head>
+	<body>
+		<div id="block_panel" style="display:block;visibility:hidden;position:absolute;z-index:1000000000000;left:0px;top:0px;width:100%;height:100%;">
+			&nbsp;
+		</div>
+		<br/>
+		<br/>
+		<br/>
+		<a href="#" id="open_dialog" class="replyComment" onclick="$('#test_turquoise').dialog('open');return false;">Open</a>
+		<span id="open_dialog_span" class="replyComment" onclick="$('#test_turquoise').dialog('open');">Open Span</span>
+		<button id="open_dialog_button" class="replyComment" onclick="$('#test_turquoise').dialog('open');">Open Button</button>
+		<input type="button" id="open_dialog_input_button" class="replyComment" onclick="$('#test_turquoise').dialog('open');" value="Open Input Button">
+		<button id="open_dialog_button_with_span" class="replyComment" onclick="$('#test_turquoise').dialog('open');"><span>Open Button with span</span></button>
+		
+		<a href="http://www.google.com" id="external_link" target="_blank" class="replyComment">External</a>
+		<div id="test_turquoise" title="ตอบกลับ">
+			<span id="panel_a" style="display:block;width:300px;height:300px;">
+				สวัสดีเมืองไทย <br/>
+				<br/>
+				<br/>
+				<br/>
+				<span id="button_a" style="display:block;width:100px;height:100px;" onclick="go_to_b();">
+					Button
+				</span>
+			</span>
+		</div>
+		<script language="javascript">
+			$(function() { 
+				$('#test_turquoise').dialog({ autoOpen: false });
+			});
+		</script>
+	</body>
+</html>

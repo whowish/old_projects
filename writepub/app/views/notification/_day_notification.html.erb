@@ -1,0 +1,15 @@
+<span class="span-79 margin-top-2 padding_vertical_4px">
+	<span class="margin-left-4px font14 dark_gray bold_font">
+		<%=semantic_time(day)%>
+	</span>
+</span>
+<ul>
+	<%day_notification.each do |entity|%>
+		<li>
+			<%= render :partial=>"/notification/notification_item", :locals=>{:notification=>entity}%>
+		</li>
+	<%end%>
+	
+</ul>
+<span class="cutlineRow span-79">
+</span>

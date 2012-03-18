@@ -1,0 +1,6 @@
+<%
+	versioning_entities = VersioningKratoo.all(:conditions=>{:kratoo_id=>entity.id}).desc(:created_date)
+	versioning_entities.each do |versioning_kratoo|
+%>
+	<%= render :partial=>"/kratoo/versioning_item", :locals=>{:entity=>versioning_kratoo}%>
+<%end%>

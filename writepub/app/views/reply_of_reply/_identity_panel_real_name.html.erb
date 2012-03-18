@@ -1,0 +1,23 @@
+<span id="reply_of_reply_real_name_panel" class="span-47" style="<%='display:none;' if !display%>">
+	<span class="span-48">
+		<span class="span-14">
+			<%=word_for :from%>
+		</span>
+		<span class="span-25">
+			<%=$member.username%>
+			&nbsp;
+			<%
+				if allow_toggle
+			%>
+				<a href="#" id="ror_use_anonymous_name_button" onclick="reply_of_reply_handler.show_anonymous_name_panel();return false;"><%=word_for :use_anonymous_name%></a>
+			<%
+				end
+			%>
+		</span>
+	</span>
+	<span class="textbox_explane">
+		<p class="tip">
+			<%=word_for :identity_instruction%>
+		</p>
+	</span>
+</span>

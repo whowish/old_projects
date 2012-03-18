@@ -1,0 +1,28 @@
+<%
+	name_show = notification.names[0..2]
+	name_show.each do |notificator|
+%>
+	<%if notificator.instance_of?(PublicMemberNotificator)%>
+		<a href="/profile?member_id=<%=notificator.member_id%>">
+			<%=notificator.username%>
+		</a>
+	<%else%>
+		<a href="#">
+			<%=notificator.username%>
+		</a>
+	<%end%>
+<%end%>
+<%
+	if notification.names.length - name_show.length > 0
+%>
+	<%=word_for :other_people,:count=>(notification.names.length - name_show.length)%>
+<%end%>
+<h4>
+	<%=word_for :agree_ror,:content=>notification.entity.content%>
+</h4>
+
+<p>
+	<span class="voteUpIcon">
+	</span>
+	<%=semantic_time(notification.created_date)%>
+</p>

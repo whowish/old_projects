@@ -1,0 +1,47 @@
+<span id="reply_of_reply_dialog_box" title="<%=word_for_attr :reply_dialog_box_title%>" style="display:none;">
+	<span class="newtopic_form">
+		<%
+			if $member.is_guest
+		%>
+			<span class="form_unit" id="reply_of_reply_login_panel">
+				<%=render :partial=>"reply_of_reply/login_form", :locals=>{:kratoo=>kratoo}%>
+			</span>
+		<%
+			end
+		%>
+		<span id="reply_of_reply_form_panel" style="<%='display:none;' if $member.is_guest%>">
+			<span class="form_unit">
+				<span class="span-50 margin-top-1">
+					<textarea id="reply_of_reply_content" class="areatext_input span-48" placeholder="<%=word_for_attr :content%>"></textarea>
+				</span>
+				<span class="span-28 margin-top-1">
+					<span  id="reply_of_reply_content_error_panel" class="textbox_explane">
+					</span>
+				</span>
+			</span>
+			<span id="reply_of_reply_identity_panel" class="form_unit">
+				<%=render :partial=>"reply_of_reply/identity_panel",:locals=>{:kratoo=>kratoo}%>
+			</span>
+			<span class="form_unit" id="reply_of_reply_submit_panel"">
+				<span class="span-48">
+					<span class="green_button font26" id="reply_of_reply_submit_button" onclick="reply_of_reply_handler.submit(this);">
+						<%=word_for(:reply)%>
+					</span>
+				</span>
+				<span  id="reply_of_reply_error_panel" class="textbox_explane">
+		
+				</span>			
+			</span>
+		</span>			
+	</span>
+	<script language="javascript">
+		
+		var reply_of_reply_validator = new validator("reply_of_reply_error_panel");
+		reply_of_reply_validator.register_validation("content","reply_of_reply_content","reply_of_reply_content_error_panel",
+											"<%=word_for('content_ok');%>",
+											[{
+												f: validator_helper.presence,
+												m: "<%=global_word_for('reply_of_reply','content_presence')%>"
+											}]);
+	</script>
+</span>

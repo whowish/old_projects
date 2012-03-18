@@ -1,0 +1,52 @@
+<span class="contentContainer">
+	<span class="rowSplit-lastChild">
+		<span class="span-20">
+			<span class="page_name">
+				<h1>
+      				<%=word_for(:setting)%><br>
+					<em>
+						<%=word_for(:setting_your_account)%>
+					</em>
+				</h1>				
+			</span>
+		</span>
+		<span class="span-79 margin-left-1">
+			<span class="settingMenu">
+				<ul>
+					<li>
+						<%=word_for(:setting_account)%>
+					</li>
+					<li>
+						<span class="settingToppic">
+							<h2>
+								<%=word_for(:username)%>
+							</h2>
+							<h3>
+								<%=$member.username%>
+							</h3>
+						</span>
+					</li>
+					<%if $member.email%>
+					<li>
+						<span class="settingToppic">
+							<h2>
+								<%=word_for(:email)%>
+							</h2>
+							<h3>
+								<%=$member.email%>
+							</h3>
+						</span>
+						<p>
+							
+						</p>
+					</li>
+					<%end%>
+					<li>
+						<%= render :partial=>"/profile/change_password_form"%>
+					</li>
+					
+				</ul>
+			</span>
+		</span>
+	</span>
+</span>

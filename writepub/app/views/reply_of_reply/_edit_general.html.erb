@@ -1,0 +1,63 @@
+<%=stylesheet_link_tag "/writepub_editor/writepub_editor.css"%>
+<%=javascript_include_tag "/writepub_editor/wiky_uploader.js"%>
+<%=javascript_include_tag "/writepub_editor/jquery-draggable.min.js"%>
+<%=javascript_include_tag "/writepub_editor/writepub_editor.js"%>
+
+
+<span class="newtopic_form">		
+	<span class="form_unit">
+		<span class="span-48">
+			<%==entity.post_owner.get_badge%>
+		</span>
+		<span class="textbox_explane">
+			<p class="tip">
+				
+			</p>
+		</span>
+	</span>
+	<span class="form_unit">
+		<span class="span-78 font22 medium_gray bold_font">
+			<%=word_for(:content)%>
+		</span>
+		<span class="span-48 margin-top-1">
+			<textarea class="areatext_input span-46" id="content" placeholder="<%=word_for_attr :content%>"><%==entity.content.html%></textarea>
+		</span>
+		<span class="span-30 margin-top-1">
+			<span class="textbox_explane" id="reply_of_reply_content_error_panel">
+				<p class="tip">
+					<%=word_for(:content_instruction)%>
+				</p>
+			</span>
+		</span>
+	</span>
+	<span class="form_unit">
+		<span class="span-48">
+			<span class="font26 green_button" id="post_kratoo_button" onclick="reply_of_reply_edit_handler.submit(this,'<%=entity.id%>');">
+				<%=word_for(:edit)%>
+			</span>
+		</span>
+		<span class="span-30">
+			<span class="textbox_explane" id="reply_of_reply_edit_error_panel">
+				
+			</span>
+		</span>						
+	</span>				
+</span>
+
+
+<script language="javascript">
+
+	
+	var reply_of_reply_edit_validator = new validator("reply_of_reply_edit_error_panel");
+	reply_of_reply_edit_validator.register_validation("content","content","reply_of_reply_content_error_panel",
+										"<%=word_for('content_ok');%>",
+										[{
+											f: validator_helper.presence,
+											m: "<%=global_word_for('reply_of_reply_edit','content_presence')%>"
+										}]);
+										
+
+	$('#content').writepub_editor({css_path:"/writepub_editor/writepub_content_editor.css"});
+	
+</script>
+<%=javascript_include_tag "/javascripts/reply_of_reply/edit.js"%>

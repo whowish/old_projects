@@ -1,0 +1,511 @@
+/* new clearfix */
+.clearfix { display: inline-block; clear: both; }
+.clearfix:after {
+	visibility: hidden;
+	display: block;
+	font-size: 0;
+	content: " ";
+	clear: both;
+	height: 0;
+}
+body {
+	font: 12px;
+	font-family: 'Helvetica Neue', Arial, Helvetica, 'Liberation Sans', FreeSans, sans-serif, 'Droid Sans';
+	color: #333;
+	background: #FFF url('../images/bg_2meet4.jpg') no-repeat center center fixed;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	
+	/* CSS3 */
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+
+#header {
+	
+}
+
+/*
+ * 
+ */
+
+
+#body {
+	
+}
+
+/*
+ * 
+ */
+
+#footer {
+	font: normal 400 11px/28px 'Helvetica Neue', Arial, Helvetica, 'Liberation Sans', FreeSans, sans-serif, 'Droid Sans';
+	color: #888888;
+	
+	float: left;
+	width: 90%;
+	margin: 20px 0 0 6%;
+}
+
+#footer > ul {
+	list-style: disc inside;
+}
+
+
+#footer > ul > li:first-child {
+	float: left;
+	margin-right: 10px;
+	list-style: none;
+}
+#footer > ul > li {
+	float: left;
+	margin-right: 10px;
+}
+
+#footer > ul > li > a {
+	text-decoration: none;
+	color: #888888;
+}
+#footer > ul > li > a:hover {
+	text-decoration: underline;
+}
+/*
+ * 
+ */
+.logo {
+	float: left;
+	width: 234px;
+	height: 235px;
+	display: block;
+	
+	background-image: url('../images/2meet4-index_logo.png');
+	margin:	18px 0px 0px 10%;
+}
+.mainDescription{
+	font: italic 600 16px/16px "Times New Roman", Times, serif;
+	color: #6f6f6f;
+	
+	float: left;
+	display: inline;
+	margin: 110px 0px 0px 20px;
+}
+.mainDescription em{
+	font: normal 200 12px/28px 'Helvetica Neue', Arial, Helvetica, 'Liberation Sans', FreeSans, sans-serif, 'Droid Sans';
+	color: #888888;
+	
+	display: block;
+}
+
+.flatHeader {
+	
+}
+
+.flatHeader > .flatLogo {
+	
+}
+
+.flatHeader > .createEventLink {
+	
+}
+
+.flatHeader > .manageEventLink {
+	
+}
+
+/*
+ * home page
+ */
+
+.thingsToDoPanel { 
+	float: left;
+	width: 90%;
+	margin: 10px 0 0 10%;
+	
+	display: inline-block; 
+	clear: both; 
+}
+.thingsToDoPanel:after {
+	visibility: hidden;
+	display: block;
+	font-size: 0;
+	content: " ";
+	clear: both;
+	height: 0;
+}
+
+.connectFacebookButton {
+	float: left;
+	clear: both;
+	width: 194px;
+	height: 25px;
+	margin: 4px 0 0 0;
+	display: block;
+	
+	background: url('../images/fb_button.png') no-repeat;
+}
+
+
+.thingsToDoPanel .addInstruction {
+	float: left;
+	clear: both;
+	width: 80%;
+	padding: 0;
+	cursor: pointer;
+	
+	/* CSS3 */
+	border-width:2px 0px 2px 0px;
+	-moz-border-image:url("../images/hr_image.jpg") 2 0 2 0 repeat;
+	-webkit-border-image:url("../images/hr_image.jpg") 2 0 2 0 repeat;
+	border-image:url("../images/hr_image.jpg") 2 0 2 0 repeat;
+	-webkit-transition-duration:2s;
+	-moz-transition-duration:2s;
+	-o-transition-duration:2s
+
+}
+.thingsToDoPanel .addInstruction h2{
+	font: italic 800 30px/34px "Times New Roman", Times, serif;
+	color: #333333;
+	text-shadow: 1px 1px 0px rgba(255, 255, 255, .8);
+	background-color: transparent;
+	
+	float: left;
+	clear: both;
+	cursor: pointer;
+		
+	/* CSS3 */
+	-webkit-transition-duration:2s;
+	-moz-transition-duration:2s;
+	-o-transition-duration:2s
+}
+.thingsToDoPanel .addInstruction h2 em{
+	font: normal 200 16px/24px 'Helvetica Neue', Arial, Helvetica, 'Liberation Sans', FreeSans, sans-serif, 'Droid Sans';
+	color: #646464;
+	
+	display: block;
+	cursor: pointer;
+	
+	/* CSS3 */
+	-webkit-transition-duration:2s;
+	-moz-transition-duration:2s;
+	-o-transition-duration:2s
+}
+.thingsToDoPanel .addInstruction:hover{
+	background-color: #f7f544;
+	cursor: pointer;
+}
+.thingsToDoPanel .addInstruction:hover h2, .thingsToDoPanel .addInstruction:hover h2 em{
+	color: #000;
+	cursor: pointer;
+	
+	-webkit-transform:translate(20px,0);
+	-moz-transform:translate(20px,0);
+	-o-transform:translate(20px,0);
+}
+
+.thingsToDoPanel .manageInstruction { 
+	font: italic 800 20px/24px "Times New Roman", Times, serif;
+	color: #666666;
+	text-shadow: 1px 1px 0px rgba(255, 255, 255, .8);
+	
+	float: left;
+	clear: both;
+	width: 80%;
+	margin: 40px 0 0 0;
+	padding: 20px 0;
+	background-color: transparent;	
+}
+.thingsToDoPanel .manageInstruction em{
+	font: normal 400 11px/14px 'Helvetica Neue', Arial, Helvetica, 'Liberation Sans', FreeSans, sans-serif, 'Droid Sans';
+	color: #646464;
+	text-shadow: none;
+	
+	width: 80%;
+	display: block;
+}
+
+/*
+ * Create page
+ */
+
+.createPage {
+	
+}
+
+.createPage > .information {
+	
+}
+
+.createPage > .information > .title {
+	
+}
+
+.createPage > .information > .title > label {
+	
+}
+
+.createPage > .information > .title > input {
+	
+}
+
+.createPage > .information > .description {
+	
+}
+
+.createPage > .information > .description > label {
+	
+}
+
+.createPage > .information > .description > textarea {
+	
+}
+
+.createPage > .calendarTable {
+	
+}
+
+.createPage > .calendarTable > .selectMonthPanel {
+	
+}
+
+.createPage > .calendarTable > .selectMonthPanel > .year {
+	
+}
+
+.createPage > .calendarTable > .selectMonthPanel > .year > select {
+	
+}
+
+.createPage > .calendarTable > .selectMonthPanel > .month {
+	
+}
+
+.createPage > .calendarTable > .selectMonthPanel > .month > select {
+	
+}
+
+.createPage > .calendarTable > .selectDayPanel {
+	
+}
+
+.createPage > .calendarTable > .selectDayPanel > .calendar {
+	
+}
+
+.createPage > .calendarTable > .selectDayPanel > .calendar > .header {
+	
+}
+
+.createPage > .calendarTable > .selectDayPanel > .calendar > .header > span { }
+
+.createPage > .calendarTable > .selectDayPanel > .calendar > .header > span.day_0 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .header > span.day_1 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .header > span.day_2 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .header > span.day_3 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .header > span.day_4 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .header > span.day_5 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .header > span.day_6 { }
+
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span { }
+
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.day_0 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.day_1 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.day_2 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.day_3 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.day_4 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.day_5 { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.day_6 { }
+
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.previousMonth { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.currentMonth { }
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.nextMonth { }
+
+.createPage > .calendarTable > .selectDayPanel > .calendar > .body > span.selected { }
+
+.createPage > .timeTable { }
+.createPage > .timeTable > .header { }
+.createPage > .timeTable > .header > .date { }
+.createPage > .timeTable > .header > .time { }
+.createPage > .timeTable > .header > .time > span { }
+
+.createPage > .timeTable > .body { }
+.createPage > .timeTable > .body > .row {}
+.createPage > .timeTable > .body > .row > .date { }
+.createPage > .timeTable > .body > .row > .time { }
+.createPage > .timeTable > .body > .row > .time > span { }
+
+.createPage > .submitPanel {
+	
+}
+
+.createPage > .submitPanel > .submitButton {
+	
+}
+
+
+/*
+ * Manage page
+ */
+
+.managePage {
+	
+}
+
+.managePage > .eventTable {
+	
+}
+
+.managePage > .eventTable > .row {
+	
+}
+
+.managePage > .eventTable > .row > .numberOfPeople {
+	
+}
+
+.managePage > .eventTable > .row > .title {
+	
+}
+
+.managePage > .eventTable > .row > .owner {
+	
+}
+
+.managePage > .eventTable > .row > .owner > .thumbnail {
+	
+}
+
+.managePage > .eventTable > .row > .owner > .name {
+	
+}
+
+.managePage > .eventTable > .row.settled {
+	
+}
+
+.managePage > .eventTable > .row.settled > .startTime {
+	
+}
+
+
+/*
+ * loginRequired page
+ */
+
+.loginRequired {
+	
+}
+
+.loginRequired > .explanation {
+	
+}
+
+.loginRequired > .websiteDescription {
+	
+}
+
+/*
+ * Thanks page
+ */
+
+.thankPage {
+	
+}
+
+.thankPage > .explanation {
+	
+}
+
+
+.thankPage > .link {
+	
+}
+
+
+.thankPage > .shareExplanation {
+	
+}
+
+
+.thankPage > .facebookShareButton {
+	
+}
+
+.thankPage > .twitterShareButton {
+	
+}
+
+/*
+ * Form
+ */
+.textbox {
+	border: 1px solid #BBB;
+	box-shadow: 0 1px 0 #BBBBBB;
+	color: #333;
+	font-size:18px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	border-radius: 4px;
+	height: 20px;
+	padding-top: 6px;
+	padding-right: 6px;
+	padding-bottom: 4px;
+	padding-left: 6px;
+	background-color: #F6F6F6;
+	background-image: none;
+	background-position: 0 0;
+	vertical-align: middle;
+	line-height: 20px;
+	font-weight: normal;
+}
+
+.textbox:focus{
+	background: none repeat scroll 0 0 #EEEEEE;
+    border: 1px solid #DDDDDD;
+    color: #333;
+    outline: medium none;
+    text-shadow: 0px 1px 0 #FFFFFF;
+	font-weight:bold;
+}
+
+.textarea {
+	border: 1px solid #CCCCCC;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-khtml-border-radius: 4px;
+	border-radius: 4px;
+	box-shadow: 0 1px #FFFFFF;
+	background-color:#F6F6F6;
+	color: #333;
+	height: 120px;
+	outline: medium none;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding: 8px;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	font-size: 18px;
+}
+
+.textarea:focus{
+	background: none repeat scroll 0 0 #EEEEEE;
+    border: 1px solid #DDDDDD;
+    color: #333;
+    outline: medium none;
+    text-shadow: 0px 1px 0 #FFFFFF;
+	font-weight:bold;
+}
+/*
+ * Width & Margin
+ */
+.width280{
+	width:280px;
+}
+.margin-top10{
+	margin-top:10px;
+}

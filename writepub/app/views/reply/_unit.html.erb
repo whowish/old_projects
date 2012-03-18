@@ -1,0 +1,45 @@
+<span id="reply_<%=entity.id%>">
+<li>
+	<span class="profileThumb">
+		<img src="images/profile02.jpg" alt="" />
+		<%if $member.is_admin or ((entity.post_owner.instance_of?(OwnerPublic) or entity.post_owner.instance_of?(OwnerAnonymous)) and ($member.id.to_s == entity.post_owner.member_id))%>
+			<a id="edit_reply_<%=entity.id%>" class="editComment_icon" href="/reply/edit_form?id=<%=entity.id%>"  >
+			</a>
+			<a href="#" id="delete_reply_<%=entity.id%>" class="deleteComment_icon"  onclick="reply_handler.remove(this,'<%=entity.id%>');return false;">
+			</a>
+		<%end%>
+	</span>
+	<span class="comment_content">
+		<span class="span-73" id="reply_creator_<%=entity.id%>">
+			<%==entity.post_owner.get_badge%>
+			
+			<span class="commentNo">
+				
+				#<%=entity.reply_running_number%>
+			</span>
+		</span>
+		<span class="comment" id="reply_content_<%=entity.id%>">
+			<p>
+				<%==entity.content.html%>
+			</p>
+		</span>
+		<span class="commentConsole">
+			<%= render :partial=>"/reply/decide_agree", :locals=>{:entity=>entity}%>
+			<%=render :partial=>"/reply/agree_list"%>
+			<span class="replyAndShare">
+				<span class="postingTime">
+					<%=semantic_time(entity.created_date)%>
+				</span>
+				<a href="#" id="reply_reply_button_<%=entity.id%>" class="replyComment" onclick="reply_of_reply_handler.show_post_dialog('<%=entity.id%>');return  false;">
+					<%=word_for :reply_this%>
+				</a>
+				<a href="#" id="reply_share_button_<%=entity.id%>" class="shareComment">
+					<%=word_for :share%>
+				</a>
+				
+			</span>
+		</span>
+		<%= render :partial=>"/reply_of_reply/panel", :locals=>{:reply=>entity}%>
+	</span>
+</li>
+</span>

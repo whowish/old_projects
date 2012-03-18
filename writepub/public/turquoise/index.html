@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link rel="stylesheet" type="text/css" href="jquery-turquoise.css"/>
+		<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="jquery-turquoise.js"></script>
+		<title>Turquoise dialog box</title>
+	</head>
+	<body>
+		<a href="#" id="open_dialog" onclick="$('#test_turquoise').dialog('open');return false;">Open</a>
+		<div id="test_turquoise" title="ตอบกลับ">
+			<span id="panel_a" style="display:block;width:300px;height:300px;">
+				สวัสดีเมืองไทย <br/>
+				<br/>
+				<br/>
+				<br/>
+				<span id="button_a" style="display:block;width:100px;height:100px;" onclick="go_to_b();">
+					Button
+				</span>
+			</span>
+			<span id="panel_b" style="display:none;width:200px;height:50px;">
+				BBBBBB <br/>
+				<span id="button_b" style="display:block;width:100px;height:100px;" onclick="go_to_a();">
+					Button
+				</span>
+			</span>
+		</div>
+		<input type="text" id="test_blur" onmousedown="console.log('down');" onmouseup="console.log('up')">
+		<script language="javascript">
+			var count = 0;
+			$('#test_turquoise').dialog({ autoOpen: false });
+			
+			function go_to_a() {
+				$('#panel_a').show();
+				$('#panel_b').hide();
+			}
+			
+			function go_to_b() {
+				$('#panel_b').show();
+				$('#panel_a').hide();
+				
+			}
+		</script>
+	</body>
+</html>

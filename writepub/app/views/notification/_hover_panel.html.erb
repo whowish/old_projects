@@ -1,0 +1,125 @@
+<%
+	calculate_latest_notification_data()
+%>
+<script language="javascript">
+	
+	var notification_last_id = "<%=@notification_last_id%>";
+	
+	$(function() {
+	    $("#notification_panel").pop_panel();
+		setTimeout('check_notifications();',120000);
+	});
+	
+	function check_notifications()
+	{
+		$.ajax({
+                type: "POST",
+                url: '/notification/check',
+                cache: false,
+                headers:{"Connection":"close"},
+                data: {
+                },
+                success: function(data){
+					if (data.ok == true)
+					{
+						if (data.count > 0)
+						{
+							if (data.count <= 99) {
+								$('#notification_count_button').html(data.count+"");
+							} else {
+								$('#notification_count_button').html('&#8734;');
+							}
+							
+							$('#notification_open_panel').html(data.html);
+							
+							$('#notification_count_button').fadeIn();
+							$('#notification_count').fadeIn();
+							
+							
+						
+							notification_last_id = data.last_id;
+							notification_already_read = false;
+						}
+					}
+					setTimeout('check_notifications();',60000);
+                },
+                error: function(req, status, e){
+					setTimeout('check_notifications();',60000);
+                    if (req.status == 0) return;
+                }
+            });
+	}
+	
+	var notification_already_read = false;
+	function read_notification(){
+		if (notification_already_read) 
+			return;
+		if ($('#notification_open_panel').length > 0 && $('#notification_open_panel').css('display') == 'none') 
+			return;
+		
+		notification_already_read = true;
+		$('#notification_count_button').hide();
+		
+		setTimeout('fire_read_notification_request();',100);
+	}
+	
+	function fire_read_notification_request() {
+		$.ajax({
+                type: "POST",
+                url: '/notification/read',
+                cache: false,
+                headers:{"Connection":"close"},
+                data: {
+					notification_id:notification_last_id
+                },
+                success: function(data){
+					
+                },
+                error: function(req, status, e){
+                    if (req.status == 0) return;
+                }
+            });
+	}
+	
+</script>
+<%
+	show_or_not = "display:none;"
+	if @notification_count > 0
+		show_or_not = ""
+	end
+
+%>
+
+<span class="pop_panel" id="notification_panel" onclick="read_notification();">
+	<span style="position:relative;">
+		<span class="notification pop_panel_button">
+			<span class="alertBallon" style="<%=show_or_not%>" id="notification_count_button" >
+				<%=@notification_count%>
+			</span>
+		</span>
+	</span>
+	<span style="position:relative;display:none;">
+		<span class="notification selected pop_panel_button">
+		</span>
+		<span class="example-bubble-notification" style="display:block;position:absolute;left:-43px;top:54px;">
+			<span class="span-40 margin-top-1 clearfix">
+				<span class="float-left margin-left-1 font16 bold_font dark_gray">
+					<%=word_for(:notification)%>
+				</span>
+				<%if @notifications.count > 0%>
+				<span class="float-right margin-right-1">
+					<a href="/notification" class="font-16 bold_font">
+						<%=word_for(:view_all)%>
+					</a>
+				</span>
+				<%end%>
+				<span class="span-40 height1px margin-top-1 light_gray_bg display_block">
+				</span>
+			</span>
+			
+			<%=render :partial=>"notification/notification_open_panel"%>
+			
+		</span>
+	</span>
+
+</span>

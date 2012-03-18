@@ -1,0 +1,3 @@
+class PostOwnerException < Exception
+  
+end

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="th">
+	<head>
+		<title>2Meet4 | Find the right date & time for an event</title>
+		<link rel="P3Pv1" href="/w3c/p3p.xml">
+		<meta http-equiv="P3P" policyref="/w3c/p3p.xml"  content='CP="NOI COR PSA OUR IND OTC"'>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="Description" content="บ้านลิงช่วยหา หอพัก ห้องเช่า และ บ้านเช่า">
+		<script type="text/javascript">
+			var AUTH_TOKEN = "<%=form_authenticity_token%>";
+		</script>
+		<script type="text/javascript">
+			// if (top !== self) {
+				// top.location.href = "http://<%=DOMAIN_NAME%>";
+			// }
+		</script>
+		
+		<%=csrf_meta_tag%>
+		<%= whowish_word_javascript_and_css%>
+		
+		<%= stylesheet_link_tag "button.css" %>
+		<%= stylesheet_link_tag "main.css" %>
+		
+		<%= javascript_include_tag "jquery-1.6.2.min.js"%>
+		<%= javascript_include_tag "jquery.sizes.min.js"%>
+		<%= javascript_include_tag "jquery.browser.iphone.js"%>
+		<%= javascript_include_tag "jquery.browser.mobile.js"%>
+		<%= javascript_include_tag "csrf_and_authenticity_token_hook.js"%>
+		<%= javascript_include_tag "/loading_button/jquery.loading_button.js"%>
+		<%= javascript_include_tag "jquery.json.js"%>
+		<%= javascript_include_tag "/validator/validator.js" %>
+		<%= javascript_include_tag "/ajax_uploader/ajax_uploader.js" %>
+		
+		<%= stylesheet_link_tag "/turquoise/jquery-turquoise.css"%>
+		<%= javascript_include_tag "/turquoise/jquery-turquoise.js"%>
+		
+		<script type="text/javascript">
+
+			var _gaq = _gaq || [];
+  			_gaq.push(['_setAccount', 'UA-25864968-4']);
+			_gaq.push(['_trackPageview']);
+			
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		
+		</script>
+
+		<%= content_for?(:css_files) ? yield(:css_files) : "" %>
+		<%= content_for?(:javascript_files) ? yield(:javascript_files) : "" %>
+		<%= content_for?(:meta_tag) ? yield(:meta_tag) : (render :partial=>"layouts/meta_tag") %>
+
+	</head>
+	<body>
+		<%
+			if @member.is_admin
+		%>
+			<span id="whowishWordButton" onclick="location.href='/activate_whowish_word?activate=<%='yes' if session[:whowish_word] != 'yes'%>'"></span>
+		<%
+			end
+		%>
+		<div style="display:none;">
+		</div>
+		<div id="header">
+			<%= content_for?(:header) ? yield(:header) : (render :partial=>"layouts/header") %>  	
+		</div>
+		<div id="body">
+			<%= content_for?(:frame) ? yield(:frame) : yield %>
+		</div>
+	    <div id="footer">
+	    	<%= content_for?(:footer) ? yield(:footer) : (render :partial=>"layouts/footer") %>  	
+	    </div>
+	</body>
+</html>

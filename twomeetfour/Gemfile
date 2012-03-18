@@ -1,0 +1,53 @@
+source 'http://rubygems.org'
+
+gem 'rails'
+
+gem "rake", "0.8.7"
+
+
+gem 'log4r'
+gem 'bson', '1.4.0'
+gem 'bson_ext', '1.4.0'
+gem 'mongo'
+gem 'mongoid'
+gem 'redis'
+gem 'mongoid_rails_migrations'
+gem 'bcrypt-ruby'
+
+gem 'daemon-spawn-tanin'
+
+gem 'capistrano'
+gem 'capistrano-ext'
+
+gem 'whowish_word', '0.3.1'
+
+gem 'resque'
+
+group :development do
+  gem 'capistrano'
+end
+
+
+group :test do
+  
+  gem 'rspec'
+  gem 'rspec-rails'
+  gem 'simplecov'
+  
+  gem 'database_cleaner'
+  gem 'mongoid-rspec'
+  gem 'resque_spec'
+  
+  gem 'watir-webdriver-rails'
+  
+  platforms :ruby do
+    gem 'spork'
+  end
+  
+  # platforms :mingw do
+    # gem 'win32-process'
+    # gem 'spork', '~> 0.9.0.rc'
+  # end
+  
+  
+end

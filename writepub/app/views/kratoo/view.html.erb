@@ -1,0 +1,80 @@
+<%=stylesheet_link_tag "/turquoise/jquery-turquoise.css"%>
+<%=javascript_include_tag "/turquoise/jquery-turquoise.js"%>
+
+<%=stylesheet_link_tag "/stylesheets/tag/tag.css"%>
+<%=javascript_include_tag "/javascripts/kratoo/view.js"%>
+
+<%=stylesheet_link_tag "/writepub_editor/writepub_editor.css"%>
+<%=javascript_include_tag "/writepub_editor/wiky_uploader.js"%>
+<%=javascript_include_tag "/writepub_editor/jquery-draggable.min.js"%>
+<%=javascript_include_tag "/writepub_editor/writepub_editor.js"%>
+
+<% 
+	content_for :meta_tag do 
+%>
+	<meta property="og:title" content="<%=@kratoo.title%>" />
+	<meta property="og:description" content="<%=@kratoo.content.text[0..100]%>" />
+	<meta property="og:image" content="" />
+<%
+	end
+%>
+
+
+<span class="contentContainer">
+	<span class="rowSplit">
+		<span class="span-100">
+			<span class="topicTitle" id="kratoo_title">
+				<%if $member.is_admin or ((@kratoo.post_owner.instance_of?(OwnerPublic) or @kratoo.post_owner.instance_of?(OwnerAnonymous)) and ($member.id.to_s == @kratoo.post_owner.member_id))%>
+					<a href="#" id="delete_kratoo" class="delete_icon"  onclick="kratoo_handler.remove(this,'<%=@kratoo.id%>');return false;">
+					</a>
+					<a id="edit_kratoo" class="edit_icon" href="/kratoo/edit?id=<%=@kratoo.id%>"  >
+					</a>
+					
+				<%end%>
+				<%=@kratoo.title%>
+			</span>
+			<span class="topicDescription" id="kratoo_content">
+				<%==@kratoo.content.html%>
+			</span>
+			<span class="createDetail">
+				<span class="profileThumb">
+					<img src="images/profile02.jpg" alt="" />
+				</span>
+				<span class="topicCreater" id="kratoo_creator">
+					<%==@kratoo.post_owner.get_badge%>
+				</span>
+				<a href="#" class="postingTime">
+					<%if (@kratoo.created_date.to_i/60).to_i != (@kratoo.updated_date.to_i/60).to_i%>
+						<%=word_for :latest_update%>
+					<%end%>  
+					<%=semantic_time(@kratoo.updated_date)%>
+				</a>
+				
+			</span>
+			<span class="tag_content tag_clound">
+				<a name="fb_share" type="button" share_url="http://<%=DOMAIN_NAME%>/kratoo/view/<%=@kratoo.id%>"></a>
+				<script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
+				<%
+					Tag.any_in(:_id=>@kratoo.tag_ids).each do |tag|
+				%>
+					<a class="tag blueColor" href="/kratoo/list?tag=<%=CGI.escape(tag.name)%>"><%=tag.name%></a>
+				<%
+					end
+				%>
+			</span>
+		</span>
+		<span class="topicToolBar">
+			<%= render :partial=>"/kratoo/decide_agree", :locals=>{:entity=>@kratoo}%>
+			<%=render :partial=>"/kratoo/agree_list"%>	
+			<span class="viewer_number">
+				<%=word_for :viewer%> <%=@kratoo.views%>
+			</span>
+		</span>
+		
+	</span>
+	
+	<%= render :partial=>"/reply/panel", :locals=>{:kratoo=>@kratoo}%>
+</span>
+<%=render :partial=>"/reply_of_reply/add",:locals=>{:kratoo=>@kratoo}%>	
+
+

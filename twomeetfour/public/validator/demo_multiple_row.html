@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<title>Error demo</title>
+		<script type="text/javascript" src="jquery-1.6.2.min.js"></script>
+		<script type="text/javascript" src="validator.js"></script>
+		<script language="javascript">
+			
+			var form_validator = new validator("error_summary_panel_{id}");
+			
+			form_validator.register_validation("name","name_{id}","error_panel_for_name_{id}",
+												"OK",
+												[{
+													f: validator_helper.presence,
+													m: "Name cannot be blank."
+												},null,
+												{
+													f:validator_helper.max_length(20),
+													m: "Name is too long."
+												}]);
+												
+			form_validator.register_validation("hobby","hobby_{id}","error_panel_for_hobby_{id}",
+												"OK",
+												[{
+													f: validator_helper.presence,
+													m: "Hobby cannot be blank."
+												},null,
+												{
+													f:validator_helper.max_length(20),
+													m: "Hobby is too long."
+												}]);
+												
+			function show_error_from_server(row_id) {
+				form_validator.show_error({
+											title: ["test 1","test 2"],
+											title2: ["test 3"]
+										}, row_id);
+			}
+			
+		</script>
+	</head>
+	<body>
+		
+		<h1>Multiple Row Tests</h1>
+		<hr/>
+		
+		<h2>Row 1</h2>
+		
+		Name: <input type="text" id="name_1">
+		<span id="error_panel_for_name_1"></span><br/>
+		
+		Hobby: <input type="text" id="hobby_1">
+		<span id="error_panel_for_hobby_1"></span><br/>
+		
+		<input type="button" value="Submit" onclick="form_validator.validate_all('1');">
+		<input type="button" value="Error from server" onclick="show_error_from_server('1');">
+		<span id="error_summary_panel_1"></span>
+		
+		<br/>
+		<br/>
+		<br/>
+		
+		<h2>Row 2</h2>
+		
+		Name: <input type="text" id="name_2">
+		<span id="error_panel_for_name_2"></span><br/>
+		
+		Hobby: <input type="text" id="hobby_2">
+		<span id="error_panel_for_hobby_2"></span><br/>
+		
+		<input type="button" value="Submit" onclick="form_validator.validate_all('2');">
+		<input type="button" value="Error from server" onclick="show_error_from_server('2');">
+		
+		<span id="error_summary_panel_2"></span>
+		
+	</body>
+</html>

@@ -1,0 +1,10 @@
+<a href="/kratoo/view/<%=activity.entity.kratoo_id%>">
+	<span class="createTopicIcon">
+	</span>
+	<span class="topicName">
+		<%=word_for(:activity_create_kratoo,:content=>activity.entity.content,:url=>"/kratoo/view/#{activity.entity.kratoo_id}")%>
+	</span>
+	<p>
+		<%=semantic_time(activity.created_date)%>
+	</p>
+</a>

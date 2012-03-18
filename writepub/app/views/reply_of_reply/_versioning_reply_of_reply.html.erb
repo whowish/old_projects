@@ -1,0 +1,6 @@
+<%
+	versioning_entities = VersioningReplyOfReply.all(:conditions=>{:reply_of_reply_id=>entity.id}).desc(:created_date)
+	versioning_entities.each do |versioning_reply_of_reply|
+%>
+	<%= render :partial=>"/reply_of_reply/versioning_item", :locals=>{:entity=>versioning_reply_of_reply}%>
+<%end%>

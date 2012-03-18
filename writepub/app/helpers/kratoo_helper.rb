@@ -1,0 +1,2 @@
+module KratooHelper
+end

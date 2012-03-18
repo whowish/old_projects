@@ -1,0 +1,57 @@
+<span class="newtopic_form">
+	<span class="form_unit">
+		<span class="span-100 font22 medium_gray bold_font">
+			<%=word_for :reply_title%>
+		</span>
+		<span class="span-70 margin-top-1">
+			<textarea class="areatext_input span-68" placeholder="<%=word_for_attr :content%>" id="reply_content"></textarea>
+		</span>
+		<span class="span-30 margin-top-1">
+			<span id="reply_content_error_panel" class="textbox_explane">
+
+			</span>
+		</span>
+	</span>
+	<span id="reply_identity_panel" class="form_unit">
+		<%=render :partial=>"reply/identity_panel",:locals=>{:kratoo=>kratoo}%>
+	</span>
+	<%
+		if $member.is_guest
+	%>
+		<span id="reply_submit_panel_require_login" class="form_unit">
+			<%=word_for(:please_login)%>
+		</span>
+	<%
+		end
+	%>
+	<span id="reply_submit_panel" class="form_unit" style="<%='display:none;' if $member.is_guest%>">
+		<span class="span-48">
+			<span class="green_button font26" id="reply_submit_button" onclick="reply_handler.submit(this,'<%=kratoo.id%>');return false;">
+				<%=word_for :reply%>
+			</span>
+		</span>
+		<span class="span-30">
+			<span class="textbox_explane" id="reply_error_panel">
+				
+			</span>
+		</span>
+	</span>					
+</span>
+<script language="javascript">
+	
+	$('#reply_content').writepub_editor({css_path:"/writepub_editor/writepub_content_editor.css"});
+	
+	var reply_validator = new validator("reply_error_panel");
+	reply_validator.register_validation("content","reply_content","reply_content_error_panel",
+										"<%=word_for('content_ok');%>",
+										[{
+											f: validator_helper.presence,
+											m: "<%=global_word_for('reply','content_presence')%>"
+										},null,
+										{
+											f:validator_helper.max_length(10000000),
+											m: "<%=global_word_for('reply','content_max_length')%>"
+										}]);
+</script>
+
+

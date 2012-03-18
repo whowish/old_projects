@@ -1,0 +1,74 @@
+<span class="contentContainer">
+	<span class="newtopic_form" id="register_form">
+		<span class="span-78 font40 medium_dark_gray bold_font">
+			<%==word_for :confirm_register_for,:name=>@facebook.name%>
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<input type="text" class="textbox_input span-46" placeholder="<%=word_for_attr :username%>" value="" id="facebook_registration_username">
+			</span>
+			<span class="textbox_explane" id="facebook_registration_username_error_panel">
+				<p class="tip">
+					<%==word_for(:username_instruction)%>
+				</p>
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<input class="textbox_input span-46" placeholder="<%=word_for_attr :password%>" value="" id="facebook_registration_password" type="password">
+			</span>
+			<span class="textbox_explane" id="facebook_registration_password_error_panel">
+				<p class="tip">
+					<%==word_for(:password_instruction)%>
+				</p>
+			</span>
+		</span>
+		<span class="form_unit">
+			<span class="span-78">
+				<a href="#" class="gray_button span-74">
+					<%=word_for(:rules_title)%>
+				</a>
+			</span>
+			<span class="span-78  margin-top-2 font14 normal_font medium_gray">
+				<%=word_for(:rules)%>
+			</span>
+		</span>
+		<span class="span-79 cutlineRow">
+		</span>
+		<span class="form_unit">
+			<span class="span-48">
+				<span class="green_button font26" id="facebook_registration_submit_button" onclick="submit_facebook_registration();return false;">
+					<%=word_for(:agree_and_register)%>
+				</span>
+				<span class="span-48" id="facebook_registration_error_panel">
+					
+				</span>
+			</span>
+		</span>					
+	</span>
+</span>
+
+<input type="hidden" id="facebook_registration_redirect_path" value="<%=params[:redirect_path]%>">
+<%=javascript_include_tag "/javascripts/facebook_registration/index.js"%>
+<script language="javascript">
+	var facebook_registration_validator = new validator("facebook_registration_error_panel");
+	facebook_registration_validator.register_validation("username",
+														"facebook_registration_username",
+														"facebook_registration_username_error_panel",
+														"<%=word_for(:username_ok)%>",
+														[{
+															f: validator_helper.presence,
+															m: "<%=global_word_for('member','username_presence')%>"
+														}]);
+														
+	facebook_registration_validator.register_validation("password",
+														"facebook_registration_password",
+														"facebook_registration_password_error_panel",
+														"<%=word_for(:password_ok)%>",
+														[{
+															f: validator_helper.presence,
+															m: "<%=global_word_for('member','password_presence')%>"
+														}]);
+</script>
+	
+

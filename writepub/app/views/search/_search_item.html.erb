@@ -1,0 +1,18 @@
+<a href="/kratoo/view/<%=hit.stored(:id)%>">
+	<span class="topicName">
+		<%== hit.stored(:title) %>
+	</span>
+	<p>
+		 (<%= hit.score %>)
+	</p>
+	<span class="searchDescription">
+		<%
+			hit.highlights.each do |highlight|
+		%>
+			<%== highlight.format { |w| "<span class='wordMatch'>#{w}</span>" } %> ...
+		<%
+			end
+		%>
+	</span>
+</a>
+

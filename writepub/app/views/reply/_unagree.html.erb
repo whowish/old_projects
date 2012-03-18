@@ -1,0 +1,30 @@
+<%
+	agrees = entity.agrees if !agrees
+	disagrees = entity.disagrees if !disagrees
+%>
+<span id="reply_agree_unit_<%=entity.id%>">
+	<%
+		if !$member.is_guest
+	%>
+		<span id="reply_agree_button_<%=entity.id%>" class="agree_button" onclick="reply_handler.agree(this,'<%=entity.id%>','<%=Reply::AGREEABLE_TYPE_AGREE%>');return false;">
+		</span>
+	<%
+		end
+	%>
+	<a href="#" id="reply_agree_count_panel_<%=entity.id%>" class="agreePeople" onclick="reply_agree_handler.show_dialog('<%=entity.id%>','<%=Reply::AGREEABLE_TYPE_AGREE%>');return  false;">
+		<%=word_for :agree_count,:number=>agrees%>
+	</a>
+
+	<%
+		if !$member.is_guest
+	%>
+		<span id="reply_disagree_button_<%=entity.id%>" class="disagree_button" onclick="reply_handler.agree(this,'<%=entity.id%>','<%=Reply::AGREEABLE_TYPE_DISAGREE%>');return false;">
+		</span>
+	<%
+		end
+	%>
+	<a href="#" id="reply_disagree_count_panel_<%=entity.id%>" class="disagreePeople" onclick="reply_agree_handler.show_dialog('<%=entity.id%>','<%=Reply::AGREEABLE_TYPE_DISAGREE%>');return  false;">
+		<%=word_for :disagree_count,:number=>disagrees%>
+	</a>
+	
+</span>

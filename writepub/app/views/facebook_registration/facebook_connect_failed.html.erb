@@ -1,0 +1,4 @@
+<font size="7">Cannot connect to Facebook. Please try again in a moment</font>
+<a href="https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://#{DOMAIN_NAME}/facebook_connect#{request.path.sub('/facebook_connect','')}")%>" style="margin-top:10px;cursor:pointer;display:block;">
+    <img src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_medium_short.gif"  alt="Login with Facebook"/>
+</a>

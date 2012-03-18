@@ -1,0 +1,85 @@
+<span class="createPage">
+	<span class="information">
+		<span class="title">
+			<label for="title"><%=word_for :title%></label>
+			<input type="text" id="title" name="title_<%=Time.now.to_i%>">
+		</span>
+		<span class="description">
+			<label for="description"><%=word_for :description%></label>
+			<textarea id="description" name="description_<%=Time.now.to_i%>">
+			</textarea>
+		</span>
+	</span>
+	<span class="calendarTable">
+		<span class="selectMonthPanel">
+			<span class="year">
+				<select id="year">
+					<option value="2011">2011</option>
+					<option value="2012">2012</option>
+					<option value="2013">2013</option>
+				</select>
+				<select id="month">
+					<%
+						(1..12).each do |month_index|
+					%>
+						<option value="<%=month_index%>"><%=word_for_attr "month_#{month_index}".to_sym%></option>
+					<%
+						end
+					%>
+				</select>
+			</span>
+		</span>
+		<span class="selectDayPanel">
+			<span class="calendar">
+				<span class="header">
+					<span class="day_0"></span>
+					<span class="day_1"></span>
+					<span class="day_2"></span>
+					<span class="day_3"></span>
+					<span class="day_4"></span>
+					<span class="day_5"></span>
+					<span class="day_6"></span>
+				</span>
+				<span class="body">
+					<span class="previousMonth day_0">30</span>
+					<span class="previousMonth day_1 selected">31</span>
+					<span class="currentMonth day_2">1</span>
+					<span class="currentMonth day_3 selected">2</span>
+					<span class="nextMonth day_4">3</span>
+					<span class="nextMonth day_5 selected">4</span>
+				</span>
+			</span>
+		</span>
+	</span>
+	<span class="timeTable">
+		<span class="header">
+			<span class="date">Date</span>
+			<span class="time">
+				<%
+					(0..23).each do |time|
+				%>
+					<span><%=time%>:00</span>
+				<%
+					end
+				%>
+			</span>
+		</span>
+		<span class="body">
+			<span class="row">
+				<span class="date">27 Jan 2012</span>
+				<span class="time">
+					<%
+						(0..23).each do |time|
+					%>
+						<span></span>
+					<%
+						end
+					%>
+				</span>
+			</span>
+		</span>
+	</span>
+	<span class="submitPanel">
+		<span class="submitButton"><%=word_for :create_event%></span>
+	</span>
+</span>

@@ -1,0 +1,202 @@
+<span class="settingMenu" id="edit_profile_info_unit">
+	<ul>
+		<li>
+			<%=word_for(:information)%>
+		</li>
+		<li>
+			<span class="settingToppic">
+				<h2>
+					<%=word_for(:username)%>
+				</h2>
+				<h3>
+					<%=user.username%>
+				</h3>
+			</span>
+		</li>
+		<li>
+			<span class="settingToppic">
+				<h2>
+					<%=word_for(:join_since)%>
+				</h2>
+				<h3>
+					<%=semantic_time(user.created_date)%>
+				</h3>
+			</span>
+		</li>
+		<li>
+			<span class="settingToppic">
+				<h2>
+					<%=word_for(:email)%>
+				</h2>
+				<h3>
+					<%=user.email if user.email%>
+				</h3>
+			</span>
+		</li>
+		<li>
+			<span class="settingToppic">
+				<h2>
+					<%=word_for(:gender)%>
+				</h2>
+				<h3>
+					<select id="info_gender">
+						<%
+							Member::GENDER_CHOICES.each do |gender|
+						%>
+							<option value="<%=gender%>" <%='selected' if user.gender == gender%>><%=gender.capitalize%></option>
+						<%
+							end
+						%>
+					</select>
+				</h3>
+			</span>
+		</li>
+		<li>
+			<span class="settingToppic">
+				<h2>
+					<%=word_for(:quote)%>
+				</h2>
+				<h3>
+					<input id="info_quote" name="<%=rand()%>" type="text" class="text_input span-66" value="<%=user.quote%>" />
+				</h3>
+			</span>
+		</li>
+		<li>
+			<span class="settingToppic">
+				<h2>
+					<%=word_for(:about)%>
+				</h2>
+				<h3>
+					<input id="info_about" name="<%=rand()%>" type="text" class="text_input span-66" value="<%=user.about%>" />
+				</h3>
+			</span>
+		</li>
+	</ul>
+	<a href="#" class="green_button margin-top-1" id="edit_button" onclick="edit_user_info(this);return false;"><%= word_for :edit%></a>
+	<a href="#" class="green_button" id="cancel_edit_button" onclick="cancel_edit(this);return false;"><%= word_for :cancel_edit%></a>
+</span>
+
+<script language="javascript">
+    	
+        function cancel_edit(sender) {
+            try {
+
+                $(sender).loading_button(true);
+                data = {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        "member_id":"<%=@current_member.id%>"
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '/profile/cancel_edit',
+                    cache: false,
+                    data: data,
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+                                    $(sender).loading_button(false);
+                                    
+                                    $('#edit_profile_info_unit').replaceWith(data.html);
+    
+                            }
+                            else {
+								
+									$(sender).loading_button(false);
+									for (var i in data.error_message) {
+										try {
+											$('#user_info_' + i).ruby_box(true, data.error_message[i]);
+										} 
+										catch (e) {
+										
+										}
+									}
+								
+                            }
+
+                        }
+                        catch (e) {
+                            $(sender).loading_button(false);
+                            $.error_log('edit_user_info', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $(sender).loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $(sender).loading_button(false);
+                $.error_log('edit_user_info',e);
+                alert(e);
+            }
+        }
+
+        function edit_user_info(sender)
+        {
+            try {
+
+                $(sender).loading_button(true);
+                data = {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        "member_id":"<%=@current_member.id%>"
+                }
+
+                data['gender'] = $('#info_gender').val();
+				data['about'] = $('#info_about').val();
+				data['quote'] = $('#info_quote').val();
+              
+
+                $.ajax({
+                    type: "POST",
+                    url: '/profile/edit_info',
+                    cache: false,
+                    data: data,
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+                                    $(sender).loading_button(false);
+                
+									$('#edit_profile_info_unit').replaceWith(data.html);
+								
+                            }
+                            else {
+								
+									$(sender).loading_button(false);
+									for (var i in data.error_message) {
+										try {
+											$('#user_info_' + i).ruby_box(true, data.error_message[i]);
+										} 
+										catch (e) {
+										
+										}
+									}
+								
+                            }
+
+                        }
+                        catch (e) {
+                            $(sender).loading_button(false);
+                            $.error_log('edit_user_info', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $(sender).loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $(sender).loading_button(false);
+                $.error_log('edit_user_info',e);
+                alert(e);
+            }
+        }
+	</script>

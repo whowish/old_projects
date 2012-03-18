@@ -1,0 +1,86 @@
+<%= javascript_include_tag "/writepub_editor/wiky_uploader.js"%>
+<span class="span-20">
+	<span class="profilePicture">
+		<img id="profile_picture" src="<%=$member.profile_picture_path%>" />
+		<%
+			if $member.id == @current_member.id
+		%>
+			<span id="profile_picture_upload_button" style="display:block;">Upload</span>
+			<script type="text/javascript">
+				$('#profile_picture_upload_button').wiky_uploader({
+																	action: "/profile/change_picture",
+																	mouseover_class:"button_hover",
+																	mousedown_class:"button_down",
+																	debug:false,
+																	params:{
+																	},
+																	onSubmit: function(fileId, fileName){
+																	},
+															        onProgress: function(fileId, fileName, loaded, total){
+																		
+																	},
+															        onComplete: function(fileId, fileName, responseJSON){
+																		
+																		if (responseJSON.ok == true) {
+																			$('#profile_picture')[0].src = responseJSON.filename;
+																		} else {
+																			alert(responseJSON.error_messages.summary);
+																		}
+																	},
+															        onCancel: function(id, fileName){
+																		
+																	}
+																});
+			</script>
+		<%
+			end
+		%>	
+	</span>
+	<span class="rating">
+		<span class="leftRibbon">
+		</span>
+		<span class="ratingContainer">
+			<span class="centerRibbon">
+				<p>
+					<%=@current_member.username%>
+				</p>
+			</span>
+			<span class="heartContainer">
+				<ul>
+					<li class="fullHeart">
+					</li>
+					<li class="fullHeart">
+					</li>
+					<li class="fullHeart">
+					</li>
+					<li class="halfHeart">
+					</li>
+					<li>
+					</li>
+				</ul>
+			</span>
+		</span>
+		<span class="rightRibbon">
+		</span>
+	</span>
+	<span class="profileMenu">
+		<ul>
+			<%
+				if $member.id == @current_member.id
+			%>
+			<li>
+				<a class="tab" href="/profile/setting">
+					<span>
+						<%=word_for(:setting)%>
+					</span>
+					<p>
+						<%=word_for(:change_password)%>
+					</p>
+				</a>
+			</li>
+			<%
+				end
+			%>
+		</ul>
+	</span>
+</span>

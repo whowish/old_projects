@@ -1,0 +1,40 @@
+<span class="form_unit" id="kratoo_anonymous_name_panel" style="display:none;">
+	<span class="span-48">
+		<span class="float-left margin-right-1 font14 normal_font medium_gray">
+			<%=word_for :anonymous_from%>
+		</span>
+		<input type="text" class="textbox_input span-30" id="kratoo_username" value="" placeholder="<%=word_for_attr :anonymous_name%>">
+		<span class="float-left">
+			<span class="font14 lightgreen_button" id="kratoo_use_real_name_button" onclick="kratoo_handler.show_real_name_panel();return false;">
+				<%=word_for :use_real_name%>
+			</span>
+		</span>
+	</span>
+	<span class="textbox_explane" id="kratoo_username_error_panel">
+		<p class="tip">
+			<%=word_for :identity_anonymous_tip%>
+		</p>
+	</span>
+</span>
+
+<span class="form_unit" id="kratoo_real_name_panel" >
+	<span class="span-48">
+		<span class="float-left margin-right-1 font14 normal_font medium_gray">
+			<%=word_for :from%>
+		</span>
+		<span class="username">
+			<%=$member.username%>
+		</span>
+		<span class="float-left">
+		
+			<span class="font14 lightgreen_button" id="kratoo_use_anonymous_name_button" onclick="kratoo_handler.show_anonymous_name_panel();return false;">
+				<%=word_for :use_anonymous_name%>
+			</span>
+		</span>
+	</span>
+	<span class="textbox_explane">
+		<p class="tip">
+			<%=word_for :identity_real_name_instruction%>
+		</p>
+	</span>
+</span>

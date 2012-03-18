@@ -1,0 +1,26 @@
+<%
+	if $member.is_guest
+%>
+	<%=render :partial=>"reply/unagree",:locals=>{:entity=>entity}%>
+<%
+	else
+		decision = entity.is_agree_or_disagree($member.id)
+%>
+	<%
+		if decision == Agreeable::AGREEABLE_TYPE_AGREE
+	%>
+		<%=render :partial=>"reply/agree",:locals=>{:entity=>entity}%>
+	<%
+		elsif decision == Agreeable::AGREEABLE_TYPE_DISAGREE
+	%>
+		<%=render :partial=>"reply/disagree",:locals=>{:entity=>entity}%>
+	<%
+		else
+	%>
+		<%=render :partial=>"reply/unagree",:locals=>{:entity=>entity}%>
+	<%
+		end
+	%>
+<%
+	end
+%>

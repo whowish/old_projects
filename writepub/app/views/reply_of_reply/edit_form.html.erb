@@ -1,0 +1,18 @@
+
+<%
+	entity = ReplyOfReply.first(:conditions=>{:id=>params[:id]})
+
+%>
+<%if entity%>
+	<%if $member.is_admin or ((entity.post_owner.instance_of?(OwnerPublic) or entity.post_owner.instance_of?(OwnerAnonymous)) and ($member.id.to_s == entity.post_owner.member_id))%>
+		<span class="contentContainer">
+		<%= render :partial=>"/reply_of_reply/edit_general", :locals=>{:entity=>entity}%>
+		
+		<%= render :partial=>"/reply_of_reply/versioning_reply_of_reply", :locals=>{:entity=>entity}%>
+		</span>
+	<%else%>
+		ไม่มีสิทธิ์แก้ไข
+	<%end%>
+<%else%>
+ไม่พบกระทู้ที่ต้องการแก้ไข
+<%end%>

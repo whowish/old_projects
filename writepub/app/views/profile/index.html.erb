@@ -1,0 +1,104 @@
+<%
+	params[:activity_type] = 'all' if !params[:activity_type]
+	if params[:activity_type] == 'add_kratoo'
+		activities = PostMemberAction.where(:member_id=>@current_member.id, "entity._type" => { "$in" => [ "KratooActionEntity" ] } ).entries
+	elsif params[:activity_type] == 'reply_kratoo'
+		activities = PostMemberAction.where(:member_id=>@current_member.id, "entity._type" => { "$in" => [ "ReplyActionEntity", "ReplyOfReplyActionEntity" ] } ).entries
+	elsif params[:activity_type] == 'love_kratoo'
+		activities = AgreeMemberAction.where(:member_id=>@current_member.id, "entity._type" => { "$in" => [ "KratooActionEntity" ] } ).entries
+	elsif params[:activity_type] == 'hate_kratoo'
+		activities = DisagreeMemberAction.where(:member_id=>@current_member.id, "entity._type" => { "$in" => [ "KratooActionEntity" ] } ).entries
+	elsif params[:activity_type] == 'agree_comment'
+		activities = AgreeMemberAction.where(:member_id=>@current_member.id, "entity._type" => { "$in" => [ "ReplyActionEntity", "ReplyOfReplyActionEntity" ] } ).entries
+	elsif params[:activity_type] == 'disagree_comment'
+		activities = DisagreeMemberAction.where(:member_id=>@current_member.id, "entity._type" => { "$in" => [ "ReplyActionEntity", "ReplyOfReplyActionEntity" ] } ).entries
+	else
+		activities = MemberAction.all(:conditions=>{:member_id=>@current_member.id})	
+	end
+%>
+
+<span class="span-79 margin-top-2 font35 writePub_green bold_font">
+	<%=word_for(:latest_activity)%>
+</span>
+<span class="span-79 margin-top-1">
+	<span class="span-79 height-3">
+		<span class="filterToolbar">
+		<ul>
+			<li class="<%=(params[:activity_type] == 'all')?'onSelect':''%>">
+				<a href="/profile/<%=@current_member.id%>?activity_type=all" >
+					<%=word_for(:all)%>
+				</a>
+			</li>
+			<li class="<%=(params[:activity_type] == 'add_kratoo')?'onSelect':''%>">
+				<a href="/profile/<%=@current_member.id%>?activity_type=add_kratoo" >
+					<%=word_for(:add_kratoo)%>
+				</a>
+			</li>
+			<li class="<%=(params[:activity_type] == 'reply_kratoo')?'onSelect':''%>">
+				<a href="/profile/<%=@current_member.id%>?activity_type=reply_kratoo" >
+					<%=word_for(:reply_kratoo)%>
+				</a>
+			</li>
+			<li class="<%=(params[:activity_type] == 'love_kratoo')?'onSelect':''%>">
+				<a href="/profile/<%=@current_member.id%>?activity_type=love_kratoo" >
+					<%=word_for(:love_kratoo)%>
+				</a>
+			</li>
+			<li class="<%=(params[:activity_type] == 'hate_kratoo')?'onSelect':''%>">
+				<a href="/profile/<%=@current_member.id%>?activity_type=hate_kratoo" >
+					<%=word_for(:hate_kratoo)%>
+				</a>
+			</li>
+			<li class="<%=(params[:activity_type] == 'agree_comment')?'onSelect':''%>">
+				<a href="/profile/<%=@current_member.id%>?activity_type=agree_comment" >
+					<%=word_for(:agree_comment)%>
+				</a>
+			</li>
+			<li class="<%=(params[:activity_type] == 'disagree_comment')?'onSelect':''%>">
+				<a href="/profile/<%=@current_member.id%>?activity_type=disagree_comment" >
+					<%=word_for(:disagree_comment)%>
+				</a>
+			</li>
+		</ul>
+	</span>
+		<span class="float-right">
+			<a href="#" class="orange_button">
+				<span class="font12">
+					<%=word_for(:create_kratoo)%>
+				</span>
+			</a>
+		</span>
+	</span>
+	<span id="member_action_list_panel" class="notificationList">
+		<%
+			if activities.count > 0
+		%>
+			<ul>
+				<%activities.each do |entity|%>
+					<li>
+						<%=render :partial=>"/profile/activity_item",:locals=>{:activity=>entity}%>
+					</li>
+					
+				<%end%>
+				<li></li>
+			</ul>
+		<%
+			else
+		%>
+			<span class="span-79 margin-top-1">
+				<blockquote class="oval-quotes">
+					<p>
+						<%=word_for :no_activity%>
+						<a href="/kratoo" class="orange_button margin-top-1">
+							<span class="font22">
+								<%=word_for :create_kratoo%>
+							</span>
+						</a>
+					</p>
+				</blockquote>
+			</span>
+		<%
+			end
+		%>
+	</span>
+</span>

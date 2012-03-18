@@ -1,0 +1,44 @@
+<span class="viewPage">
+	<span class="information">
+		<span class="title">Lunch someday?</span>
+		<span class="description">You know. We should get together soon. Please select time that you're available.'</span>
+		<span class="expandDescriptionButton"></span>
+		<span class="attendantPanel">
+			<span class="unit"></span>
+			<span class="unit"></span>
+			<span class="unit"></span>
+			<span class="unit"></span>
+			<span class="unit"></span>
+			<span class="unit"></span>
+			<span class="more"></span>
+		</span>
+	</span>
+	<span class="timeTable">
+		<span class="header">
+			<span class="dateHeader">Date</span>
+			<span class="timeHeader">
+				<%
+					(0..23).each do |time|
+				%>
+					<span><%=time%>:00</span>
+				<%
+					end
+				%>
+			</span>
+		</span>
+		<span class="body">
+			<span class="row">
+				<span class="date">27 Jan 2012</span>
+				<span class="time">
+					<%
+						(0..23).each do |time|
+					%>
+						<span></span>
+					<%
+						end
+					%>
+				</span>
+			</span>
+		</span>
+	</span>
+</span>

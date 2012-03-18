@@ -1,0 +1,111 @@
+<a href="/admin_room">All rooms</a> | <a href="/tag">All top tags</a>
+<hr/>
+
+Parents: 
+<span id="parents"></span><br/>
+Add Parent: <input type="text" id="parent_tag_name" style="width:298px;" name="<%=rand()%>" onkeypress="if (event.which == 13) add_parent($('#add_parent_loading'));">
+<span id="add_parent_loading"></span><br/>
+<hr/>
+
+Current tag: <span id="current_tag"></span><br/>
+Alias: <span id="alias_tags"></span><br/>
+<hr/>
+
+Children: 
+<span id="children"></span><br/>
+Add Child: <input type="text" id="child_tag_name" style="width:298px;" name="<%=rand()%>" onkeypress="if (event.which == 13) add_child($('#add_child_loading'));">
+<span id="add_child_loading"></span><br/>
+
+
+<%=stylesheet_link_tag "/autocomplete/jquery.autocomplete.css"%>
+<%=javascript_include_tag "/autocomplete/jquery.autocomplete.js"%>
+<%=render :partial=>"tag/tag_javascript",:locals=>{:tag_id=>@tag.id}%>
+
+<script language="javascript">
+	$("#current_tag").html(tag_unit({id:"<%=@tag.id%>",name:"<%=@tag.name%>"}));
+
+<%
+	Tag.where( :outgoings => @tag.id  ).each do |tag|
+%>
+		$("#parents").append(tag_unit({id:"<%=tag.id%>",name:"<%=tag.name%>"}));
+<%
+	end
+%>
+<%
+	Tag.where(:_id.in=>(@tag.outgoings || [])).each do |tag| 
+%>	
+		$("#children").append(tag_unit({id:"<%=tag.id%>",name:"<%=tag.name%>"}));
+<%
+	end
+%>
+<%
+	Tag.where(:alias_with_tag_id=>@tag.id).each do |tag|
+%>
+		$("#alias_tags").append(tag_unit({id:"<%=tag.id%>",name:"<%=tag.name%>"}));
+<%
+	end
+%>
+
+	$('#parent_tag_name').autocomplete('/tag/autosuggest', {
+		width:298,
+		scroll: false,
+		minChars: 2,
+		extraParams: {
+			id: "<%=@tag.id%>"
+		},
+		parse: function(data)
+		{
+			if (data.ok == false) return [];
+
+			var parsed = [];
+			for (var i=0; i < data.results.length; i++) {
+				parsed.push({
+					data: data.results[i],
+					value: data.results[i].name,
+					result: function(data) {
+						return data.name;
+					}
+				});
+			}
+			return parsed;
+		},
+		formatItem: function(data, i, n, value) {
+			if (data.parent_names !== "")
+				return value + "(" +data.parent_names+")";
+			else
+				return value;
+		}
+	});
+
+
+	$('#child_tag_name').autocomplete('/tag/autosuggest', {
+		width:298,
+		scroll: false,
+		minChars: 2,
+		extraParams: {
+			id: "<%=@tag.id%>"
+		},
+		parse: function(data)
+		{
+			if (data.ok == false) return [];
+
+			var parsed = [];
+			for (var i=0; i < data.results.length; i++) {
+				parsed.push({
+					data: data.results[i],
+					value: data.results[i].name,
+					result: function(data) {
+						return data.name;
+					}
+				});
+			}
+			return parsed;
+		},
+		formatItem: function(data, i, n, value) {
+			if (data.parent_names !== "")
+				return value + "(" +data.parent_names+")";
+			else
+				return value;
+		}
+	});
+</script>

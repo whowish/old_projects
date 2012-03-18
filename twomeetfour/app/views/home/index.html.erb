@@ -1,0 +1,32 @@
+<%
+	content_for(:header) do
+%>
+		<%=render :partial=>"home/header"%>
+<%
+	end
+%>
+<span class="mainDescription">
+	<%=word_for :description%>
+	<em>Free of charge and without registration</em>
+</span>
+<span class="thingsToDoPanel">
+	<span class="addInstruction">
+		<h2>
+			<%=word_for :connect_to_add%>
+			<em>Very easy to start just email or facebook connect.</em>
+		</h2>
+	</span>
+	<a href="#" class="connectFacebookButton"></a>
+	<span class="manageInstruction">
+		<%=word_for :connect_to_manage%>
+		<em>Please give me your email address.</em>
+		<input type="text" class="textbox width280" placeholder="your email" value="">
+		<span class="lightblue_button"><span class="font-size18px">submit</span></span>
+	</span>
+</span>
+<span id="footer">
+	<ul>
+		<li>2meet4 © 2011</li>
+		<li><a href="#">Terms & Privacy</a></li>
+	</ul>
+</span>

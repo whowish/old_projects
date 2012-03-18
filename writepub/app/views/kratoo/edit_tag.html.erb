@@ -1,0 +1,12 @@
+<span id="hello_button" onclick="show_hello();">
+	Hello
+</span>
+<span id="hello_box"></span>
+
+<script language="javascript">
+	function show_hello() {
+		$.get('/');
+		
+		$('#hello_box').html("Sawasdee World");
+	}
+</script>

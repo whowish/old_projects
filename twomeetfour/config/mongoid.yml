@@ -1,0 +1,27 @@
+development:
+    host: localhost
+    port: 27017
+    database: twomeetfour_development
+    logger: true
+
+staging:
+    host: localhost
+    port: 27017
+    database: twomeetfour_staging
+    logger: true
+    username: twomeetfour
+    password: notdifficult
+
+test:
+    host: localhost
+    port: 27017
+    database: twomeetfour_test
+    logger: true
+    
+production:
+    host: localhost
+    port: 27017
+    database: twomeetfour
+    logger: false
+    #username: baanling
+    #password: somedifficultpassword34324
