@@ -1,0 +1,48 @@
+<span class="span-80 search_result_unit margin-bottom-1" id="search_item_unit_<%=item.id%>">
+	<span class="span-79 margin-swap_unit">
+		<span class="span-79 margin-swap_line">
+			<a href="<%=item.url%>" target="_new_<%=CGI.escape(item.title)%>">
+				<img src="<%=item.image_url%>" width="50" class="facebook_pic margin-swap_pic" style="cursor:pointer;">
+			</a>
+			<span class="span-71 margin-left-1">
+				<span class="span-71 fontsize11 normal_font  medium_gray">
+					<span class="span-69 height20">
+						<span class="float-left">
+							<span  class="dark_gray fontsize14 bold_font">
+								<%=word_for :amazon%>
+							</span>
+							<span  class="dark_gray">
+								<%=word_for :has%>
+							</span>
+						</span>
+					</span>
+				</span>
+				<span class="span-71 fontsize12 bold_font">
+					<span class="span-69 fontsize14" style="white-space:normal;overflow:hidden;">
+						<a href="<%=item.url%>" target="_new_<%=CGI.escape(item.title)%>">
+							<%=trim_title(item.title,90,90)%>
+						</a>
+						
+						<span class="span-69 fontsize11 normal_font medium_dark_gray">
+							<% if item.price %>
+								<%=word_for :price%> <%=item.price%>
+							<% end %>
+							&nbsp;
+						</span>
+						
+					</span>
+				</span>
+				<span class="span-71 fontsize11 normal_font  medium_dark_gray" style="white-space:normal;overflow:hidden;">
+					<%=item.group if item.group %> &nbsp
+				</span>
+				<span class="span-71 height-2 margin-top-1">
+					<a href="<%=item.url%>" target="_new_<%=CGI.escape(item.title)%>" class="green_button_small" >
+						<%=word_for :check_it_out%>
+					</a>
+				</span>
+			</span>
+		</span>
+		<span class="height01 span-79 margin-swap_line medium_gray_bg">
+		</span>
+	</span>
+</span>

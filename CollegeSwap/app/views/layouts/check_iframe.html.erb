@@ -1,0 +1,16 @@
+		<script language="javascript">
+			try
+			{
+				// IE can access top.location, but Firefox cannot
+				// Therefore, if the page is in iframe, the exception will be thrown on Firefox, top.location will be undefined for IE
+				// But if the page is not in iframe, top.location will be equal to location on both Firefox and IE
+				if (top.location == location) { 
+					
+					location.href = 'http://apps.facebook.com/<%=FACEBOOK_APP_NAME%>';
+				}
+			}
+			catch (e)
+			{
+				
+			}
+		</script>

@@ -1,0 +1,119 @@
+<%
+	sql = "status = '"+Item::STATUS_ACTIVE+"' "
+	
+	if type == "WISH" or type == "JUNK"
+		sql += " AND item_type = '"+type+"'"
+	end
+	
+	if scope == "friend"
+		sql += " AND facebook_id in ('"+$facebook.all_friends.map{ |i| i["id"] }.join("','")+"')";
+	end
+
+	sql += " AND title LIKE '%%"+q+"%%'"
+	#sql += " AND NOT(facebook_id = '"+$facebook.facebook_id+"')"
+	
+	if category_id.to_i != 0
+		ids = [category_id]
+		cats = Category.all(:conditions=>{:parent_id=>category_id})
+		cats.each { |c|
+			ids.push(c.id);
+		}
+		
+		sql += " AND category_id in ('"+ids.join("','")+"')"
+	end 
+
+	if college_name != ""
+		sql += " AND owner_university = '"+college_name+"'"
+	end
+	
+	order_sql = "id DESC"
+	
+	if order == "recent"
+		order_sql = "created_date DESC"
+	elsif order == "soonest"
+		order_sql = "(CASE \
+						WHEN expiration_date IS NULL THEN '2100-10-10 00:00:00' \
+						ELSE expiration_date \
+					END) ASC"
+	elsif order == "highest_value"
+		order_sql = "value DESC"
+	elsif order == "lowest_value"
+		order_sql = "(CASE \
+						WHEN value IS NULL THEN 999999999999 \
+						ELSE value \
+					END) ASC"
+	end
+
+	sql += " AND " + session[:flagged_item_sql]
+
+	items = Item.all(:conditions=>[sql],:offset=>offset,:limit=>limit,:order=>order_sql)
+%>
+	<span class="span-52 ">
+		<span class="span-52 light_gray_bg dark_gray fontsize12 bold_font height24 margin-bottom-1">
+			<span class="span-30 margin-left-1">
+				<%
+					sort_bys = [{:id=>"best",:label=>"Best Matches"},
+							{:id=>"recent",:label=>"Most Recent"},
+							{:id=>"soonest",:label=>"Ending Soonest"},
+							{:id=>"highest_value",:label=>"Highest Value"},
+							{:id=>"lowest_value",:label=>"Lowest Value"}
+							]
+				%>	
+				<select id="search_order_by" onchange="search_item('<%=type%>','<%=q%>',<%=category_id%>,0,<%=limit%>,'all',$('#search_order_by').val());">
+					<%
+						sort_bys.each do |i|
+					%>
+						<option value="<%=i[:id]%>" <%='selected' if order == i[:id]%>><%=i[:label]%></option>
+					<%
+						end
+					%>
+				</select>
+			</span>
+			<span class="filter float-right">
+				<ul>
+					<li id="search_all" <%='class="filter_selected"' if scope != 'friend'%> onclick="search_item('<%=type%>','<%=q%>',<%=category_id%>,0,<%=limit%>,'all',$('#search_order_by').val());"><a href="#" onclick="return false;">All</a></li>
+					<li id="search_friend" <%='class="filter_selected"' if scope == 'friend'%> onclick="search_item('<%=type%>','<%=q%>',<%=category_id%>,0,<%=limit%>,'friend',$('#search_order_by').val());"><a href="#" onclick="return false;">Friend</a></li>
+				</ul>
+			</span>
+		</span>
+		<%
+			if items.length == 0
+		%>
+			<%=render :partial=>"home/search_not_found"%>
+		<%
+			else
+		%>
+			<span class="span-52 margin-top-1">
+		
+			<%	items.each do |item|%>
+					<%=render :partial=>"home/search_result_unit",:locals=>{:item=>item}%>
+			<% end	%>
+<%
+	count = Item.count(:conditions=>[sql])
+%>
+<span class="span-50 margin-left-1">
+	<span class="total_page whowish_green_bg">
+		<%=offset+1%> - <%=[(offset+limit),count].min%> of <%=count%> items
+	</span>
+	<span class="page_number">
+		<ul>
+			<%
+				number_of_pages = (count.to_f/limit.to_f).ceil
+			
+				(1..number_of_pages).each do |i|
+			%>
+				<li><a href="#" onclick="search_item('<%=type%>','<%=q%>',<%=category_id%>,<%=limit*(i-1)%>,<%=limit%>,'<%=scope%>','<%=order%>');return false;" <%='class="active"' if (limit*(i-1)) == offset%>><%=i%></a></li>
+			<%
+				end
+			%>
+		</ul>
+	</span>
+</span>
+			<%end%>
+	
+			</span>
+	
+
+<!--<span class="height20 span-52 margin-swap_line light_blue_bg margin-left-1 align_center">
+	<a href="#" onclick="return false;">Show more</a>
+</span>-->

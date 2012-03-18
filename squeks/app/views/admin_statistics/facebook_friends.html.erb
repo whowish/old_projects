@@ -1,0 +1,83 @@
+<%
+	params[:max] ||= 100
+	params[:max] = params[:max].to_i
+
+	params[:is_cumulative] ||= "true"
+%>
+
+<%= javascript_include_tag "/foundation/flot/jquery.flot.js"%>
+<%=stylesheet_link_tag("/foundation/date_picker/jquery.ui.core.css")%>
+<%=stylesheet_link_tag("/foundation/date_picker/jquery.ui.theme.css")%>
+<%=stylesheet_link_tag("/foundation/date_picker/jquery.ui.datepicker.css")%>
+<%= javascript_include_tag "/foundation/date_picker/jquery.ui.core.js"%>
+<%= javascript_include_tag "/foundation/date_picker/jquery.ui.datepicker.js"%>
+<span style="display:block;margin-top:20px;">
+	<span style="display:block;font-size:30px;font-weight:bold;">
+		Number of friends <%="cumulative" if params[:is_cumulative] == "true"%> distribution
+	</span>
+	<span style="height:30px;display:block;">
+		<input class="dark_gray span-15 postbox_input margin-left-1" style="margin-top:2px;"  type="text" value="<%=params[:max]%>" onchange="location.href='?max='+$(this).val()+'&is_cumulative=<%=params[:is_cumulative]%>'"/>
+		<input type="button" value="Cumulative" <%="disabled" if params[:is_cumulative] == "true"%> onclick="location.href='?max=<%=params[:max]%>&is_cumulative=true'">
+		<input type="button" value="Non-Cumulative" <%="disabled" if params[:is_cumulative] != "true"%> onclick="location.href='?max=<%=params[:max]%>&is_cumulative=false'">
+	</span>
+	<span id="graph" style="height:400px;width:900px;display:block;margin-top:20px;">
+		
+	</span>
+</span>
+<script language="javascript">
+<%
+	fs = FacebookFriendCache.all(:select=>"COUNT(1) as count,friend_count",:group=>"friend_count",:order=>"friend_count ASC",:conditions=>["friend_count <= ?",params[:max]])
+	
+	if params[:is_cumulative] == "true"
+		(1..fs.length-1).each { |i|
+			fs[i].count = fs[i].count.to_i + fs[i-1].count.to_i
+		}
+	end
+	
+	height = 0
+	fs.each { |f|
+		height = f.count.to_i if f.count.to_i > height
+	}
+%>
+
+$.plot($("#graph"), [
+	{
+		label: "",
+		data: [
+			<%=fs.map { |f| "[#{f.friend_count},#{f.count}]"}.join(",")%>
+		],
+		bars: {
+		  show:true,
+	      barWidth: 1,
+	      align: "center",
+	      horizontal: false
+	    }
+	},
+	{
+		label: "Threshold",
+		data: [
+			[<%=THRESHOLD_FRIENDS-1%>,<%=height%>]
+		],
+		bars: {
+		  show:true,
+	      barWidth: 0.1,
+	      align: "center",
+	      horizontal: false
+	    },
+		color:"#FF0000"
+	}
+	],{
+		xaxis: {
+			min: 0,
+			max:<%=params[:max]%>,
+			show: true,
+			minTickSize:1
+			
+		},
+		yaxes: {
+			show: true,
+			position:"left",
+			minTickSize:1
+		}
+	})
+</script>

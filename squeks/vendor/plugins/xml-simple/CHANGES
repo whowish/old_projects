@@ -1,0 +1,41 @@
+Version 1.0.6:
+  - Fixed a bug (reported by Curtis Schofield) that led to
+    problems with empty elements that had only attributes.
+
+Version 1.0.5:
+  - Corrected version info in INSTALL file.
+
+Version 1.0.4:
+  - Fixed small bug in install.rb.
+
+Version 1.0.3:
+  - Works with Ruby 1.8.0 and current REXML now.
+
+Version 1.0.2:
+  - All objects can be encoded now by value_to_xml. The Perl
+    version excluded blessed references, but in Ruby each
+    object has a to_s method, so this restriction wasn't
+    necessary. Thanx to Daniel Wu for "pointing" this out.
+
+Version 1.0.1:
+  - Removed a bug (reported by Paul DuBois) that led to a
+    warning in XmlSimple.initialize.
+
+Version 1.0.0:
+  - Added three caching models.
+  - Option names are case insensitive now and underscores
+    are no longer significant, i.e.
+      force_array == ForceArray == forcearray == fOR__CEArray
+  - 'force_array' option additionally works with regexes
+    now.
+  - Added 'indent' option that allows to specify an
+    arbitrary string to be used for indentation by
+    xml_out.
+  - Added 'GroupTags' option.
+  - Added 'Variables' option.
+  - Added 'VarAttr' option.
+  - Added 'NormaliseSpace' option.
+  - Added 'NoIndent' option.
+
+Version 0.6.0:
+  - First working version.

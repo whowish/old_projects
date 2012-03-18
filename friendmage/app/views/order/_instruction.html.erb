@@ -1,0 +1,29 @@
+<%
+	selected_class = "span-24 margin-top-1 font16 bold_font happy_orange clearfix"
+	not_selected_class = "span-24 margin-top-1 font12 medium_dark_gray clearfix"
+%>
+<span class="span-96 margin-left-1 margin-top-1 font28 bold_font friendmage_red whiteShadow clearfix">
+	<%= app_name%>
+</span>
+<span class="span-24 margin-left-1  clearfix">
+	<span class="span-24 margin-bottom-1">
+		<span class="span-24 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+			<%= word_for :order_process%>
+		</span>
+		<span class="span-24 height01 medium_gray_bg margin-top-1">
+		</span>
+		<span class="<%if number == 1%><%=selected_class%><%else%><%=not_selected_class%><%end%>">
+			<%= word_for :process_1%>
+		</span>
+		<span class="<%if number == 2%><%=selected_class%><%else%><%=not_selected_class%><%end%>">
+			<%= word_for :process_2%>
+		</span>
+		<span class="<%if number == 3%><%=selected_class%><%else%><%=not_selected_class%><%end%>">
+			<%= word_for :process_3%> 
+		</span>
+		<span class="<%if number == 4%><%=selected_class%><%else%><%=not_selected_class%><%end%>">
+			<%= word_for :process_4%> 
+		</span>
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>

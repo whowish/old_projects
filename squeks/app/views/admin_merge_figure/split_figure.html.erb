@@ -1,0 +1,105 @@
+<%
+	main_figures = HistoryFigure.all(:select=>"DISTINCT main_figure_id")
+%>
+<span class="span-74 margin-top-1 clearfix">
+	<%
+		main_figures.each do |f|
+		main_figure = Figure.first(:conditions=>{:id => f.main_figure_id})
+	%>
+		<span class="span-74">
+			<span class="span-4 font12 medium_dark_gray bold_font align_center" style="margin-top:8px;">
+	        	
+	        </span>
+	        <span class="span-70 clearfix">
+	        	<span>
+	        		<%=main_figure.title%>
+				</span>
+	        </span>
+			<%
+				merge_figures = HistoryFigure.all(:conditions=>{:main_figure_id=>main_figure.id})
+				merge_figures.each do |f|
+			%>
+				<span class="span-4 font12 medium_dark_gray bold_font align_center" style="margin-top:8px;">
+		        	<input id="chkbox_figure_<%=main_figure.id%>_<%=f.id%>" type="checkbox" value="<%=f.id%>" />
+		        </span>
+		        <span class="span-70 clearfix">
+		        	<span>
+		        		<%=f.title%>
+					</span>
+		        </span>
+			<%end%>
+		</span>
+		<span class="span-57">
+			<a href="javascript:submit_split('<%=main_figure.id%>');" id="figure_submit_button_<%=main_figure.id%>" >
+				<%= word_for :split%>
+			</a>
+		</span>
+	<%end%>
+	
+</span>
+
+<script language="javascript">
+	
+	function submit_split(main_figure_id)
+	{
+		var all_chkboxes = $('input[id^=chkbox_figure_'+main_figure_id+'_]');
+		var split_figures_id = []
+		for ( var i=0;i<all_chkboxes.length;i++)
+		{
+			if (all_chkboxes[i].checked == true) 
+			{ 
+				split_figures_id.push(all_chkboxes[i].value);
+			}
+		}
+		
+		try {
+			
+			$('.figure_submit_button_'+main_figure_id).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_figure/split',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"split_figure_list": split_figures_id.join(',')
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+						}
+						else {
+							$('.figure_submit_button_'+main_figure_id).loading_button(false);
+							for (var i in data.error_message) {
+								try {
+									$('#figure_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}	
+						}
+						$('.figure_submit_button_'+main_figure_id).loading_button(false);
+					} 
+					catch (e) {
+						$('.figure_submit_button_'+main_figure_id).loading_button(false);
+						$.error_log('submit_split', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('.figure_submit_button_'+main_figure_id).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('.figure_submit_button_'+main_figure_id).loading_button(false);
+			$.error_log('submit_split',e);
+			alert(e);
+		}
+	}		
+</script>

@@ -1,0 +1,14 @@
+<span class="span-74 clearfix">
+	<span class="span-74 clearfix">
+		<%
+			all_comments = Comment.all(:conditions=>{:event_id => event.id},:order=>"created_date asc")
+			all_comments.each do |comment|
+		%>
+			<%=render :partial=>"/comment/comment_view" , :locals=>{:comment=>comment}%>
+		<%end%>
+      	<span id="new_comment"></span>
+		<%=render :partial=>"/comment/comment_add" , :locals=>{:event=>event}%>
+    </span>
+    <span class="span-20 clearfix">
+	</span>
+</span>

@@ -1,0 +1,23 @@
+<span id="no_wish_item_panel_<%=user_id%>">
+	<span class="swap-unit span-40 margin-swap_unit">
+		<%if user_id == $facebook.facebook_id%>
+			<span class="span-38 margin-swap_line fontsize12 medium_dark_gray">
+				<%=word_for :there_is_nothing_in_your_want_list, :possessive_pronoun=>"your"%>
+			</span>
+		<%else%>
+			<span class="span-38 margin-swap_line fontsize14 bold_font medium_dark_gray">
+				<%=word_for :there_is_nothing_in_your_want_list, :possessive_pronoun=>get_possessive_adj(user_id).downcase%>
+			</span>
+		<%end%>
+			<span class="span-38 light_medium_gray_bg height01 margin-swap_line margin-top-1">
+			</span>	
+	</span>
+	
+	<%if user_id == $facebook.facebook_id%>				
+	<span class="green_button" style="margin-left:120px;" onclick="$.whowish_box({title:'Stuff I Want: Product or Service',url:'/item?item_type=WISH'});">
+		
+			<%=word_for :add_stuff_i_want%>
+		
+	</span>
+	<%end%>
+</span>

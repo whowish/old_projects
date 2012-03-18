@@ -1,0 +1,19 @@
+<%
+	commentor = get_facebook_info($facebook.facebook_id)
+%>
+
+<span class="comment span-98 margin-top-1">
+    <span class="span-98 height20 squeks_blue font11 bold_font">
+        <span class="comment_icon">
+        </span>
+        <a href="#" class="squeks_blue margin-left-1"><%=word_for :please_comment,:title=>discussion.title%></a>
+    </span>
+    <span class="span-98 margin-top-1">
+        <span style="float:left;">
+            <textarea id="discussion_comment" class="comment_input2 span-87"></textarea>
+        </span>
+        <span style="float:left;">
+            <a href="#" class="comment_button" id="discussion_comment_submit_button" onclick="submit_discussion_comment();return false;"><%= word_for :comment_add%></a>
+        </span>
+    </span>
+</span>

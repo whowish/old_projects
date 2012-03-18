@@ -1,0 +1,4 @@
+<%items_flag = Item.all(:conditions=>["flags > 0 AND is_money = 0 AND status = ?",Item::STATUS_ACTIVE],:order=>"flags DESC")%>
+<%(items_flag).each do |item_flag|%>
+	<%=render :partial=>"item_detail",:locals=>{:item=>item_flag}%>
+<%end%>

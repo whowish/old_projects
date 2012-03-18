@@ -1,0 +1,15 @@
+<%
+	user = get_facebook_info(facebook_id);
+	member = Member.first(:conditions=>{:facebook_id=>user.facebook_id})
+%>
+<span class="span-12">
+	<span class="span-5 margin-left-3 margin-top-1">
+	<span class="facebook_pic2" style="background-image:url(http://graph.facebook.com/<%=user.facebook_id%>/picture?type=square);"></span>
+	</span>
+	<span class="span-12 align_center" style="margin-top:4px; margin-bottom:4px">
+		<a href="http://apps.facebook.com/<%=FACEBOOK_APP_NAME%>/myswappage?user_id=<%=user.facebook_id%>"  target="_new_profile_<%=user.facebook_id%>"><%=user.name%></a>
+	</span>
+	<span class="span-10 fontsize11 medium_dark_gray normal_font align_center">
+		<%= get_college_name(member.college_id)%>
+	</span>
+</span>

@@ -1,0 +1,40 @@
+<% 
+	content_for :header do
+%>
+<div id="navigator" class="clearfix">
+	<span class="global_width height-4">
+		<a href="/">
+			<span class="logo_squeks float-left clearfix">
+			</span>
+		</a>
+		<span class="float-right clearfix font14 bold_font">
+			<ul class="float-left medium_dark_gray line_height26px">
+			<%
+				menus = [{:label=>"Statistics",:controller=>"admin_statistics"},
+						{:label=>"Flag",:controller=>"admin_flag"},
+						{:label=>"Forbidden Word",:controller=>"admin_forbidden_word"},
+						{:label=>"Pending Discussion",:controller=>"admin_approve_discussion"},
+						{:label=>"Pending Figure",:controller=>"admin_approve_figure"},
+						{:label=>"Merge Figure",:controller=>"admin_merge_figure"}]
+
+				menus.each do |menu|
+			%>
+				<li>
+					<a class="tab <%='selected' if menu[:controller] == params[:controller]%> " href="/<%=menu[:controller]%>">
+						<span>
+							<%=menu[:label]%>
+						</span>
+					</a>
+				</li>
+			<%
+				end
+			%>
+			</ul>
+		</span>
+	
+	</span>
+</div>
+<%
+	end
+%>
+<%= render :file => 'layouts/main' %> 

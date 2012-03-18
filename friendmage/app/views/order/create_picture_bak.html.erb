@@ -1,0 +1,88 @@
+<%
+	all_friends_data = FacebookFriendRecord.all(:conditions=>{:facebook_id=>$facebook.facebook_id})
+	friends_data = FacebookFriendRecord.all(:conditions=>{:facebook_id=>$facebook.facebook_id},:order=>"rand()",:limit=>100)
+%>
+<%=stylesheet_link_tag("/facebook-multi-friend-selector/jquery.facebook.multifriend.select.css")%>
+<%=javascript_include_tag("/facebook-multi-friend-selector/jquery.facebook.multifriend.select.js")%>
+<script language="javascript">
+	$(function() {
+		$("#jfmfs-container").jfmfs({
+		  	pre_selected_friends: [<%=all_friends_data.map{|d| '{id:"'+d.friend_id+'",name:"'+d.name.gsub('"','\\"')+'"}'}.join(',')%>],
+			data:[<%=friends_data.map{|d| '{id:"'+d.friend_id+'",name:"'+d.name.gsub('"','\\"')+'"}'}.join(',')%>]
+		});
+	});	
+</script>
+<span id="jfmfs-container"></span>
+<a href="#" class="pink_button_verybig" id="create_poster_button" onclick="submit_create_poster();return false;">
+    <%= word_for :create_poster_button%>
+</a>
+<script language="javascript">
+
+        function submit_create_poster()
+        {
+			var friends = $("#jfmfs-container").data('jfmfs').getSelectedIdsAndNames();     
+
+			if (friends.length == 0)
+			{
+				$('#create_poster_button').ruby_box(true,'Please select at least one friend');
+				return;
+			}
+			
+			for (var i=0;i<friends.length;i++)
+			{
+				friends[i] = friends[i].id + ":" + friends[i].name;
+			}
+			
+            try {
+                $('#create_poster_button').loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/order/create_poster',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        "friends": friends.join(',')
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+                                try
+                                {
+                                    
+
+                                } catch(e) {
+                                    
+                                }
+                            }
+                            else {
+                                $('#create_poster_button').loading_button(false);
+                                $('#create_poster_button').ruby_box(true,data.error_message);
+                            }
+							$('#create_poster_button').loading_button(false);
+                        }
+                        catch (e) {
+                            $('#create_poster_button').loading_button(false);
+                            $.error_log('create_poster', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#create_poster_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#create_poster_button').loading_button(false);
+                $.error_log('create_poster',e);
+                alert(e);
+            }
+        }
+    </script>

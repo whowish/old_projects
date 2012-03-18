@@ -1,0 +1,96 @@
+<%
+	event_friends = EventFriend.all(:conditions=>{:facebook_id => $facebook.facebook_id})
+	events = Event.all(:conditions=>["status=? AND (facebook_id = ? or id in (?))",Event::STATUS_SETTLED,$facebook.facebook_id,event_friends.map{|f| f['event_id']}],:limit=>3,:order=>"settled_date asc")
+
+	if events.length > 0
+%>
+
+<span class="span-24 height-22 clearfix blue_2meet4_bg"  style="position:relative;overflow:hidden;">
+		<span id="sliding_soonest_event_panel" class="height-22" style="white-space:nowrap;position:absolute;left:0px;top:0px;width:<%=220*events.length%>px;">
+ 		<%
+			events.each do |event|
+				event_owner = get_facebook_info(event.facebook_id)
+		%><span class="flip_panel" style='display:inline-block;width:240px;height:220px;'>
+			<span class="span-24 height-22 pattern_bird clearfix">
+				<span class="left_top_box">
+					<span class="left_top_month">
+						<%=event.settled_date.strftime("%B")%>
+					</span>
+					<span class="left_top_day">
+						<%=event.settled_date.strftime("%d").to_i.to_s%>
+					</span>
+				</span>
+			</span>
+			<span class="span-24 height-22 clearfix" style="background-image:url(/images/home/soonessBoxBg.png);">
+				<span class="span-22 margin-left-1 margin-top-1 height-18 font12 bold_font white">
+					<span class="span-22 font26 bold_font white">
+						<%=semantic_day(event.settled_date)%>
+					</span>
+					<span class="span-22 font18 bold_font white margin-top--2px">
+						<%=event.settled_date.strftime("%H:%M")%>
+					</span>
+					<span class="span-22 font12 bold_font white margin-top-1">
+						<%=event.title%>
+					</span>
+					<%if event.location and event.location != ""%>
+						<span class="span-22 font12 bold_font white ">
+							at <%=event.location%>
+						</span>
+					<%end%>
+					<span class="span-22 font10 bold_font white margin-top-2">
+						<%=word_for(:event_by)%> <%=event_owner.name%>
+					</span>
+				</span>
+				<span class="span-22 font11 margin-top-1 margin-left-1 height20 clearfix">
+					<span class="float-left">
+				    	<a href="/profile/settled" class="white"><%=word_for(:view_all)%></a>
+				    </span>
+				    <span class="float-right">
+				    	<%
+							if events.first != event
+						%>
+						<a href="#" class="white" onclick="previous_soonest_event();return false;"><%=word_for(:prev)%></a>
+				   		<%
+							end
+
+							if events.last != event
+						%>
+						<a href="#" class="white" onclick="next_soonest_event();return false;"><%=word_for(:next)%></a>
+				    	<%
+							end
+						%>
+					</span>
+				</span>	
+			</span>
+		</span><%
+			end
+		%>
+			
+	</span>
+</span>
+<script language="javascript">
+	function next_soonest_event() {
+		$('#sliding_soonest_event_panel').animate({
+		    left: '-=240'
+		  }, 100, function() {
+		  });
+	}
+
+	function previous_soonest_event() {
+		$('#sliding_soonest_event_panel').animate({
+		    left: '+=240'
+		  }, 100, function() {
+		  });
+	}
+</script>
+<%
+	else
+%>
+<span class="span-24 height-22 clearfix blue_2meet4_bg pattern_bird">
+	<span class="span-22 margin-left-1 margin-top-1">
+		2Meet4 is an application that helps you find a meeting date and time that suit everybody.
+	</span>
+</span>
+<%
+	end
+%>

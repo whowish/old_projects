@@ -1,0 +1,54 @@
+<link type="text/css"  rel="stylesheet" href="../calendar/calendar.css" />
+<link type="text/css"  rel="stylesheet" href="../stylesheets/reset.css" />
+<script src="../javascripts/jquery-1.5.min.js"></script>
+<script src="../calendar/jquery.calendar.js"></script>
+<script src="../calendar/jquery.time_selector.js"></script>
+<script src="../calendar/jquery.friend_time.js"></script>
+<table>
+	<tr>
+		<td>
+			<span id="calendar">
+			</span>
+		</td>
+		<td>
+			<span id="timeline">
+			</span>
+		</td>
+		<td>
+			<span id="friend">
+			</span>
+		</td>
+	</tr>
+</table>
+
+
+<input type="button" onclick="GetResult();">
+<script language="javascript">
+	
+	function GetResult() {
+		console.info($('#calendar').day_selector_get_selected_date());
+		console.info($('#timeline').time_selector_get_selected_time());
+	}
+	
+	$(function () {
+		
+		data = [];
+		
+		data.push({time:"2011-02-22 08:00:00",friend:"Tanin"})
+		data.push({time:"2011-02-22 09:00:00",friend:"Tanin"})
+		data.push({time:"2011-02-22 10:00:00",friend:"Tanin"})
+		
+		data.push({time:"2011-02-22 09:00:00",friend:"Test"})
+		data.push({time:"2011-02-22 10:00:00",friend:"Test"})
+		data.push({time:"2011-02-22 11:00:00",friend:"Test"})
+		
+		friend_unit_callback = function(friend_data) {
+			return friend_data;
+		}
+		
+		$('#friend').friend_time(data,friend_unit_callback);
+		$('#calendar').day_selector({time_selector_panel:$('#timeline')[0]});
+		$('#timeline').time_selector({friend_list_panel:$('#friend')[0],calendar_panel:$('#calendar')[0]});
+		
+	})
+</script>

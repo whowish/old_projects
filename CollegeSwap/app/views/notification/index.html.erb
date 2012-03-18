@@ -1,0 +1,41 @@
+<%
+	@notifications = Notification.all(:conditions=>{:notified_facebook_id=>$facebook.facebook_id},:order=>"created_date DESC")
+
+	@items = {}
+
+	Item.all(:conditions=>{:id=>@notifications.map { |n| n.item_id}}).each { |item|
+		@items[item.id] = item
+	}
+
+	@facebooks = {}
+	FacebookCache.all(:conditions=>{:facebook_id=>@notifications.map { |n| n.facebook_id}}).each { |facebook|
+		@facebooks[facebook.facebook_id] = facebook
+	}
+
+	@notifications.each do |notification|
+%>
+		<%=render :partial=>"notification/unit",:locals=>{:entity=>notification}%>
+<%
+	end
+%>
+<script language="javascript">
+	$(function() {
+		setTimeout(function(){
+			$.ajax({
+				type: "POST",
+				url: '/notification/read',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>"
+				},
+				success: function(data){
+		
+				},
+				error: function(req, status, e){
+
+				}
+			});
+		},3000)
+	});
+</script>

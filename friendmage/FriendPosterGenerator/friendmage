@@ -1,0 +1,79 @@
+#!/bin/bash
+# Basic support for IRIX style chkconfig
+###
+#
+# Startup script for the Apache Web Server
+#
+# chkconfig: - 85 15
+# description: Apache is a World Wide Web server.  It is used to serve \
+#              HTML files and CGI.
+# processname: httpd
+# pidfile: /friendmage/shared/log/friendmage_imaging_server.pid
+
+###
+# Source function library.
+. /etc/init.d/functions
+
+FRIENDMAGE_DIR=/friendmage
+FRIENDMAGE_IMAGING_DIR=/friendmage/current/FriendPosterGenerator
+PIDFILE=$FRIENDMAGE_DIR/shared/log/friendmage_imaging_server.pid
+
+
+start() {
+
+        echo version1.1
+        echo -n "friendmage imaging server is starting : "
+
+        if [ -f $PIDFILE ]; then
+            PID=`cat $PIDFILE`
+            echo friendmage already running: $PID
+            exit 2;
+        else
+            cd $FRIENDMAGE_IMAGING_DIR
+
+            nohup java -Xms512m -Xmx1g -jar store/image_generator.jar &
+
+            thispid=$!
+            RETVAL=$?
+
+            rm -f $PIDFILE
+            echo $thispid > $PIDFILE
+            echo
+            echo java run with $RETVAL
+
+
+            return $RETVAL
+        fi
+}
+
+stop() {
+        echo -n "Shutting down friendmage imaging server: "
+        echo
+        cd $FRIENDMAGE_DIR
+        kill -9 `cat $PIDFILE`
+        echo
+        rm -f $PIDFILE
+        return 0
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status friendmage
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage:  {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
+
+exit $?

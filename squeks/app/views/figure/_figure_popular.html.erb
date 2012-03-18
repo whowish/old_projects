@@ -1,0 +1,22 @@
+<%
+  popular_figure = Figure.all(:conditions=>{:status=>Figure::STATUS_ACTIVE},:order=>"loves+hates DESC",:offset=>0,:limit=>3)
+%>
+<span class="figure-unit ">
+    <ul>
+        <li class="span-28 huneysuckle_pink_shadow_bg">
+            <a href="/top" class="huneysuckle_pink_bg font14 white figure_header">
+                <%=word_for :most_popular%>
+            </a>
+        </li>
+        
+        <%
+                popular_figure.each do |figure|
+        %>
+                <li class="span-28 light_medium_gray_bg">
+                    <%=render :partial=>"figure/suggested_unit",:locals=>{:figure=>figure}%>
+                </li>
+        <% 
+            end
+        %>
+    </ul>
+</span>

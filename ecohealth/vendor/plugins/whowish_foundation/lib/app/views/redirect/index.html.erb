@@ -1,0 +1,19 @@
+<html>
+	<head>
+		<link rel="P3Pv1" href="/w3c/p3p.xml">
+		<meta http-equiv="P3P"   content='policyref="/w3c/p3p.xml", CP="<%=COMPACT_POLICY%>"'>
+	</head>
+	<body>
+		<script language='javascript'>
+			try
+			{
+				top.location.href = "<%=@redirect_url%>"
+			}
+			catch (e)
+			{
+				location.href = "<%=@redirect_url%>";
+			}
+		</script>
+	</body>
+</html>
+

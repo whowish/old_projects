@@ -1,0 +1,58 @@
+<%
+	commentor = Member.first(:conditions=>{:facebook_id=>comment.facebook_id})
+	commentor_name = (comment.is_anonymous) ? commentor.anonymous_name : commentor.name
+	commentor_picture_url = (comment.is_anonymous) ? commentor.anonymous_profile_picture_url : commentor.profile_picture_url
+	sub_comments_count = Comment.count(:conditions=>{:parent_id=>comment.id})
+%>
+<span id="comment_popular_view_<%=comment.id%>" class="comment_unit span-33 margin-top-1">
+	<span class="commentator span-33">
+		<span class="commentator_id" style="background-image:url(<%=commentor_picture_url%>);cursor:pointer;">
+		</span>
+		<span class="span-27 margin-left-1">
+			<span class="float-left commentator_name">
+				<span class="font12 bold_font dark_gray">
+					<%if comment.is_anonymous%>
+						<%=commentor_name%>
+					<%else%>
+                		<a href="/profile?user_id=<%=comment.facebook_id%>" class="dark_blue"><%=commentor_name%></a>
+					<%end%>
+				</span>
+				<% if !$facebook.is_guest%>
+					<a href="#" title="Share on Facebook" class="comment_share_icon-facebook margin-left-1" onclick="$.whowish_box({url:'/comment/share?id=<%=comment.id%>',background_color:'#54a8e3'});return false;">
+					</a>
+				<% end %>
+				<a href="#" title="Tweet" class="comment_share_icon-twitter margin-left-1" onclick="window.open('http://www.twitter.com/share?url=http://<%=DOMAIN_NAME%>/comment/view/<%=comment.id.to_s%>','mywindow','width=600,height=400');return false;">
+				</a>
+				<a href="#" title="Report Abuse" class="comment_share_icon-flag margin-left-1" onclick="$.whowish_box({url:'/flag?comment_id=<%=comment.id%>',background_color:'#54a8e3'});return false;">
+				</a>
+				<%
+                   if sub_comments_count == 0 and (comment.facebook_id == $facebook.facebook_id or $facebook.is_aesir)
+                %>
+					<a href="#" title="Delete" class="comment_share_icon-delete margin-left-1" onclick="$.whowish_box({url:'/comment/confirm_delete?comment_id=<%=comment.id%>',background_color:'#54a8e3'});return false;">
+					</a>
+				<%
+					end
+				%>
+			</span>
+			<span class="span-27 margin-top-1 font11 dark_gray margin-top-1 margin-bottom-1">
+				<%=comment.comment.gsub("\n","<br/>")%>
+			</span>
+			<span class="span-20">
+				<a href="/comment/view/<%=comment.id%>" target="_comment_<%=comment.id%>" class="font11 medium_gray normal_font" >
+					<%if sub_comments_count > 0%>
+            			<%=word_for :reply,:number=>sub_comments_count%>
+					<%else%>
+						<%=word_for :view_comment%>
+					<%end%>
+        		</a>
+			</span>
+			<span class="float-right">
+				<%=render :partial=>"comment/comment_status",:locals=>{:comment=>comment}%>
+			</span>
+			<span class="span-27 height-1 display_block">
+			</span>
+		</span>
+	</span>
+</span>
+
+

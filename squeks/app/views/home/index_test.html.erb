@@ -1,0 +1,61 @@
+<script language="javascript">
+  function slide() {
+
+            $.ajax({
+				type: "POST",
+				url: '/figure/get_next',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>"
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+                            $('#panel').append(data.html);
+                            $('#panel').animate({
+                                'margin-left': "-=980"
+                            },750,function() {
+                                var children = $('#panel').children();
+                                $(children[0]).remove();
+                                $('#panel').css('margin-left','0px');
+                            })
+						}
+						else {
+
+						}
+					}
+					catch (e) {
+						alert(e);
+					}
+
+				},
+				error: function(req, status, e){
+                    if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+
+
+  }
+</script>
+<span class="span-98 margin-top-1" style="white-space:nowrap;overflow:hidden;">
+    <span id="panel" onclick="slide();">
+        <span class="span-98" style="display:inline-block;float:none;">
+            <%
+               (1..150).each do |i|
+            %>
+                <%=i%><br/>
+            <%
+                end
+            %>
+        </span>
+    </span>
+</span>
+<%
+  begin
+      x = 1/0
+  rescue Exception=>e
+     logger.debug{e}
+  end
+
+%>

@@ -1,0 +1,43 @@
+<span class="span-80 search_result_unit margin-bottom-1" id="search_item_unit_<%=item.id%>">
+	<span class="span-79 margin-swap_unit">
+		<span class="span-79 margin-swap_line">
+			<a href="<%=item.viewItemURL%>" target="_new_<%=item.itemId%>">
+				<img src="<%=item.galleryURL%>" width="50" class="facebook_pic margin-swap_pic" style="cursor:pointer;">
+			</a>
+			<span class="span-71 margin-left-1">
+				<span class="span-71 fontsize11 normal_font  medium_gray">
+					<span class="span-69 height20">
+						<span class="float-left">
+							<span  class="dark_gray fontsize14 bold_font">
+								<%=word_for :ebay%>
+							</span>
+							<span  class="dark_gray">
+								<%=word_for :has%>
+							</span>
+						</span>
+					</span>
+				</span>
+				<span class="span-71 fontsize12 bold_font">
+					<span class="span-69 fontsize14" style="white-space:normal;overflow:hidden;">
+						<a href="<%=item.viewItemURL%>" target="_new_<%=item.itemId%>">
+							<%=trim_title(item.title,90,90)%>
+						</a>
+						
+						<span class="span-69 fontsize11 normal_font medium_dark_gray">Price <%=format_currency_by_currency_code(item.sellingStatus.convertedCurrentPrice.currencycode,item.sellingStatus.convertedCurrentPrice.price)%></span>
+						
+					</span>
+				</span>
+				<span class="span-71 fontsize11 normal_font  medium_dark_gray" style="white-space:normal;overflow:hidden;">
+					<%=item.primaryCategory.categoryName%>
+				</span>
+				<span class="span-71 height-2 margin-top-1">
+					<a href="<%=item.viewItemURL%>" target="_new_<%=item.itemId%>" class="green_button_small" >
+						<%=word_for :check_it_out%>
+					</a>
+				</span>
+			</span>
+		</span>
+		<span class="height01 span-79 margin-swap_line medium_gray_bg">
+		</span>
+	</span>
+</span>

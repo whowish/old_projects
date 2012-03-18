@@ -1,0 +1,55 @@
+<%
+	creator = Member.first(:conditions=>{:facebook_id=>discussion.creator_facebook_id})
+	creator_name = (discussion.is_anonymous) ? "#{creator.anonymous_name}" : creator.name
+%>
+<span class="global_width">
+	<span class="span-98">
+		<span class="span-98 margin-top-2">
+			<span class="span-98 font26 bold_font dark_gray">
+				<%=discussion.title%>
+				<a href="#" title="Share on Facebook" class="comment_share_icon-facebook margin-left-1" onclick="$.whowish_box({url:'/discussion/discussion_share?id=<%=discussion.id%>',background_color:'#54a8e3'});return false;">
+				</a>
+				<a href="#" title="Tweet" class="comment_share_icon-twitter margin-left-1" onclick="window.open('http://www.twitter.com/share?url=http://<%=DOMAIN_NAME%>/discussion/view/<%=discussion.id.to_s%>','mywindow','width=600,height=400');return false;">
+				</a>
+				<%
+					if $facebook.is_aesir
+				%>
+					<a href="/discussion?id=<%=discussion.id%>" target="_edit_discussion_<%=discussion.id%>" class="edit_icon margin-left-1" title="edit" style="float:none;"></a>
+					<a href="#" class="comment_share_icon-delete margin-left-1" title="Delete" onclick="$.whowish_box({url:'/discussion/confirm_delete?discussion_id=<%=discussion.id%>'});return false;"></a>
+				<%	
+					end
+				%>
+			</span>
+			<span class="span-98 font11 light_font medium_dark_gray margin-top-5px">
+				<span class="float-left">
+					<%=word_for :created_by%> 
+					<%if discussion.is_anonymous%>
+						<%=creator_name%>
+					<%else%>
+	                	<a href="/profile?user_id=<%=discussion.creator_facebook_id%>" class="facebook_blue"><%=creator_name%></a>
+					<%end%>
+				</span>
+				<span class="font11 medium_gray margin-left-1">
+                    &middot; <%=semantic_time(discussion.created_date)%>
+                </span>
+			</span>
+			<%=render :partial=>"/discussion/love_meter",:locals=>{:discussion=>discussion}%>
+		</span>
+		<% 
+			if discussion.description and discussion.description.strip != ""
+		%>
+			<span class="comment_unit span-98 margin-top-1 clearfix">
+				<span class="commentator span-98 font12 line_height_description light_font medium_dark_gray">
+					
+					<span class="span-90 margin-top-1 margin-left-1 font14 medium_dark_gray comment_typograph">
+						<%=discussion.description%>
+					</span>
+					<span class="span-98 height-1 display_block clearfix">
+					</span>
+				</span>					
+			</span>
+		<%
+			end
+		%>
+	</span>
+</span>

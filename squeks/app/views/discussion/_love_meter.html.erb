@@ -1,0 +1,66 @@
+<span class="span-98 margin-top-2" id="love_meter_discussion_<%=discussion.id%>">
+	<%
+		discussion_love = DiscussionLove.first(:conditions=>{:discussion_id=>discussion.id,:facebook_id=>$facebook.facebook_id})
+		if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_LOVE
+	%>
+    	<a href="#" class="love_button youlove_this" >
+    	</a>
+	<%else%>
+		<a href="#" class="love_button" onclick="submit_discussion_love(this,'<%=DiscussionLove::TYPE_LOVE%>',<%=discussion.id%>,true,'');return false;">
+    	</a>
+	<%end%>
+	<a href="#" class="love_button loading" style="display:none;" id="love_button_loading">
+		<img src="/images/button_loader.gif" style="margin-left:42%;margin-top:42%;">
+    </a> 
+	<span class="span-86" title="Click on the love or hate icons to vote!">
+   
+        <!--======   METER  =================================================-->
+        <span class="span-85 margin-top-1 margin-left-5px">
+            <%
+              love_width, hate_width = calculate_love_hate_width(discussion.loves,discussion.hates,846)
+			  total_love_hate = discussion.loves+discussion.hates
+			  percent_love = 0
+			  percent_love = (((discussion.loves*100)/total_love_hate)) if total_love_hate > 0
+			  percent_hate = 100 - percent_love
+            %>
+            <!--==== (width(550) - pinkMargin(4) = 846px =================================================-->
+			<span class="span-85 white_bg">
+	            <span class="pink-meter" style="width:<%=love_width%>px;">
+	            	<%if love_width > 30 and total_love_hate !=0%>
+						<span class="float-right font11 white bold_font" style="margin-top:3px; margin-right:4px;">
+							<%= word_for :love_percent,:number=>percent_love%>
+						</span>
+					<%end%>
+	            </span>
+	            <span class="gray-meter" style="width:<%=hate_width%>px;">
+	            	<%if hate_width > 30 and total_love_hate !=0%>
+						<span class="float-left font11 white bold_font" style="margin-top:3px; margin-left:4px;">
+							<%= word_for :hate_percent,:number=>percent_hate%>
+						</span>
+					<%end%>
+	            </span>
+			 </span>
+			 <span class="span-85">
+				<span class="float-left margin-left-5px height20 font11 huneysuckle_pink">
+					<%=render :partial=>"/discussion/discussion_love_stat",:locals=>{:discussion=>discussion}%>
+				</span>
+				<span class="float-right height20 font11 medium_gray align_right">
+					<%=render :partial=>"/discussion/discussion_hate_stat",:locals=>{:discussion=>discussion}%>
+				</span>
+			 </span>
+			 <span class="span-85">
+				<%=render :partial=>"/discussion/related_figure",:locals=>{:discussion=>discussion}%>
+			</span>
+        </span>
+    </span>
+	<%if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_HATE%>
+		<a href="#" class="hate_button youhate_this" >
+        </a>
+	<%else%>
+        <a href="#" class="hate_button" onclick="submit_discussion_love(this,'<%=DiscussionLove::TYPE_HATE%>',<%=discussion.id%>,true,'');return false;">
+        </a>
+	<%end%>
+	<a href="#" class="hate_button loading" style="display:none;" id="hate_button_loading"  >
+		<img src="/images/button_loader.gif" style="margin-left:42%;margin-top:42%;">
+    </a> 
+</span>

@@ -1,0 +1,74 @@
+@charset "UTF-8";
+/* CSS Document */
+/* ============================================================================================================================
+== TIME LINE
+** ============================================================================================================================ */
+
+.timeline_view {
+	overflow:auto;
+	height:525px;
+	display:block;
+	white-space:nowrap;
+}
+
+.timeline_unit_deselected_view {
+	color:#ffffff !important;
+	text-shadow: 1px 1px #444444;
+	background-image: url(file:///Macintosh%20HD/Users/Pawn/Desktop/ampm/images/calendar_bg.jpg) !important;
+	background-position: 0px -180px !important;
+}
+
+.timeline_unit_selected_view {
+	color: #FFFFFF !important;
+	background-image: url(file:///Macintosh%20HD/Users/Pawn/Desktop/ampm/images/calendar_bg.jpg) !important;
+	background-position: 0px -160px !important;
+	text-shadow: 1px 1px #444444 !important;
+	font-weight:bold;
+}
+
+.timeline_unit_selected:hover_view {
+	color:#ffffff !important;
+	text-shadow: 1px 1px #444444 !important;
+	background-image: url(../images/calendar_bg.jpg) !important;
+	background-position: 0px -200px !important;
+}
+
+.timeline_unit:hover_view {
+	background-color:#EEEEEE;
+}
+
+.timeline_unit_view {
+	width:40px;
+	height:20px;
+	display:block;
+	font-size:12px;
+	text-align:center;
+	color:#666666;
+	font-weight:bold;
+	line-height:20px;
+}
+
+.timeline_column_view {
+	width:40px;
+	height: 525px;
+	display:inline-block;
+}
+
+.timeline_day_header_view {
+	width:40px;
+	height: 45px;
+	display:block;
+	font-weight:bold;
+	text-align:center;
+}
+.timeline_day_header_view .month {
+	font-size:20px;
+}
+.am_time_view {
+	background-image:url(../images/calendar_bg.jpg);
+	background-position: 0px -120px;
+}
+.pm_time_view {
+	background-image:url(../images/calendar_bg.jpg);
+	background-position: 0px -140px;
+}

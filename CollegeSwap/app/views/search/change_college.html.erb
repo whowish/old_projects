@@ -1,0 +1,57 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span id="item_flow_content" class="span-50 margin-bottom-1">
+	<span class="span-48 margin-left-1 margin-top-1">
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-15" ><%=word_for :select_college%></span> 
+			<span class="span-31 ">
+				<input class="dark_gray span-31 postbox_input" id="college_name" value="<%=params[:college_name]%>" type="text" />
+			</span>
+		</span>
+		<span class="span-48 margin-bottom-1">
+			<span class="span-15" >&nbsp;</span> 
+			<span class="span-31">
+				<a href="#" class="facebook_button" onclick="submit_college(this);return false;">
+					<%=word_for :search%>
+				</a>
+				
+			</span>
+			
+		</span>
+	</span>
+</span>
+<div style="height:0px;clear:left;">&nbsp;</div>
+<script language="javascript">
+	function submit_college(button)
+	{
+		$(button).loading_button(true);
+		
+		search_item({college_name:$('#college_name').val()});
+	}
+	
+	$(function() {
+		$("#college_name").autocomplete('/college/list',{
+			parse : function(data) {
+				//data = $.parseJSON(data);
+				
+				var parsed = [];
+				var rows = data.result;
+				for (var i=0; i < rows.length; i++) {
+					var row = $.trim(rows[i]);
+					if (row) {
+						parsed[parsed.length] = {
+							data: [row],
+							value: row,
+							result: row
+						};
+					}
+				}
+				return parsed;
+			},
+			matchContains: true
+		});
+	})
+	
+	$('#college_name').default_text("<%=word_for :college_name_default%>",true);
+</script>

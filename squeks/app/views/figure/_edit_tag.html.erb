@@ -1,0 +1,15 @@
+<span id="span_figure_tag">
+	<%
+		tags = get_tag_text(figure).split(', ')
+	%>
+	<%tags.each do |tag|%>
+		<%if tag != "" and tag != "-"%>
+			<a href="/search?tags=<%=tag%>" class="font11 dark_gray light_font" >
+				<%=tag%>
+			</a>
+		<%elsif tag == "-"%>
+			<%=tag%> 
+		<%end%>
+		<%=',' if tag != tags[tags.length - 1]%>
+	<%end%>
+</span>

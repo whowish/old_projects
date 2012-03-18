@@ -1,0 +1,58 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50 margin-bottom-1">
+	<span class="span-50 light_green_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		&nbsp;&nbsp; <%=word_for :are_you_sure%>
+	</span>
+	<span class="span-49" style="overflow:hidden;">
+		<%=render :partial=>"/home/search_result_unit",:locals=>{:item=>Item.first(:conditions=>{:id=>params[:item_id]})}%>
+	</span>
+	<span class="span-50 margin-top-1 margin-bottom-1">
+		<span class="red_button margin-left-1" id="delete_button_<%=params[:item_id]%>"  onclick="del_item_<%=params[:item_id]%>();">
+			<%=word_for :delete_button%>
+		</span>
+		<span class="green_button margin-left-1" id="cancel_button_<%=params[:item_id]%>"  onclick="cancel_del();">
+			<%=word_for :cancel_button%>
+		</span>
+	</span>
+</span>
+
+<script language="javascript">
+	
+	function del_item_<%=params[:item_id]%>()
+	{
+			$('#delete_button_<%=params[:item_id]%>').loading_button(true);
+		
+			var data = {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"item_id": "<%=params[:item_id]%>"
+			};
+			
+			
+			$.ajax({
+				type: "POST",
+				url: '/item/delete',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						$('#item_unit_<%=params[:item_id]%>').fadeOut(
+						function (){$('#item_unit_<%=params[:item_id]%>').remove();})
+					}
+					$(document).trigger('close.whowish_box');
+				},
+				error: function(){
+					
+				}
+			});
+		
+	}
+	
+	function cancel_del()
+	{
+		$(document).trigger('close.whowish_box');
+	}
+
+</script>

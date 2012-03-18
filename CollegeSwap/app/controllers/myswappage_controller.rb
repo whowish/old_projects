@@ -1,0 +1,2 @@
+class MyswappageController < ApplicationController
+end

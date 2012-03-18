@@ -1,0 +1,99 @@
+<%
+	bidder = Member.first(:conditions=>{:facebook_id=>@bid.facebook_id})
+%>
+<span class="span-50 white_bg clearfix">
+	<span class="span-48 margin-left-1 margin-top-1">
+		<span class="span-48 font14 medium_dark_gray bold_font">
+			<%= word_for :highest_bid%>
+		</span>
+		<span class="span-48 height01 light_gray_bg display_block">
+		</span>
+		<span class="span-48 margin-top-1">
+			<span class="span-5">
+				<img src="<%=@figure.get_thumbnail_image_url%>" />
+			</span>
+			<span class="span-42 margin-left-5px">
+				<span class="span-42 clearfix">
+					<span class="float-left height20 squeks_blue_bg padding_horizontal_4px font11 normal_font white">
+						<%= word_for :bidder%>
+					</span>
+					<a href="/profile?user_id=<%=bidder.facebook_id%>" class="float-left height20 font12 bold_font white_bg squeks_blue padding_horizontal_4px">
+						<%=bidder.name%>
+					</a>
+				</span>
+				<span class="span-42  margin-top-5px clearfix">
+					<span class="float-left height20 huneysuckle_pink_bg padding_horizontal_4px font11 normal_font white">
+						<%= word_for :value%> 
+					</span>
+					<span class="float-left height20 font12 bold_font white_bg padding_horizontal_4px">
+						<span class="squeks_coin_value">
+						</span>
+						<span class="float-left margin-left-5px font12 huneysuckle_pink bold_font">
+							<%=number_with_delimiter(@bid.value)%>
+						</span>
+					</span>
+				</span>
+				<span class="span-42  margin-top-5px font11 huneysuckle_pink normal_font clearfix">
+					<%second_left = ((@figure.bid_start_time+86400) - Time.now)%>
+					<%= word_for :time_left%> 
+					<%=(second_left/3600).to_i%><%= word_for :hour%>
+					<%=(((second_left-(second_left/3600).to_i*3600)/60)).to_i%><%= word_for :minute%>
+				</span>
+			</span>
+		</span>
+		<%
+			@other_bids = BidRequest.all(:conditions=>{:figure_id=>@bid.figure_id,:status=>BidRequest::STATUS_FAILED},:order=>"created_date DESC")
+			
+			if @other_bids.length > 0
+		%>
+				<span class="span-48 height01 margin-top-2 light_gray_bg">
+				</span>
+				<span class="span-48 font12 medium_dark_gray margin-top-5px bold_font">
+					<%=word_for :other_bid%>
+				</span>
+				<span class="span-48 height01 margin-top-5px light_gray_bg">
+				</span>
+				
+				<span class="span-42 margin-top-1 margin-left-5">
+					<%
+						@other_bids.each do |bid|
+							other_bidder = Member.first(:conditions=>{:facebook_id=>bid.facebook_id})
+					%>
+						<span class="span-42 margin-top-5px">
+							<span class="span-42 clearfix">
+								<span class="float-left height20 squeks_blue_bg padding_horizontal_4px font11 normal_font white">
+									<%=word_for :other_bidder%>
+								</span>
+								<a href="/profile?user_id=<%=other_bidder.facebook_id%>"  class="float-left height20 font12 bold_font white_bg squeks_blue padding_horizontal_4px">
+									<%=other_bidder.name%>
+								</a>
+								<span class="float-right  margin-top-5px font11 huneysuckle_pink normal_font clearfix">
+									<%=semantic_time bid.created_date%>
+								</span>
+							</span>
+							<span class="span-42  margin-top-5px clearfix">
+								<span class="float-left height20 huneysuckle_pink_bg padding_horizontal_4px font11 normal_font white">
+									<%=word_for :other_bid_value%>
+								</span>
+								<span class="float-left height20 font12 bold_font white_bg padding_horizontal_4px">
+									<span class="squeks_coin_value">
+									</span>
+									<span class="float-left margin-left-5px font12 huneysuckle_pink bold_font">
+										$<%=number_with_delimiter(bid.value)%>
+									</span>
+								</span>
+							</span>
+							<span class="span-42 height01 margin-top-5px light_gray_bg display_block">
+							</span>
+						</span>
+					<%
+						end
+					%>
+				</span>
+		<%
+			end
+		%>
+	</span>
+	<span class="span-50 clearfix height-1 display_block">
+	</span>
+</span>

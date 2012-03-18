@@ -1,0 +1,23 @@
+<span id="flag_flow_content" class="span-50">
+	<span class="span-48 margin-left-1 margin-top-1">
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="font12 squeks_blue bold_font">
+                <%= word_for :reason%>
+            </span>
+			<span class="span-48 margin-top-5px margin-left-1">
+				<input type="radio" value="Duplication issue" id="disapprove_reason_illegal" name="disapprove_reason" onclick="radio_button_clicked();" checked="checked"> Duplication issue<br/>
+				<input type="radio" value="Inappropriateness issue" id="disapprove_reason_spam" name="disapprove_reason" onclick="radio_button_clicked();" > inappropriateness issue<br/>
+				<input type="radio" value="Privacy issue" id="disapprove_reason_inappropriate" name="disapprove_reason" onclick="radio_button_clicked();" > Privacy issue<br/>
+				<input type="radio" value="Other" id="disapprove_reason_other" name="disapprove_reason" onclick="radio_button_clicked();" > Other
+						<input type="text" name="disapprove_reason" id="other_disapprove_textbox" disabled="disabled" ><br/>
+			</span>
+		</span>
+		<span class="span-48 margin-top-2 margin-bottom-1">
+			<span class="span-48">
+				<a href="#" class="squeks_button" id="disapprove_figure_reason__sumbit_button"  onclick="submit_approve(this,<%=params[:id]%>,'disapprove',);return false;">														
+					 <%= word_for :OK%>
+				</a>
+			</span>
+		</span>
+	</span>
+</span>

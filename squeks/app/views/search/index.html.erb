@@ -1,0 +1,204 @@
+<%	
+    params[:q] ||= ""
+    params[:offset] ||= 0
+    params[:limit] ||= 12
+	params[:view] ||= "thumbnail"
+	params[:sort] ||= "name"
+	params[:tags] ||= ""
+		
+
+	params[:offset] = params[:offset].to_i
+	params[:limit] = params[:limit].to_i
+	
+	order_by = "title_us ASC" 
+	order_by = "created_date DESC" if params[:sort] == "most_recent"
+
+	tag_clause = ""
+	if params[:tags] != ""
+		tags = params[:tags].split(',').map {|i| "tags LIKE '%<t>#{i.strip}</t>%'" }
+		tag_clause = " AND (#{tags.join(' AND ')})"
+	end
+   
+	where_clause = ["title_us","title_jp","title_kr","title_th","title_cn"].map { |w| "(#{w} IS NOT NULL AND #{w} LIKE :q)" }
+	sql = "(#{where_clause.join(' OR ')}) AND status = :status #{tag_clause}"
+	count = Figure.count(:conditions =>[sql,{:q=>"%#{params[:q]}%",:status=>Figure::STATUS_ACTIVE}])
+	figures = Figure.all(:conditions =>[sql,{:q=>"%#{params[:q]}%",:status=>Figure::STATUS_ACTIVE}],
+									:order=>order_by,:offset=>params[:offset],:limit=>params[:limit])
+
+	@figure_tags = FigureTag.all(:group=>"tag_id",:select=>"COUNT(1) AS num_tags,tag_id",:limit=>20,:order=>"1 DESC",:conditions=>[where_clause.join(' OR '),{:q=>"%#{params[:q]}%"}])	
+
+	@tags = {}
+	Tag.all(:conditions=>{:id=>@figure_tags.map { |x| x.tag_id}}).each { |tag|
+		@tags[tag.id] = tag
+	}
+
+    if count == 0
+        params[:add_title] = params[:q]
+%>
+        <span class="span-68 margin-top-1 white_bg clearfix">
+            <span class="span-66 margin-top-1 margin-left-1 margin-bottom-1 font16 bold_font">
+                <%=word_for :not_found, :title=>params[:q]%>
+            </span>
+        </span>
+        <%=render :partial=>"figure/add_page"%>
+<%
+    else
+%>
+<span class="span-98 margin-top-2">
+    <span class="span-68 clearfix">
+        <span class="span-68 add_figure">
+            <a href="#" class="none-text-decoration" onclick="add_item();return false;">
+                <span class="span-68">
+                    <span class="add_figure_icon">
+                    </span>
+                    <span class="add_figure_text margin-left-5px huneysuckle_pink">
+                        <%=word_for :not_in_list, :title=>params[:q]%>
+                    </span>
+                </span>
+            </a>
+        </span>
+        <%if count > 0%>
+		<span class="span-68 height20">
+			<span class="float-left height20">
+				<span class="float-left font12 bold_font medium_dark_gray">
+					<%=word_for :sort_by%>
+				</span>
+					
+				<span class="comment_filter font12 margin-left-1">
+					<ul class="medium_dark_gray">
+						<li>
+							<a href="#" class="<%=(params[:sort] == 'name')?'selected':'tab'%>" onclick="search_item({sort:'name',view:'<%=params[:view]%>'});return false;">
+								<span>
+									<%=word_for :name%>
+								</span>
+							</a>
+						</li>
+						<li>
+							<a href="#" class="<%=(params[:sort] == 'most_recent')?'selected':'tab'%>" onclick="search_item({sort:'most_recent',view:'<%=params[:view]%>'});return false;">
+								<span>
+									<%=word_for :most_recent%>
+								</span>
+							</a>
+						</li>
+						
+					</ul>
+				</span>
+			</span>
+			<!--<span class="float-right margin-left-10">
+				<span class="float-left font12 medium_dark_gray bold_font">
+					View:
+				</span>
+				<span class="float-left margin-left-2">
+					<a href="#" class="thumb_view_icon <%=(params[:view] == 'thumbnail')?'active':''%>" title="thumbnail" onclick="search_item({sort:'<%=params[:sort]%>',view:'thumbnail',offset:<%=params[:offset].to_i%>});return false;">
+					</a>
+					<a href="#" class="list_view_icon margin-left-5px <%=(params[:view] == 'list')?'active':''%>" title="list" onclick="search_item({sort:'<%=params[:sort]%>',view:'list',offset:<%=params[:offset].to_i%>});return false;">
+					</a>
+				</span>
+			</span>-->
+		</span>
+        <span class="span-68 search_result margin-top-1 clearfix">
+            <ul>
+                <%
+                    figures.each do |f|
+                %>
+					<%if params[:view] == 'list'%>
+                    	<%=render :partial=>"search/search_result_unit",:locals=>{:figure=>f}%>
+					<%else%>
+                    	<%=render :partial=>"home/thumbnail_unit",:locals=>{:figure=>f}%>
+					<%end%>
+                <%end%>
+            </ul>
+            <span class="span-68 margin-top-1">
+                <span class="margin-left-4px total_page squeks_blue_bg">
+                	<%=word_for :paging, :from=>number_with_delimiter((params[:offset].to_i+1)), :to=>number_with_delimiter(([(params[:offset].to_i+params[:limit].to_i),count].min)),:total=>number_with_delimiter(count)%>
+                </span>
+                <span class="page_number">
+                    <ul>
+                        <%
+							pages = []
+
+							current_page = (params[:offset] / params[:limit])+1
+
+							number_of_pages = (count.to_f/params[:limit].to_f).ceil
+							if number_of_pages > 10
+								pages = [current_page]
+
+								
+								# span on current page
+								(1..5).each { |i|
+									pages.unshift(current_page-i) if (current_page-i) >= 1
+									pages.push(current_page+i)  if (current_page+i) <= number_of_pages
+								}
+
+
+								# add head and tail
+								[3,2,1].each { |i|
+									logger.debug { "#{i} #{pages.first}" }
+									pages = pages.unshift(i) if i < pages.first
+									pages = pages.push(number_of_pages - i + 1) if (number_of_pages - i + 1) > pages.last
+								}
+								
+							else
+								pages = (1..number_of_pages)
+							end
+
+							last = 0
+							pages.each do |i|
+							
+								if i > (last+1)
+						%>
+									<li>...</li>
+						<%
+								end
+						%>
+								<li><a href="/search?q=<%=params[:q]%>&tags=<%=params[:tags]%>&view=<%=params[:view]%>&sort=<%=params[:sort]%>&offset=<%=params[:limit]*(i-1)%>&limit=<%=params[:limit]%>" <%='class="active"' if i == current_page%>><%=i%></a></li>
+						<%
+								last = i
+							end
+						%>
+                    </ul>
+                </span>
+            </span>
+        </span>
+        <%end%>
+    </span>
+	<span class="span-18 margin-left-2 margin-top-5">
+		<span class="span-18 font30 bold_font medium_dark_gray">
+			<%=number_with_delimiter(@figure_tags.length)%>
+		</span>
+		<span class="span-18 font11 light_font dark_gray">
+			<%=word_for :related_tags%>
+		</span>
+		<span class="span-18 margin-top-2">
+			<%
+				@figure_tags.each do |figure_tag|
+			%>
+			<span class="span-18 margin-top-5px" style="white-space:nowrap;">
+				<span class="float-left ">
+					<a href="/search?q=<%=params[:q]%>&tags=<%=CGI.escape(@tags[figure_tag.tag_id].name)%>&view=<%=params[:view]%>&sort=<%=params[:sort]%>" class="tag_unit height20 padding_horizontal_4px white squeks_blue_bg round_corner-4 display_inline_block">
+						<%=@tags[figure_tag.tag_id].name%>
+					</a>
+				</span>
+				<span class="float-left height20 margin-left-5px font12 bold_font medium_dark_gray">
+					x <%=number_with_delimiter(figure_tag.num_tags.to_i)%>
+				</span>
+			</span>
+			<%
+				end
+			%>
+			
+		</span>	
+	</span>
+</span>
+
+
+<script language="javascript">
+	function add_item(options) {
+		
+		location.href = '/home?add_title='+encodeURI('<%=params[:q]%>')
+	}
+
+</script>
+<%
+    end
+%>

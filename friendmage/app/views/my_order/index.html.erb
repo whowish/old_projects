@@ -1,0 +1,32 @@
+<%	
+	order_by = "created_date DESC"
+	orders = Order.all(:conditions =>["facebook_id = ? and not(status = ?)",$facebook.facebook_id,Order::STATUS_CREATING],:order=>order_by)
+%>
+
+<span class="span-98 clearfix">
+	<span class="span-96 margin-left-1 light_blue_bg clearfix">
+		<span class="float-left margin-top-1 margin-left-1 font28 bold_font friendmage_red whiteShadow">
+			<%= word_for :my_order%>
+		</span>
+		
+		<span class="span-96 height01 medium_gray_bg margin-top-1">
+		</span>
+	</span>
+	<%if $facebook.is_guest%>
+		<%=render :partial=>"/my_order/login"%>
+	<%else%>
+		<span class="span-96 margin-left-1 clearfix">
+			<%if orders.count > 0%>
+			 <%
+	            orders.each do |o|
+	        %>
+	            <%=render :partial=>"/my_order/order_unit",:locals=>{:order=>o}%>
+	        <%end%>
+			<%else%>
+				<span class="span-96 margin-top-1 clearfix" >
+					<%= word_for :no_order%>
+				</span>
+			<%end%>
+		</span>
+	<%end%>
+</span>

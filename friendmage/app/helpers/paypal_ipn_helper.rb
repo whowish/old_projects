@@ -1,0 +1,2 @@
+module PaypalIpnHelper
+end

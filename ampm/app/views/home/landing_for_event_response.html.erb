@@ -1,0 +1,41 @@
+<%
+	event = Event.first(:conditions=>{:id=>params[:event_id]});
+	owner = get_facebook_info(event.facebook_id);
+%>
+
+		<span class="span-76 margin-top-4 margin-bottom-4" style="width:758px !important;">
+			
+			<span class="span-70 margin-left-2">
+				
+				<span class="span-70 light_gray_bg round_corner-4">
+					<span class="span-68 margin-left-1 margin-top-1 margin-bottom-1">
+						<span class="span-68 font18 bold_font medium_dark_gray">
+							<%=word_for :welcome%>
+						</span>
+						
+						<span class="span-68 margin-top-1 font30 bold_font dark_gray">
+							<%=word_for :title, :title=>event.title%>
+						</span>
+						<span class="span-68 font12 light_font medium_dark_gray margin-top-1">
+							<span class="span-58">
+								<%=word_for :instruction%>
+							</span>
+							<span class="span-68 margin-top-4px margin-top-1">
+								<a href="<%=generate_permission_url([],'http://apps.facebook.com/'+FACEBOOK_APP_NAME+request.path+'?'+request.env['QUERY_STRING'])%>" target="_top" class="blue_button_verybig">
+									&nbsp;&nbsp;<%=word_for :next_button%>&nbsp;&nbsp;
+								</a>
+							</span>
+						</span>
+					</span>
+				</span>
+				<span class="arrow_down margin-left-2">
+				</span>
+				<span class="span-70 margin-top-1 height-5">
+					<span class="facebook_pic" style="background-image:url(<%=owner.profile_picture_url%>) !important;">
+					</span>
+					<span class="span-36 margin-left-1 font18 bold_font white">
+						<%=owner.name%>
+					</span>
+				</span>
+			</span>
+		</span>

@@ -1,0 +1,21 @@
+<span class="span-68"  id="flag_<%=entity.id%>">
+	<span class="float-right margin-left-5px font10 light_font medium_gray">
+		<span class="span-4">
+           <a href="#" class="x_icon" title="delete flag" onclick="delete_flag(<%=entity.id%>,this);return false;"></a>
+        </span>
+	</span>
+	<%
+		if @comment_data[entity.comment_id].parent_id == 0
+	%>
+			<%=render :partial=>"comment/comment_view",:locals=>{:comment=>@comment_data[entity.comment_id],:show_sub_comment=>false}%>
+	<%
+		else
+	%>
+			<%=render :partial=>"comment/sub_comment",:locals=>{:comment=>@comment_data[entity.comment_id]}%>
+	<%
+		end
+	%>
+	<span class="span-68 margin-top-1">
+		<%=word_for :flag_reason, :reason=>entity.reason%>
+	</span>
+</span>

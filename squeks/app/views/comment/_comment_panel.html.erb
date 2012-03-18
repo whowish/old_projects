@@ -1,0 +1,191 @@
+<%
+    params[:offset] ||= 0
+    params[:limit] ||= 10
+	params[:sort] ||= "date"
+
+    params[:offset] = params[:offset].to_i
+    params[:limit] = params[:limit].to_i
+
+	if params[:sort] == "date"
+		count = Comment.count(:conditions=>{:figure_id => figure.id,:parent_id=>0,:status=>Comment::STATUS_ACTIVE})
+    	all_comments = Comment.all(:conditions=>{:figure_id => figure.id,:parent_id=>0,:status=>Comment::STATUS_ACTIVE},:order=>"created_date DESC",:offset=>params[:offset],:limit=>params[:limit])
+	elsif params[:sort] == "rating"
+    	count = Comment.count(:conditions=>{:figure_id => figure.id,:parent_id=>0,:status=>Comment::STATUS_ACTIVE})
+    	all_comments = Comment.all(:conditions=>{:figure_id => figure.id,:parent_id=>0,:status=>Comment::STATUS_ACTIVE},:order=>"total_agree DESC",:offset=>params[:offset],:limit=>params[:limit])
+	elsif params[:sort] == "friend"
+		subcomment = Comment.all(:select=>"DISTINCT parent_id",:conditions=>["not(parent_id = :parent_id) AND facebook_id in (:facebook_ids) AND figure_id=:figure_id AND status=:status",{:parent_id=>0,:figure_id => figure.id,:facebook_ids=>$member.all_friends.push($member.facebook_id),:status=>Comment::STATUS_ACTIVE}])
+		count = Comment.count(:conditions=>["id in (:subcomment_ids) or (parent_id = :parent_id AND facebook_id in (:facebook_ids) AND figure_id=:figure_id) AND status=:status",{:subcomment_ids=>subcomment.map{|s| s.parent_id},:parent_id=>0,:figure_id => figure.id,:facebook_ids=>$member.all_friends.push($member.facebook_id),:status=>Comment::STATUS_ACTIVE}])
+		all_comments = Comment.all(:conditions=>["id in (:subcomment_ids) or (parent_id = :parent_id AND facebook_id in (:facebook_ids) AND figure_id=:figure_id) AND status=:status",{:subcomment_ids=>subcomment.map{|s| s.parent_id},:parent_id=>0,:figure_id => figure.id,:facebook_ids=>$member.all_friends.push($member.facebook_id),:status=>Comment::STATUS_ACTIVE}],:order=>"created_date asc",:offset=>params[:offset],:limit=>params[:limit])
+	end
+%>
+<span id="comment_panel">
+	<%=render :partial=>"/comment/comment_popular" , :locals=>{:figure=>figure}%>
+    <%=render :partial=>"/comment/comment_add" , :locals=>{:figure=>figure}%>
+	<%
+		if count > 0
+	%>
+	    <span class="comment span-68 margin-top-1">
+	        <span class="float-left margin-top-1 height20">
+	            <span class="float-left font14 bold_font dark_gray">
+	                <%=word_for :sort_by%>
+	            </span>
+	
+	            <span class="comment_filter font12 margin-left-1">
+	                <ul class="medium_dark_gray">
+	                    <li>
+	                        <a class="<%=(params[:sort] == 'date')?'selected':'tab'%>" href="#" onclick="go_to_comment_offset(0,'date');return false;">
+								<span>
+									<%=word_for(:date)%>
+								</span>
+							</a>
+	                    </li>
+	                    <li>
+	                        <a class="<%=(params[:sort] == 'rating')?'selected':'tab'%>" href="#" onclick="go_to_comment_offset(0,'rating');return false;">
+								<span>
+									<%=word_for(:rating)%>
+								</span>
+							</a>
+	                    </li>
+	                    <li>
+	                        <a class="<%=(params[:sort] == 'friend')?'selected':'tab'%>" href="#" onclick="go_to_comment_offset(0,'friend');return false;">
+								<span>
+									<%=word_for(:friend)%>
+								</span>
+							</a>
+	                    </li>
+	                </ul>
+	            </span>
+	        </span>
+	        <span class="float-right height20 squeks_blue font18 bold_font">
+	            <!--<span class="comment_icon">
+	            </span>
+	            <span class="squeks_blue margin-left-1">
+	                Comments (3)
+	            </span>-->
+	        </span>
+	    </span>
+	<%
+		end
+	%>
+    <span class="span-68 margin-top-1">
+          <span id="new_comment"></span>
+        <%
+
+			
+            all_comments.each do |comment|
+        %>
+            <%=render :partial=>"/comment/comment_view" , :locals=>{:comment=>comment,:show_sub_comment=>false}%>
+        <%end%>
+    </span>
+    <%
+        if count > params[:limit].to_i
+    %>
+    <span class="span-68 clearfix margin-top-1">
+        <span class="span-68 clearfix">
+
+        </span>
+        <span class="span-68">
+            <span class="margin-left-4px total_page squeks_blue_bg">
+            	<%=word_for :paging, :from=>(params[:offset].to_i+1), :to=>([(params[:offset].to_i+params[:limit].to_i),count].min),:total=>count%>
+            </span>
+            <span class="page_number">
+                <ul>
+                	<%
+						pages = []
+
+						current_page = (params[:offset] / params[:limit])+1
+
+						number_of_pages = (count.to_f/params[:limit].to_f).ceil
+						if number_of_pages > 10
+							pages = [current_page]
+
+							
+							# span on current page
+							(1..5).each { |i|
+								pages.unshift(current_page-i) if (current_page-i) >= 1
+								pages.push(current_page+i)  if (current_page+i) <= number_of_pages
+							}
+
+
+							# add head and tail
+							[3,2,1].each { |i|
+								logger.debug { "#{i} #{pages.first}" }
+								pages = pages.unshift(i) if i < pages.first
+								pages = pages.push(number_of_pages - i + 1) if (number_of_pages - i + 1) > pages.last
+							}
+							
+						else
+							pages = (1..number_of_pages)
+						end
+
+						last = 0
+						pages.each do |i|
+						
+							if i > (last+1)
+					%>
+								<li>...</li>
+					<%
+							end
+					%>
+							<li><a href="#" onclick="go_to_comment_offset(<%=params[:limit]*(i-1)%>,'<%=params[:sort]%>');return false;" <%='class="active"' if i == current_page%>><%=i%></a></li>
+					<%
+							last = i
+						end
+					%>
+                </ul>
+            </span>
+        </span>
+        <span class="span-20 clearfix">
+        </span>
+    </span>
+    <%
+        end
+    %>
+
+    <script language="javascript">
+
+        function go_to_comment_offset(offset,sort)
+        {
+            try {
+                $.ajax({
+                    type: "POST",
+                    url: '/comment/',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        figure_id:"<%=figure.id%>",
+                        offset: offset,
+						sort: sort
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+
+                                $("#comment_panel").replaceWith(data.html);
+                                //$("#comment_panel").hide();
+                                $("#comment_panel").fadeIn();
+                            }
+                            else {
+
+                            }
+
+                        }
+                        catch (e) {
+                            $.error_log('comment_paging', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $.error_log('comment_paging',e);
+                alert(e);
+            }
+        }
+    </script>
+</span>

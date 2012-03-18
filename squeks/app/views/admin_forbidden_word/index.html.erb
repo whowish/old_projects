@@ -1,0 +1,102 @@
+<%
+	all_words = ForbiddenWord.all()
+%>
+
+<%
+	all_words.each do |word|
+%>
+	<%= render :partial=>"/admin_forbidden_word/word_unit", :locals=>{:word=>word}%>
+<%end%>
+<span id="new_word"></span>
+<%= render :partial=>"/admin_forbidden_word/add_word_unit"%>
+<script language="javascript">
+	function edit_word(sender,id)
+	{
+		try {
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_forbidden_word/edit',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"id": id,
+					"word": $('#forbidden_word_'+id).val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+						}
+						else {
+							$(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('edit_forbidden', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('edit_forbidden',e);
+			alert(e);
+		}
+	}
+	function delete_word(sender,id)
+	{
+		try {
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_forbidden_word/delete',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"id": id
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+							$('#forbidden_word_unit_'+id).fadeOut(
+							function (){$('#forbidden_word_unit_'+id).remove();})
+						}
+						else {
+							$(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('delete_forbidden', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('delete_forbidden',e);
+			alert(e);
+		}
+	}
+</script>

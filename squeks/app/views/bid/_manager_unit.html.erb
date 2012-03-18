@@ -1,0 +1,49 @@
+<%
+	manager = Member.first(:conditions=>{:facebook_id=>@figure.manager_facebook_id}) if @figure.manager_facebook_id != 0 and @figure.manager_facebook_id != nil
+%>
+
+<span class="span-50 white_bg">	
+	<span class="span-48 margin-top-1 margin-left-1">
+		<span class="span-48 font14 medium_dark_gray bold_font">
+			<%= word_for :manager%>
+		</span>
+		<span class="span-48 height01 light_gray_bg display_block">
+		</span>
+		<span class="span-48 margin-top-1">
+			<span class="span-5">
+				<img src="<%=@figure.get_thumbnail_image_url%>" />
+			</span>
+			<span class="span-42 margin-left-5px">
+				<span class="span-42 clearfix">
+					<span class="float-left height20 squeks_blue_bg padding_horizontal_4px font11 normal_font white">
+						<%= word_for :personal_manager%>
+					</span>
+						<%if manager%>
+							<a href="/profile?user_id=<%=manager.facebook_id%>" class="float-left height20 font12 bold_font white_bg squeks_blue padding_horizontal_4px">
+								<%=manager.name%>
+							</a>
+						<%else%>
+							<span  class="float-left height20 font12 bold_font white_bg squeks_blue padding_horizontal_4px">
+								<%= word_for :no_manager%>
+							</span>
+						<%end%>
+					</a>
+				</span>
+				<span class="span-42  margin-top-5px clearfix">
+					<span class="float-left height20 huneysuckle_pink_bg padding_horizontal_4px font11 normal_font white">
+						<%= word_for :value%> 
+					</span>
+					<span class="float-left height20 font12 bold_font white_bg padding_horizontal_4px">
+						<span class="squeks_coin_value">
+						</span>
+						<span class="float-left margin-left-5px font12 huneysuckle_pink bold_font">
+							<%=number_with_delimiter(@figure.value)%>
+						</span>
+					</span>
+				</span>
+			</span>
+		</span>
+	</span>
+	<span class="span-50 clearfix height-1 display_block">
+	</span>
+</span>

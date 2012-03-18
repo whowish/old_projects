@@ -1,0 +1,9 @@
+<span class="row" id="country_unit_<%=country.id%>">
+	<span class="toolbox_container">
+		<a href="#" class="blue_button_small" id="submit_button_<%=country.id%>" onclick="edit_description(this,<%=country.id%>);return false;"><%= word_for :edit%></a>
+		<a href="#" class="orange_button_small" id="delete_button_<%=country.id%>" onclick="delete_description(this,<%=country.id%>);return false;"><%= word_for :delete%></a>
+	</span>
+	<span class="name_container">
+		<input id="country_name_<%=country.id%>" type="text" class="span-66" value="<%=country.name%>" />
+	</span>
+</span>

@@ -1,0 +1,49 @@
+<%
+	commentor = Member.first(:conditions=>{:facebook_id=>comment.facebook_id})
+	commentor_name = (comment.is_anonymous) ? commentor.anonymous_name : commentor.name
+	
+%>
+<span class="span-94 reply-unit-count"  id="discussion_comment_view_<%=comment.id%>">
+    <span class="span-92 margin-left-1">
+        <span class="span-92 comment_typograph dark_gray" style="display:block;">
+        	<%=CGI.escapeHTML(comment.comment).gsub("\n","<br/>")%>
+        </span>
+		<span style="margin-top:3px;display:block;">
+	        <span class="font12 bold_font medium_dark_gray margin-left-5px" style="display:inline-block;line-height:16px;">
+	            &minus; 
+				<%if comment.is_anonymous%>
+					<%=commentor_name%>
+				<%else%>
+	        		<a href="/profile?user_id=<%=comment.facebook_id%>" class="dark_blue"><%=commentor_name%></a>
+				<%end%>
+	        </span>
+	        <span class="font11 medium_gray" style="display:inline-block;line-height:16px;">
+	            &middot; <%=semantic_time(comment.created_date)%>
+	        </span>
+			<span class="font11 medium_gray" style="display:inline-block;line-height:16px;">
+	            &middot;  <%=render :partial=>"/discussion/sub_comment_status",:locals=>{:comment=>comment}%>
+	        </span>
+			<span class="float-right" style="display:inline-block;line-height:16px;">
+				<% if !$facebook.is_guest%>
+				<a href="#" title="Share on Facebook" class="comment_share_icon-facebook margin-left-1" style="vertical-align:middle;" onclick="$.whowish_box({url:'/discussion/comment_share?id=<%=comment.id%>',background_color:'#54a8e3'});return false;">
+					</a>
+				<% end %>
+				<a href="#" title="Tweet" class="comment_share_icon-twitter margin-left-1" style="vertical-align:middle;" onclick="window.open('http://www.twitter.com/share?url=http://<%=DOMAIN_NAME%>/discussion/view/<%=comment.discussion_id.to_s%>','mywindow','width=600,height=400');return false;">
+				</a>
+				<a href="#" title="Report Abuse" class="comment_share_icon-flag margin-left-1" style="vertical-align:middle;" onclick="$.whowish_box({url:'/flag?comment_id=<%=comment.id%>',background_color:'#54a8e3'});return false;">
+				</a>
+		        <%
+		           if comment.facebook_id == $facebook.facebook_id or $facebook.is_aesir
+		        %>
+		            <a href="#" title="Delete" class="comment_share_icon-delete margin-left-1" style="vertical-align:middle;" onclick="$.whowish_box({url:'/discussion/comment_confirm_delete?comment_id=<%=comment.id%>',background_color:'#54a8e3'});return false;">
+		            </a>
+		        <%
+		           end
+		        %>
+				
+	        </span>
+		</span>
+    </span>
+    <span class="span-94 height01 light_medium_gray_bg margin-top-5px">
+    </span>
+</span>

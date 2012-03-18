@@ -1,0 +1,32 @@
+<%
+	sql_params = {:discussion_id=>@discussion.id}
+	sql = "discussion_id = :discussion_id"
+	@discussion_figures = DiscussionFigure.all(:conditions=>[sql,sql_params])
+	@figure_data_array = []
+	@discussion_figures.each { |entity|
+		@figure_data_array.push(entity.figure_id) if entity.figure_id
+	}
+	@figure_data = {}
+	Figure.all(:conditions=>{:id=>@figure_data_array}).each { |entity|
+		@figure_data[entity.id] = entity
+	}
+
+	related_figures = []
+	@discussion_figures.each { |discussion_figure|
+		related_figures.push(discussion_figure)
+	}
+%>
+<span class="span-30">
+	<%
+		related_figures.each do |love_figure|
+		if @figure_data[love_figure.figure_id] and @figure_data[love_figure.figure_id].active?
+			image_url = @figure_data[love_figure.figure_id].get_thumbnail_image_url
+			url = @figure_data[love_figure.figure_id].get_url
+	%>
+			<a href="<%=url%>" title="<%=@figure_data[love_figure.figure_id].title%>">
+				<span class="figure_thumb" style="background-image:url(<%=image_url%>);cursor:pointer;">
+			    </span>
+			</a>
+		<%end%>
+	<%end%>
+</span>

@@ -1,0 +1,15 @@
+<%=stylesheet_link_tag("calendar.css")%>
+<%= javascript_include_tag "jquery.calendar.js" %>
+<%= javascript_include_tag "jquery.time_selector.js" %>
+<span id="calendar">
+
+</span>
+<span id="timeline">
+	
+</span>
+<script language="javascript">
+	$(function () {
+		$('#calendar').day_selector({time_selector_id:"timeline"});
+		$('#timeline').time_selector();
+	})
+</script>

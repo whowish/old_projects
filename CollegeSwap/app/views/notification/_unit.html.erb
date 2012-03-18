@@ -1,0 +1,29 @@
+<%
+		color_theme = get_color_theme(@items[entity.item_id])
+%>
+<span class="swap-unit span-80 margin-swap_unit">
+	<span class="span-78  margin-swap_line">
+		<a href="http://<%=DOMAIN_NAME%>/item/view?item_id=<%=entity.item_id%>">
+			<span class="facebook_pic margin-swap_pic" style="background-image:url(<%=@items[entity.item_id].get_thumbnail_item_image()%>);cursor:pointer;"
+					onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=entity.item_id%>',background_color:'<%=color_theme.bgColorCode%>'}); return false;">
+			</span>
+		</a>
+		<span class="span-71 margin-left-1">
+			<span class="span-71">
+				<span class="span-71 height20">
+					<span class="float-left fontsize12 bold_font">
+						<a href="/profile?user_id=<%=entity.facebook_id%>" class="dark_blue"><%=@facebooks[entity.facebook_id].name%></a>
+					</span>
+				</span>
+				<span class="span-71 fontsize11 normal_font  medium_gray">
+					<%=word_for :commented_on%> <a href="#" onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=entity.item_id%>',background_color:'<%=color_theme.bgColorCode%>'}); return false;"><%=@items[entity.item_id].title%></a>.<br />
+					<span class="span-71 margin-top-1">
+						<%=semantic_time(entity.created_date)%>
+					</span>
+				</span>
+			</span>
+		</span>
+	</span>
+	<span class="span-78 light_medium_gray_bg height01 margin-swap_line">
+	</span>
+</span>

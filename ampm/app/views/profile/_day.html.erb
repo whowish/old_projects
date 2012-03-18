@@ -1,0 +1,30 @@
+<%
+	day_of_week = date.wday
+	events_in_day = EventSettledDate.all(:conditions=>["("+event_id_sql+") AND DATE(settled_date) = ? ",date],:select=>"DISTINCT(event_id) as event_id")
+%>
+<span class="span-58 margin-all-5px calendar_<%=day_of_week%>">
+	<span class="span-9 height-9 white_bg margin-all-4px">
+		<span class="span-8 font11 bold_font medium_dark_gray margin-left-4px margin-top-4px">
+        	<%=date.strftime("%A")%>
+		</span>
+		<span class="span-8 font10 light_font medium_gray margin-left-4px margin-top--2px">
+			<%=date.strftime("%B")%>
+		</span>
+		<span class="span-9 day_home facebook_blue bold_font margin-top--8px">
+			<%=date.strftime("%d").to_i%>
+		</span>
+	</span>
+	
+	<span class="span-47 margin-left-1 margin-bottom-1">
+		<%
+			events_in_day.each do |e|
+			event = Event.first(:conditions=>{:id => e.event_id})
+		%>
+				<%=render :partial=>"event/unit",:locals=>{:entity=>event,:date=>date}%>
+		<%
+			end
+		%>
+		<div style="height:0px;clear:left;">&nbsp;</div>
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>

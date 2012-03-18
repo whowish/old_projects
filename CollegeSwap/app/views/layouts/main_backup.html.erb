@@ -1,0 +1,391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Hop In</title>
+		<%=stylesheet_link_tag("reset.css")%>
+		<%=stylesheet_link_tag("swap.css")%>
+		<%=stylesheet_link_tag("whowish_box.css")%>
+		<%=stylesheet_link_tag("ruby_box.css")%>
+		<%=stylesheet_link_tag("jquery.autocomplete.css")%>
+		<%= javascript_include_tag "jquery-1.4.2.min.js"%>
+		<%= javascript_include_tag "jquery.relative_offset.1.0.js"%>
+		<%= javascript_include_tag "jquery.autocomplete.js"%>
+		<%= javascript_include_tag "jquery.whowish_default_text.js"%>
+		<%= javascript_include_tag "jquery.error_log.js"%>
+		<%= javascript_include_tag "jquery.ruby_alert.js" %>
+		<%= javascript_include_tag "jquery.loading_button.js"%>
+		<%= javascript_include_tag "jquery.json.js"%>
+		<%= javascript_include_tag "jquery.ruby_alert.js"%>
+		<%= javascript_include_tag "jquery.whowish_box.js"%>
+		<%= javascript_include_tag "basic.js"%>
+		<%= javascript_include_tag "form_validator_helper.js"%>
+
+		<script src="http://static.ak.fbcdn.net/connect/en_US/core.debug.js"></script>
+		<link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico"/>
+		<link rel="icon" type="image/png" href="/images/favicon.png" />
+		<link rel="icon" type="image/gif" href="/images/favicon.png" />
+	</head>
+	<body>
+<!-- =============================================================================================
+==== NAVIGATOR START HERE  ======================================================================
+=================================================================================================-->
+<div id="user-nav">
+	<span class="span-72 margin-left-2">
+		<span class="span-72 height20">
+			<span class="span-12 medium_gray_bg bold_font fontsize12 white">
+				<ul class="margin-left-1">
+					<li><a href="/">Home</a></li>
+					<li class="fontsize14">&middot;</li>
+					<li><a href="/inbox">Inbox</a></li>
+				</ul>
+			</span>
+			<span class="span-30">
+				<span class="span-30 light_green_bg medium_dark_gray fontsize12 bold_font">
+					<span class="whowish_green_bg verticle_line float-left height20">
+					</span>
+					<span class="margin-left-1">
+						My Wish
+					</span>
+				</span>
+			</span>
+			<span class="span-30">
+				<span class="span-30 light_blue_bg medium_dark_gray fontsize12 bold_font">
+					<span class="dark_blue_bg verticle_line float-left height20">
+					</span>
+					<span class="margin-left-1">
+						My Stuffs/Services
+					</span>
+				</span>
+			</span>
+		</span>
+		<span class="span-72 height180">
+			<span class="span-12">
+				<span class="span-5 margin-left-3 margin-top-1">
+				<span class="facebook_pic2" style="background-image:url(http://graph.facebook.com/<%=$facebook.facebook_id%>/picture?type=square);"></span>
+				</span>
+				<span class="span-12 align_center" style="margin-top:4px; margin-bottom:4px">
+					<a href="#" onclick="return false;"><%=$facebook.name%></a>
+				</span>
+				<span class="span-12 margin-bottom-2">
+					<span class="span-12 dark_blue_bg height01"></span>
+					<span class="span-12 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+						<span class="span-10 margin-left-1">
+							Your college
+						</span>
+					</span>
+					<span class="span-10 margin-left-1 margin-bottom-1">
+						<span class="span-10 fontsize11 medium_dark_gray normal_font">
+						<%
+							college = College.first(:conditions=>{:id=>$facebook.college_id})
+						%>
+						<%=college.name%>
+						</span>
+						<span class="span-10 height01 medium_gray_bg" style="margin-top:4px; margin-bottom:4px" >
+						</span>
+						<span class="span-10 fontsize11 normal_font">
+							<a href="#" onclick="$.whowish_box({title:'Change College',url:'/college'});return false;">
+								Change
+							</a>
+						</span>
+					</span>
+				</span>
+			</span>
+			<span class="span-30 space_inbetween_column">
+			<span id="user_wish_list_<%=$facebook.facebook_id%>" class="my_swap_unit_global span-30">
+				<%
+					wishes = Item.all(:conditions=>{:facebook_id=>$facebook.facebook_id,:item_type=>"WISH",:status=>Item::STATUS_ACTIVE})
+	
+					wishes.each do |wish|
+				%>
+					<%=render :partial=>"home/item",:locals=>{:entity=>wish,:is_last=>(wish == wishes.last)}%>
+				<% 	end%>
+			</span>
+			<span class="span-30 add-button height20">
+					<a href="#" class="margin-left-1 fontsize12" onclick="$.whowish_box({title:'Add Wish',url:'/item?item_type=WISH'});return false;">
+						+ Add wish
+					</a>
+				</span>
+			</span>
+			<span class="span-30 space_inbetween_column">
+				<span id="user_junk_list_<%=$facebook.facebook_id%>" class="my_swap_unit_global span-30">
+					<%
+						junks = Item.all(:conditions=>{:facebook_id=>$facebook.facebook_id,:item_type=>"JUNK",:status=>Item::STATUS_ACTIVE})
+	
+						junks.each do |junk|
+					%>
+						<%=render :partial=>"home/item",:locals=>{:entity=>junk,:is_last=>(junk == junks.last)}%>
+					<% 	end%>
+				</span>
+				<span class="span-30 add-button height20">
+					<a href="#" class="margin-left-1 fontsize12" onclick="$.whowish_box({title:'Add Stuff/Service',url:'/item?item_type=JUNK'});return false;">
+						+ Add stuff/ service
+					</a>
+				</span>
+			</span>
+		</span>
+	</span>
+</div>
+<!-- =============================================================================================
+==== SEARCH START HERE  ======================================================================
+=================================================================================================-->
+<div id="search-tool" class="span-76">
+	<span class="span-2 left-search_corner height-5">
+	</span>
+	<span class="span-72">
+		<span class="span-72 height-3 light_medium_gray_bg">
+			<span class="span-12">
+				<span class="span-10 margin-left-1">
+					<input type="text" class="search_input span-7" id="search_college_name" value="<%=college.name%>" />
+					<span class="search_button span-2" style="margin-top:5px;" onclick="search();"></span>
+				</span>
+			</span>
+			<span class="span-30">
+				<span class="column_line"></span>
+				<span class="span-16 margin-left-1">
+					<input type="text" class="search_input span-13" id="search_junk" />
+					<span class="search_button span-2" style="margin-top:5px;" onclick="search();">
+					</span>
+				</span>
+				<span class=" float-left height-2 span-10" style="margin-top:4px;">
+					<select class="span-10" id="search_junk_category_id">
+						<option value='0' selected="selected">- All -</option>
+						<% categories = Category.all(:order=>"parent_id ASC")
+      					 	categories.each do |category| %>
+							<option value="<%=category.id%>">
+								<%if category.id.to_s == category.parent_id.to_s%>
+									<%=category.name%>
+								<%else%>
+									<%parent_category = Category.first(:conditions=>{:id => category.parent_id})%>
+									&nbsp;&nbsp;&nbsp;&nbsp;&gt; <%=category.name%>
+								<%end%>
+							</option>
+						<% end %>
+					</select>
+				</span>
+			</span>
+			<span class="span-28">
+				<span class="column_line"></span>
+				<span class="span-16 margin-left-1">
+					<input type="text" class="search_input span-13" id="search_wish" />
+					<span class="search_button span-2" style="margin-top:5px;" onclick="search();">
+					</span>
+				</span>
+				<span class=" float-left height-2 span-10" style="margin-top:4px;">
+					<select class="span-10" id="search_wish_category_id">
+						<option value='0' selected="selected">- All -</option>
+						<% categories = Category.all(:order=>"parent_id ASC")
+      					 	categories.each do |category| %>
+							<option value="<%=category.id%>">
+								<%if category.id.to_s == category.parent_id.to_s%>
+									<%=category.name%>
+								<%else%>
+									<%parent_category = Category.first(:conditions=>{:id => category.parent_id})%>
+									&nbsp;&nbsp;&nbsp;&nbsp;&gt; <%=category.name%>
+								<%end%>
+							</option>
+						<% end %>
+					</select>
+				</span>
+			</span>
+		</span>
+		<span class="span-72 height24" style="background-image:url(../images/shadow_bg.png); background-repeat:repeat-x;">
+			
+			<span class="filter float-left">
+				<ul>
+					<li id="search_all" class="filter_selected" onclick="$('#search_friend').removeClass('filter_selected');$(this).addClass('filter_selected');search();"><a href="#" onclick="return false;">All</a></li>
+					<li id="search_friend" onclick="$('#search_all').removeClass('filter_selected');$(this).addClass('filter_selected');search();"><a href="#" onclick="return false;">Friend</a></li>
+				</ul>
+			</span>
+			<span class="float-right">
+				&nbsp;
+			</span>
+			
+		</span>
+	</span>
+	<span class="span-2 right-search_corner height-5">
+	</span>
+</div>
+<div id="main_content" class="span-76 margin-top-1">
+	<%=yield%>
+</div>
+<!-- =============================================================================================
+==== FOOTER START HERE  ======================================================================
+=================================================================================================-->
+<span class="span-72 height01 medium_gray_bg margin-top-2 margin-bottom-1 margin-left-2"></span>
+<div id="footer" class="span-72 margin-left-2 margin-bottom-1 height20 ">
+	<span class="float-left fontsize11 medium_gray">
+		&copy; College Swap 2011. 
+	</span>
+	<span class="float-left medium_gray" style="margin-left:4px;">
+		Powered by 
+		<a href="#" class="dark_blue bold_font">who<span class="whowish_green">Wish</span></a>
+	</span>
+	<span class="float-left margin-left-1">
+		<span class="float-left fontsize14 light_font medium_gray">
+			|
+		</span>
+		<span class="hopin_apps_icon" style="margin-left:4px;"></span>
+		<a href="#" class="float-left">Become a Fan</a>
+		<span class="float-left fontsize18 bold_font medium_gray" style="margin-left:4px;">&middot;</span>
+		<a href="#" style="margin-left:4px;">Join Our Team</a>
+	</span>
+</div>
+		
+		<div id="fb-root">
+		</div>
+	</body>
+</html>
+<script language="javascript">
+	
+	var focus_user_id = "";
+	var focus_wish_id = "";
+	var focus_junk_id = "";
+	
+	function update_user_block(user_id)
+	{
+		if (user_id != focus_user_id)
+		{
+			unfocus_item(focus_wish_id);
+			unfocus_item(focus_junk_id);
+			
+			focus_wish_id = "";
+			focus_junk_id = "";
+		}
+		
+		focus_user_id = user_id;
+	}
+	
+	function give(user_id,wish_id)
+	{
+		update_user_block(user_id);
+		unfocus_item(focus_wish_id);
+		
+		// deselect
+		if (focus_wish_id == wish_id) {
+			focus_wish_id = "";
+		}
+		else {
+			focus_wish_id = wish_id;
+			focus_item(focus_wish_id);
+		}
+		
+		show_swap_dialog();
+	}
+	
+	function take(user_id,junk_id)
+	{
+		update_user_block(user_id);
+		unfocus_item(focus_junk_id);
+		
+		// deselect
+		if (focus_junk_id == junk_id) {
+			focus_junk_id = "";
+		}
+		else {
+			focus_junk_id = junk_id;
+			focus_item(focus_junk_id);
+		}
+		
+		show_swap_dialog();
+	}
+	
+	function unfocus_item(id)
+	{
+		if (id == "") return;
+		$('#item_unit_'+id).removeClass('selected');
+	}
+	
+	function focus_item(id)
+	{
+		if (id == "") return;
+		$('#item_unit_'+id).addClass('selected');
+	}
+	
+	function show_swap_dialog()
+	{
+		if (focus_junk_id == "" || focus_wish_id == "") return;
+		$.whowish_box({title:"Swap Request",url:"/swap?wish_id="+focus_wish_id+"&junk_id="+focus_junk_id});
+		
+		window.setTimeout(function() {
+			   unfocus_item(focus_wish_id);
+				unfocus_item(focus_junk_id);
+				
+				focus_wish_id = "";
+				focus_junk_id = "";
+			}, 4000);
+
+		
+	}
+	
+	function search()
+	{
+		$.ajax({
+				type: "POST",
+				url: '/home/search',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"type": (($('#search_friend').hasClass('filter_selected'))?"friend":"all"),
+					"college_name": $('#search_college_name').val(),
+					"wish": $('#search_wish').val(),
+					"wish_category_id": $('#search_wish_category_id').val(),
+					"junk": $('#search_junk').val(),
+					"junk_category_id": $('#search_junk_category_id').val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$('#main_content').html(data.html);
+						}
+						else {
+							
+						}
+					} 
+					catch (e) {
+						$.error_log('search_result', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+				}
+			});
+	}
+
+</script>
+
+<script language="javascript">
+	 FB.init({
+	    appId  : '<%=APP_ID%>',
+	    status : true, // check login status
+	    cookie : true, // enable cookies to allow the server to access the session
+	    xfbml  : false  // parse XFBML
+	  });
+	
+	FB.Canvas.setAutoResize(100);
+
+	$(function() {
+		$("#search_college_name").autocomplete('/college/list',{
+			width:250,
+			parse : function(data) {
+				//data = $.parseJSON(data);
+				
+				var parsed = [];
+				var rows = data.result;
+				for (var i=0; i < rows.length; i++) {
+					var row = $.trim(rows[i]);
+					if (row) {
+						parsed[parsed.length] = {
+							data: [row],
+							value: row,
+							result: row
+						};
+					}
+				}
+				return parsed;
+			},
+			matchContains: true
+		});
+	})
+</script>

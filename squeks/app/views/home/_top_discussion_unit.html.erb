@@ -1,0 +1,81 @@
+<span class="span-50 margin-top-1" id="top_discussion_unit_<%=entity.id%>">
+	<span class="span-50 font14" style="overflow:hidden; white-space:nowrap;">
+		<a href="/discussion/view/<%=entity.id%>" class="dark_gray">
+			<%=entity.title%>
+		</a>
+	</span>
+	<span class="span-50 small-meter">
+	<!--==== (width(500) - pinkMargin(2) = 498px =================================================-->
+		<%
+	      love_width, hate_width = calculate_love_hate_width(entity.loves,entity.hates,498)
+		  total_love_hate = entity.loves+entity.hates
+		  percent_love = 0
+		  percent_love = (((entity.loves*100)/total_love_hate)) if total_love_hate > 0
+		  percent_hate = 100 - percent_love
+	    %>
+		<span class="pink-meter-small" style="width:<%=love_width%>px;">
+		</span>
+		<span class="gray-meter-small" style="width:<%=hate_width%>px;">
+		</span>
+	</span>
+	<span class="span-50 font10 medium_dark_gray">
+		<span class="float-left font10 medium_dark_gray">
+			<%
+				discussion_love = DiscussionLove.first(:conditions=>{:discussion_id=>entity.id,:facebook_id=>$facebook.facebook_id})
+					
+				if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_LOVE
+			%>
+				You and
+			<%
+				end
+			%>
+			<%= word_for :love,:number=>entity.loves%>
+		</span>
+		<span class="float-right font10 medium_dark_gray ">
+			<%
+				if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_HATE
+			%>
+				You and
+			<%
+				end
+			%>
+			<%= word_for :hate,:number=>entity.hates%>
+		</span>
+	</span>
+	<span class="span-50 height20">
+		<%
+			if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_LOVE
+
+			else
+		%>
+				<a href="#" class="float-left" onclick="submit_discussion_love(this,'<%=DiscussionLove::TYPE_LOVE%>',<%=entity.id%>,false,'top_unit');return false;">
+		            <span class="love_icon_small">
+		            </span>
+		            <span class="font11 huneysuckle_pink bold_font" style="margin-left:2px;line-height:20px;">
+		                <%=word_for :love_button%>
+		            </span>
+		        </a>
+		<%
+			end
+
+
+			if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_HATE
+
+			else
+		%>
+				<a href="#" class="float-right" onclick="submit_discussion_love(this,'<%=DiscussionLove::TYPE_HATE%>',<%=entity.id%>,false,'top_unit');return false;">
+		            <span class="hate_icon_small">
+		            </span>
+		            <span class="font11 medium_dark_gray bold_font" style="margin-left:2px;line-height:20px;">
+		                <%=word_for :hate_button%>
+		            </span>
+		        </a>
+		<%
+			end
+		%>
+	</span>
+	<span class="span-50 height-1 display_block clearfix">
+	</span>
+	<span class="span-50 height01 medium_gray_bg display_block clearfix">
+	</span>
+</span>

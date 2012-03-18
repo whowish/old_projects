@@ -1,0 +1,772 @@
+<%
+	params[:force_edit] = 'no' if !params[:force_edit]
+	event_owner = get_facebook_info( @event.facebook_id)
+	mode = MODE_VIEWER
+
+	selected_dates = []
+
+	if $facebook.facebook_id == @event.facebook_id 
+		mode = MODE_CREATOR
+	else
+		friend = EventFriend.first(:conditions=>{:event_id => @event.id, :facebook_id=>$facebook.facebook_id })
+		
+		if friend != nil
+			mode = MODE_INVITEE
+			mode = MODE_INVITEE_EDIT if params[:force_edit] == 'no' and friend.status != EventFriend::STATUS_PENDING
+			selected_dates = EventAvailableDate.all(:conditions=>{:event_id=>@event.id, :facebook_id=>$facebook.facebook_id}).map { |d| '"'+d.available_date.strftime("%Y-%m-%d-%H")+'"' }
+		end
+	end
+
+	mode = MODE_SETTLED if @event.status == Event::STATUS_SETTLED
+
+	available_dates = EventAvailableDate.all(:conditions=>{:event_id=>@event.id})
+	shown_dates = EventAvailableDate.all(:conditions=>{:facebook_id=>event_owner.facebook_id,:event_id=>@event.id})
+	if @event.status == Event::STATUS_SETTLED
+		selected_dates = EventSettledDate.all(:conditions=>{:event_id=>@event.id}).map { |d| '"'+d.settled_date.strftime("%Y-%m-%d-%H")+'"' }
+	end
+
+	friend_accept = EventFriend.all(:conditions=>{:event_id => @event.id,:status=>EventFriend::STATUS_ACCEPTED})
+	friend_pending = EventFriend.all(:conditions=>{:event_id => @event.id,:status=>EventFriend::STATUS_PENDING})
+	friend_reject = EventFriend.all(:conditions=>{:event_id => @event.id,:status=>EventFriend::STATUS_REJECTED})
+
+%>
+<%= stylesheet_link_tag("/calendar/calendar_for_view.css")%>
+<%= javascript_include_tag "/calendar/jquery.time_selector_in_view_page.js"%>
+<%= javascript_include_tag "/calendar/jquery.friend_time.js"%>
+
+<%=stylesheet_link_tag("/facebook-multi-friend-selector/jquery.facebook.multifriend.select.css")%>
+<%=javascript_include_tag("/facebook-multi-friend-selector/jquery.facebook.multifriend.select.js")%>
+<script language="javascript">
+	$(function () {
+		
+		data = [];
+		
+		<%
+			available_dates.each do |date|
+		%>
+			data.push({time:"<%=date.available_date.strftime('%Y-%m-%d %H:00:00')%>",friend:"<%=date.facebook_id%>"})
+		<%
+			end
+		%>
+
+		friend_unit_callback = function(friend_id) {
+			$("#friend_"+friend_id).addClass('can_go');
+
+		}
+		
+		before_render_friend_callback = function()
+		{
+			var all_spans = $('.friend_accept_label','#friend_panel');
+			
+			for (var i=0;i<all_spans.length;i++)
+				$(all_spans[i]).removeClass('can_go');
+		}
+		
+		$('#friend_panel').friend_time(data,friend_unit_callback,before_render_friend_callback);
+
+<%
+	if @event.mode == Event::MODE_TIME
+%>
+		$('#timeline').time_selector({
+										friend_list_panel:$('#friend_panel')[0], 
+										selected_time:[<%=selected_dates.join(',')%>],
+										shown_date:[<%=shown_dates.map { |d| '"'+d.available_date.strftime("%Y-%m-%d")+'"' }.join(',')%>],
+										scope_date:[<%=shown_dates.map { |d| '"'+d.available_date.strftime("%Y-%m-%d %H:00:00")+'"' }.join(',')%>],
+										friends_data:data
+										<%=",disable_event: true" if @event.status == Event::STATUS_SETTLED%>
+										});
+<%
+	elsif @event.mode == Event::MODE_DAY
+%>
+		$('#calendar').day_selector({
+										friend_list_panel:$('#friend_panel')[0], 
+										selected_date:[<%=selected_dates.join(',')%>],
+										scope_date:[<%=shown_dates.map { |d| '"'+d.available_date.strftime("%Y-%m-%d %H:00:00")+'"' }.join(',')%>],
+										friends_data:data
+										<%=",disable_event: true" if @event.status == Event::STATUS_SETTLED%>
+										});
+<%
+	end
+%>
+		
+		FB.Canvas.setSize();
+		
+	})
+</script>
+<span class="span-74 light_gray_bg round_corner-4 margin-top-1 clearfix">
+	<span class="span-71 dark_gray font12 " style="margin:5px 5px 5px 5px;line-height:20px;">
+		<%
+			if mode == MODE_SETTLED
+		%>
+			<span class="span-53 clearfix">
+				<%=word_for(:instruction_settled)%></br>
+			</span>
+		<%
+			else
+		%>
+			<%if mode == MODE_CREATOR%>
+				<%
+					response_count = EventFriend.count(:conditions=>["event_id=:event_id and (status =:accepted or status=:rejected)",{:event_id=>@event.id,:accepted=>EventFriend::STATUS_ACCEPTED,:rejected=>EventFriend::STATUS_REJECTED}]) 
+				%>
+				<span class="span-53 clearfix">
+					<%=word_for(:instruction_creator,:subject=>(("No one has" if response_count==0) or (response_count.to_s + " people have")), :yet=>((" yet" if response_count==0) or ""))%></br>
+				</span>
+				<span class="float-right">
+					<a href="#" class="green_button_small margin-left-1" id="event_settled_button_1"   onclick="submit_settle(this);return false;">
+						<%= word_for :event_settled_button%>
+					</a>
+				</span>
+			<%elsif mode == MODE_INVITEE%>
+				<span class="span-53 clearfix">
+					<%=word_for(:instruction_invitee_pending)%>
+				</span>
+				<span class="float-right">
+					<a href="#" id="event_accept_button_2" class="facebook_button_small margin-left-1" onclick="submit_response(this,'ACCEPT');return false;">
+						<%= word_for :accept_button%>
+					</a>
+					<a href="#" class="gray_button_small margin-left-1"  onclick="submit_response(this,'REJECT');return false;">
+						<%= word_for :reject_button%>
+					</a>
+				</span>
+			<%elsif mode == MODE_INVITEE_EDIT%>
+				<span class="span-53 clearfix">
+					<%=word_for(:instruction_invitee_confirmed)%>
+				</span>
+				<span class="float-right">
+					<a href="/event/view?event_id=<%=@event.id%>&force_edit=yes" class="facebook_button_small margin-left-1"><%=word_for :edit_response_button%></a>
+				</span>
+			<%elsif mode == MODE_VIEWER%>
+				<script language="javascript">
+					function submit_yourself()
+					{
+						try {   
+							var friend = "<%=$facebook.facebook_id%>" + ":" + "<%=$facebook.name%>"     
+							$('#invite_yourself_button').loading_button(true);
+							
+							$.ajax({
+								type: "POST",
+								url: '/event/invite_more_friend',
+								cache: false,
+								data: {
+									authenticity_token: "<%=form_authenticity_token%>",
+									signed_request:"<%=params[:signed_request]%>",
+									"event_id":"<%=params[:event_id]%>",
+									"friends": friend
+								},
+								success: function(data){
+									try {
+										if (data.ok == true) {
+											location.href = "/event/view?event_id="+ data.event_id;
+										}
+										else {
+											$('#invite_yourself_button').loading_button(false);
+										}
+									} 
+									catch (e) {
+										$('#invite_yourself_button').loading_button(false);
+										$.error_log('submit_yourself', e);
+										alert(e);
+									}
+									
+								},
+								error: function(req, status, e){
+									$('#invite_yourself_button').loading_button(false);
+									alert('Cannot connect to the server. Please try again later.');
+								}
+							});
+						} catch (e)
+						{
+							$('#invite_yourself_button').loading_button(false);
+							$.error_log('submit_yourself',e);
+							alert(e);
+						}
+					}
+				</script>
+				<span class="span-53 clearfix">
+					<%=word_for(:instruction_viewer)%>
+				</span>
+				<span class="float-right">
+					<a href="#" id="invite_yourself_button" onclick="submit_yourself();" class="facebook_button_small margin-top-1 event_submit_button">
+						<%= word_for :invite_yourself%>	
+					</a>
+				</span>
+	<%
+			end
+		end
+	%>
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>
+<span class="arrow_down margin-left-1">
+</span>
+<span class="span-74 margin-top-1 clearfix">
+	<span class="span-5">
+        <span class="facebook_pic" style="background-image:url(<%=event_owner.profile_picture_url%>) !important;">
+        </span>
+    </span>
+    <span class="span-67">
+    	
+		<span class="span-65 margin-left-1 display_block ">
+			<a href="/event/view?event_id=<%=@event.id%>" class="font30 bold_font yellow_2meet4" title="<%=@event.title%>">
+        		<%=@event.title%>
+			</a>
+        </span>
+		
+        <span class="span-65 margin-left-1 height20 display_block font11 light_font medium_gray">
+        	Created by
+			<a href="/profile?user_id=<%=event_owner.facebook_id%>" class="normal_font light_medium_gray"><%=event_owner.name%></a>
+		</span>
+    </span>            
+</span>
+<span class="span-74 height01 margin-top-1 light_gray_bg clearfix">
+</span>
+
+<%if mode == MODE_CREATOR
+	friend_not_approved = EventFriend.all(:conditions=>{:event_id => @event.id, :is_approved=> 0 })
+	if friend_not_approved.length > 0
+%>
+<script language="javascript">
+	function approve_friend(sender,action,event_friend_id)
+	{
+		try {
+			
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/event/'+ action,
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request:"<%=params[:signed_request]%>",
+					"event_friend_id":event_friend_id
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$('#pending_approved_'+event_friend_id+'_panel').fadeOut(function () {
+								$('#pending_approved_'+event_friend_id+'_panel').remove();
+							})
+						}
+						else {
+							$(sender).loading_button(false);
+						}
+						
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('approve_friend', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('approve_friend',e);
+			alert(e);
+		}
+	}	
+
+</script>
+<span class="span-74 margin-top-1 clearfix">
+    <span class="span-74 font11 normal_font light_gray clearfix">
+        <span class="span-10 light_medium_gray bold_font">
+			<%=word_for :approve_friend%>
+		</span>
+		<span class="span-63 margin-left-1">
+			<%
+				friend_not_approved = EventFriend.all(:conditions=>{:event_id => @event.id, :is_approved=> 0 })
+				friend_not_approved.each do |f|
+			%>
+				<%=render :partial=>"/event/approve_friend" , :locals=>{:event_friend=>f} %>
+			<%end%>
+		</span>
+    </span>
+</span>
+<span class="span-74 height01 margin-top-1 light_gray_bg clearfix">
+</span>
+<%
+	end
+end
+%>
+
+<%
+	if @event.location != "" or @event.location_url != ""
+		@event.location = "Link" if @event.location == ""
+%>
+
+<span class="span-74 margin-top-1 clearfix">
+    <span class="span-74 font11 normal_font light_gray clearfix">
+        <span class="span-10 light_medium_gray bold_font">
+			Location
+		</span>
+		<span class="span-63 margin-left-1">
+			<%if @event.location_url != ""%>
+				<a href="<%=@event.location_url%>" class="white"><%=@event.location%></a>
+			<%else%>
+				<%=@event.location%>
+			<%end%>
+		</span>
+    </span>
+</span>
+<span class="span-74 height01 margin-top-1 light_gray_bg clearfix">
+</span>
+<%end%>
+
+<%if @event.description != ""%>
+<span class="span-74 margin-top-1 clearfix">
+    <span class="span-74 font11 normal_font light_gray clearfix">
+        <span class="span-10 light_medium_gray bold_font">
+			More Info
+		</span>
+		<span class="span-63 margin-left-1">
+			<%=@event.description%>
+		</span>
+    </span>
+</span>
+<span class="span-74 height01 margin-top-1 light_gray_bg clearfix">
+</span>
+<%end%>
+
+<span class="span-74 margin-top-1 clearfix">
+	<span class="span-74 margin-top-1 clearfix">
+	    <span class="span-74 font11 normal_font light_gray clearfix">
+	        <span class="span-50 light_medium_gray">
+				<%=word_for :timeline_instruction%>
+			</span>
+			<span class="span-24">
+				<%=word_for :friend_instruction%>
+			</span>
+	    </span>
+	</span>
+	<span class="span-74 margin-top-4px clearfix">			
+	    <span style="width:495px;display:inline-block;float:left;">
+			<span class="viewleft" style="width:495px;">
+			<%
+				if @event.mode == Event::MODE_TIME
+			%>
+				    	<span id="timeline">
+							
+				        </span>
+						<%= javascript_include_tag "/calendar/jquery.time_selector_in_view_page.js"%>
+			<%
+				elsif @event.mode == Event::MODE_DAY
+			%>
+				    	<span id="calendar">
+							
+				        </span>
+						<%= javascript_include_tag "/calendar/jquery.calendar_in_view_page.js"%>
+			<%
+				end
+			%>
+			</span>
+			<span class="span-48 margin-top-1 clearfix">
+				<%if mode == MODE_INVITEE%>
+					<span class="span-48 margin-top-1">
+						<input id="notify_creator_checkbox" checked type="checkbox" > <%= word_for :notify_creator%>
+					</span>
+					<span class="span-48 margin-top-1">
+						<span style="float:left;">
+								<a href="#" id="event_accept_button_1" class="event_accept_button green_button" onclick="submit_response(this,'ACCEPT');return false;">
+									<%= word_for :accept_button%>
+								</a>
+						</span>
+						<span style="float:left;">
+							<a href="#" class="event_reject_button orange_button margin-left-1"  onclick="submit_response(this,'REJECT');return false;">
+								<%= word_for :reject_button%>
+							</a>
+						</span>
+					</span>
+						
+				<%elsif  mode == MODE_INVITEE_EDIT%>
+					<span style="float:left;">
+						<a href="/event/view?event_id=<%=@event.id%>&force_edit=yes" class="facebook_button" id="response_edit_button">
+							<%= word_for :edit_response_button%>
+						</a>
+					</span>
+				<%elsif  mode == MODE_CREATOR%>
+					<span class="span-48 margin-top-1">
+						<input id="notify_friend_checkbox" checked type="checkbox" > <%= word_for :notify_friend%>
+					</span>
+					<span class="span-48 margin-top-1">
+						<span style="float:left;">
+							<a href="/event?id=<%=@event.id%>" class="facebook_button" id="event_edit_button" onclick="$(this).loading_button(true);" >
+								<%= word_for :edit_event_button%>
+							</a>
+						</span>
+						<span style="float:left;">
+							<a href="#" class="green_button margin-left-1" id="event_settled_button"   onclick="submit_settle(this);return false;">
+								<%= word_for :event_settled_button%>
+							</a>
+						</span>
+						<span style="float:left;">
+							<a href="#" class="orange_button margin-left-1" title="delete" id="event_delete_button" 
+							onclick="$.whowish_box({url:'/event/confirm_delete?event_id=<%=@event.id%>'});return false;">
+								<%= word_for :event_delete_button%>
+							</a>
+						</span>
+					</span>
+					
+				<%elsif  mode == MODE_SETTLED and @event.facebook_id == $facebook.facebook_id%>
+					<span class="span-48 margin-top-1">
+						<input id="notify_friend_checkbox_cancel" checked type="checkbox" > <%= word_for :notify_friend%>
+					</span>
+					<span class="span-48 margin-top-1">
+						<a href="#" class="orange_button"  onclick="cancel_settle(this);return false;">
+							<%= word_for :cancel_settled_event_button%>
+						</a>
+					</span>
+				<%end%>
+		    </span>
+		</span>
+	    
+		<span class="viewright clearfix">
+			<span class="viewright height-3 clearfix">
+				<span class="user_step font12 bold_font clearfix">
+					<span class="step_unit yellow_2meet4_bg black clearfix">
+						<%=word_for :friend_accept,:number=>(friend_accept.length+1)%>
+					</span>
+					<span class="step01">
+	                </span>
+					<span class="step_unit black clearfix" style="background-color:#d7ce24;">							
+	                	<%=word_for :friend_reject,:number=>(friend_reject.length)%>
+					</span>
+				</span>
+	            <span class="depth_box depth-yellow height-3 clearfix">
+	            </span>
+			</span>
+	        <span class="viewright margin-top-4px clearfix">
+				<span class="viewright clearfix">
+					<span class="span-24 height24 blue_2meet4_bg font12 bold_font white clearfix">
+						<span class="margin-left-4px">
+							<%=word_for :friend_list_label%> 
+							<a href="#" class="white" onclick="$.whowish_box({title: 'Invite Friends',url:'/event/invite?event_id=<%=@event.id%>',background_color:'#999999'});return false;">
+							<% 
+								if mode == MODE_CREATOR
+							%>
+								(<%=word_for(:invite_friend)%>)
+							<%
+								elsif mode == MODE_INVITEE or mode == MODE_INVITEE_EDIT
+							%>
+								(<%=word_for(:suggest_friend)%>)
+							<%
+								end
+							%>
+							</a>
+						</span>
+					</span>
+					<span class="depth_box depth-blue height24 clearfix">
+					</span>
+					<span class="span-24 blue_2meet4_bg font12 bold_font clearfix" style="min-height:20px;max-height:492px; background-color:#828282;overflow:auto;">
+	                	<span id="friend_panel" class="span-21 margin-bottom-1 margin-left-4px margin-top-4px font11 light_medium_gray">
+	                		<%
+								friend_accept.push(event_owner).each do |f|
+									tag = "span"
+									onclick = "$('#timeline').time_selector_select_friend('"+f.facebook_id+"');return false;"
+
+									if @event.mode == Event::MODE_DAY
+										onclick = "$('#calendar').day_selector_select_friend('"+f.facebook_id+"');return false;"
+									end
+
+									if @event.status == Event::STATUS_SETTLED
+										tag = "span"
+										onclick = ""
+									end
+							%>
+									<<%=tag%> onclick="<%=onclick%>" 
+										style="overflow:hidden;white-space:nowrap;"
+										id="friend_<%=f.facebook_id%>" class="span-21 friend_accept_label">
+										<span class="icon"></span>
+										<span class="name">&nbsp;&nbsp;<%=f.name%>&nbsp;&nbsp;</span>
+									</<%=tag%>><br/>
+							<%
+								end
+
+								friend_pending.each do |f|
+							%>
+									<span title="Pending" id="friend_<%=f.facebook_id%>" class="friend_pending_label">
+										<span class="icon"></span>
+										<%=f.name%>
+									</span><br/>
+							<%
+								end
+
+								friend_reject.each do |f|
+							%>
+									<span title="Rejected" id="friend_<%=f.facebook_id%>" class="friend_reject_label">
+										<span class="icon"></span>
+										<%=f.name%>
+									</span><br/>
+							<%
+								end
+							%>
+							
+	                    </span>
+						
+					</span>
+					<span class="depth_box depth-white clearfix" style="min-height:20px;max-height:492px;">
+					</span>
+				</span>
+			</span>
+		</span>
+	</span>
+</span>
+<span class="span-74 margin-top-2 clearfix">
+    <span class="span-74 height24 blueToBlack_bg clearfix">
+        <span class="margin-left-4px font12 bold_font white height24">
+           	<%=word_for :comment_tab%>
+		</span>
+	</span>
+    <span class="span-74 clearfix">
+		<%=render :partial=>"/comment/comment_panel" , :locals=>{:event=>@event} %>
+	</span>
+</span>
+<%
+	if mode == MODE_INVITEE
+%>
+	<script language="javascript">
+		function submit_response(sender,response)
+		{
+
+<%
+	if @event.mode == Event::MODE_TIME
+%>
+			var selected_time = $('#timeline').time_selector_get_selected_time();
+<%
+	elsif @event.mode == Event::MODE_DAY
+%>
+			var selected_time = $('#calendar').day_selector_get_selected_date();
+<% 
+	end
+%>
+			
+			if (response == "REJECT") selected_time = []
+			else
+			{
+				if (selected_time.length == 0)
+				{
+					$('.event_accept_button').ruby_box(true,"Please select your available time.");
+					return;
+				}
+			}
+
+			try {
+				$(sender).loading_button(true);
+				$('.event_reject_button').css('disabled','disabled');
+				$('.event_accept_button').css('disabled','disabled');
+			
+				$.ajax({
+					type: "POST",
+					url: '/event/save_response',
+					cache: false,
+					data: {
+						authenticity_token: "<%=form_authenticity_token%>",
+						signed_request:"<%=params[:signed_request]%>",
+						"event_id": "<%=params[:event_id]%>",
+						"available_dates": selected_time.join(','),
+						"share_on_facebook":(($('#notify_creator_checkbox')[0].checked == true)?"yes":"no")
+					},
+					success: function(data){
+						try {
+							if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+									top.location.href = data.redirect_url;
+									return;
+								}
+								location.href = "/event/view?event_id=<%=params[:event_id]%>";
+							}
+							else {
+								for (var i in data.error_message) {
+									try {
+										$(sender).ruby_box(true,data.error_message[i]);
+									} 
+									catch (e) {
+									
+									}
+								}
+								
+								$(sender).loading_button(false);
+								$('.event_reject_button').css('disabled','');
+								$('.event_accept_button').css('disabled','');
+							}
+						} 
+						catch (e) {
+							$.error_log('response_event', e);
+							alert(e);
+							
+							$(sender).loading_button(false);
+							$('.event_reject_button').css('disabled','');
+							$('.event_accept_button').css('disabled','');
+						}
+						
+					},
+					error: function(req, status, e){
+						$(sender).loading_button(false);
+						$('.event_reject_button').css('disabled','');
+						$('.event_accept_button').css('disabled','');
+						alert('Cannot connect to the server. Please try again later.');
+					}
+				});
+			} catch (e)
+			{
+				$(sender).loading_button(false);
+				$('.event_reject_button').css('disabled','');
+				$('.event_accept_button').css('disabled','');
+				$.error_log('response_event',e);
+				alert(e);
+			}
+		}		
+	</script>		
+<%
+	elsif  mode == MODE_CREATOR
+%>
+	<script language="javascript">
+		function submit_settle(sender)
+		{
+			
+<%
+	if @event.mode == Event::MODE_TIME
+%>
+			var selected_time = $('#timeline').time_selector_get_selected_time();
+<%
+	elsif @event.mode == Event::MODE_DAY
+%>
+			var selected_time = $('#calendar').day_selector_get_selected_date();
+<% 
+	end
+%>
+			
+			if (selected_time.length == 0)
+			{
+				$(sender).ruby_box(true,"Please select your settled time.");
+				return;
+			}
+			
+			try {
+				$(sender).loading_button(true);
+				$.ajax({
+					type: "POST",
+					url: '/event/settled_date',
+					cache: false,
+					data: {
+						authenticity_token: "<%=form_authenticity_token%>",
+						signed_request:"<%=params[:signed_request]%>",
+						"event_id": "<%=params[:event_id]%>",
+						"settled_dates": selected_time.join(','),
+						"share_on_facebook":(($('#notify_friend_checkbox')[0].checked == true)?"yes":"no")
+					},
+					success: function(data){
+						try {
+							if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+									top.location.href = data.redirect_url;
+									return;
+								}
+								location.href = "/event/view?event_id=<%=params[:event_id]%>";
+							}
+							else {
+								for (var i in data.error_message) {
+									try {
+										$(sender).ruby_box(true,data.error_message[i]);
+									} 
+									catch (e) {
+									
+									}
+								}
+								
+								$(sender).loading_button(false);
+							}
+						} 
+						catch (e) {
+							$.error_log('response_event', e);
+							alert(e);
+						}
+						
+					},
+					error: function(req, status, e){
+						$(sender).loading_button(false);
+						alert('Cannot connect to the server. Please try again later.');
+					}
+				});
+			} catch (e)
+			{
+				$(sender).loading_button(false);
+				$.error_log('response_event',e);
+				alert(e);
+			}
+		}		
+		</script>	
+<%
+	elsif  mode == MODE_SETTLED and @event.facebook_id == $facebook.facebook_id
+%>
+	<script language="javascript">
+		
+		function cancel_settle(sender)
+		{	
+			try {
+				$(sender).loading_button(true);
+				$.ajax({
+					type: "POST",
+					url: '/event/cancel_settled',
+					cache: false,
+					data: {
+						authenticity_token: "<%=form_authenticity_token%>",
+						signed_request:"<%=params[:signed_request]%>",
+						"event_id": "<%=params[:event_id]%>",
+						"share_on_facebook":(($('#notify_friend_checkbox_cancel')[0].checked == true)?"yes":"no")
+					},
+					success: function(data){
+						try {
+							if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+									top.location.href = data.redirect_url;
+									return;
+								}
+								location.href = "/event/view?event_id=<%=params[:event_id]%>";
+							}
+							else {
+								for (var i in data.error_message) {
+									try {
+										$(sender).ruby_box(true,data.error_message[i]);
+									} 
+									catch (e) {
+									
+									}
+								}
+								
+								$(sender).loading_button(false);
+							}
+						} 
+						catch (e) {
+							$.error_log('response_event', e);
+							alert(e);
+						}
+						
+					},
+					error: function(req, status, e){
+						$(sender).loading_button(false);
+						alert('Cannot connect to the server. Please try again later.');
+					}
+				});
+			} catch (e)
+			{
+				$(sender).loading_button(false);
+				$.error_log('response_event',e);
+				alert(e);
+			}
+		}		
+	</script>	
+<%
+	end
+%>
+	
+
+
+
+

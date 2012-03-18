@@ -1,0 +1,2 @@
+module AdminActivityHelper
+end

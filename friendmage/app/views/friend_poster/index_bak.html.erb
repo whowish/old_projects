@@ -1,0 +1,192 @@
+<%
+	image_urls = @poster.image_urls.split(',')
+%>
+<%=stylesheet_link_tag("/slider/styles.css")%>
+<%=javascript_include_tag "/slider/jquery-ui-1.8.11.custom.min.js"%>
+<%=stylesheet_link_tag("/farbtastic/farbtastic.css")%>
+<%=javascript_include_tag "/farbtastic/farbtastic.js"%>
+<style>
+	#preview_poster {
+		position:relative;
+		width:720px;
+		height:600px;
+	}
+	
+	.facebook_thumbnail {
+		position:absolute;
+		display:block;
+		overflow:hidden;
+		width: 35px;
+		height:35px;
+	}
+</style>
+<span id="full_image_panel" style="overflow:hidden;width:0px;height:0px;display:block;">
+	<%
+		image_urls.each do |url|
+	%>
+		<img src="<%=url%>"/>
+	<%
+		end
+	%>
+</span>
+<span id="preview_poster" style="position:relative;display:none;float:left;">
+	<%
+		i = 0
+		image_urls.each do |url|
+			
+	%>
+		<span class="facebook_thumbnail" style="left:<%=(i%20)*35%>px;top:<%=(i/20)*35%>px;"><img src="<%=url%>" style="position:absolute;"/></span>
+	<%
+			i = i + 1
+		end
+	%>
+</span>
+<span style="display:block;float:left;">
+	<span id="margin_label" style="color:black;">Margin: 5</span>
+	
+    <div class="colorful-slider blue" style="float:left;">
+		<div id="margin_slider" class="slider-handle"></div>
+	</div>
+	<div id="background_picker" style="float:left;"></div>
+	<input type="button" value="Preview" onclick="preview_poster();">
+	<span id="submit_button" value="Pay for this poster" onclick="go_to_payment();">Submit</span>
+</span>
+<script language="javascript">
+	$('#background_picker').farbtastic(function (color) {
+		$('#preview_poster').css('background-color',color);
+	});
+	
+	$('#margin_slider').draggable({
+		containment:'parent',
+		axis:'x',
+		drag: function(e, ui) {
+			
+			/* The drag function is called on every drag movement, no matter how minute */
+			if(!this.par)
+			{
+				/* Initializing the variables only on the first drag move for performance */
+
+				this.par = $(this).parent();
+				this.parWidth = this.par.width();
+				this.width = $(this).width();
+				this.color = $.trim(this.par.attr('class').replace('colorful-slider',''));
+			}
+
+			var this_gap = parseInt(Math.round(((ui.position.left+parseFloat(this.width/2))/this.parWidth) * 7));
+			
+			$('#margin_label').html("Margin: " + this_gap);
+			
+			gap = this_gap;
+		}
+	});
+
+	var gap = 1;
+	var perRow = 20;
+	var border = 10;
+
+	function preview_poster()
+	{
+		
+		var thumbs = $('#preview_poster').children('span');
+		var full_images = $('#full_image_panel').children('img')
+		
+		var width = $('#preview_poster').width();
+        var dimension = parseInt(((width - border*2 - (perRow-1)*gap)/perRow));
+        var height = parseInt(border*2 + parseInt(0.5 + parseFloat(thumbs.length)/perRow) * (dimension+gap));
+		$('#preview_poster').css('height',height+'px');
+		
+		for (var i=0;i<thumbs.length;i++)
+		{
+			var x = border + (i%perRow)*(dimension+gap);
+            var y = border + (parseInt(i/perRow))*(dimension+gap);
+			
+			$(thumbs[i]).css({
+				'left': x+'px',
+				'top': y+'px',
+				'width':dimension,
+				'height':dimension
+			});
+			
+			var h = full_images[i].clientHeight;
+			var w = full_images[i].clientWidth;
+			
+			var sx = 0,sy = 0
+			if (h > w) {
+				h = parseFloat(dimension) * h / w;
+				w = dimension;
+				
+				sx = 0;
+                sy = -(h-w)/2;
+            }
+            else
+            {
+                w = parseFloat(dimension) * w / h;
+				h = dimension;
+				
+				sx = -(w-h)/2;
+                sy = 0;
+            }
+			
+			$(thumbs[i]).children('img').css({
+				left: sx+'px',
+				top: sy+'px',
+				width:w+'px',
+				height:h+'px' 	
+			});
+		}
+	}
+	
+	$(function() {
+		preview_poster();
+		
+		$('#preview_poster').fadeIn();
+	});
+	
+	function go_to_payment()
+	{
+		try {
+                $('#create_poster_button').loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/friend_poster/save',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+						order_key: "<%=@poster.friendmage_order_key%>"
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+                            }
+                            else {
+                                $('#submit_button').ruby_box(true,data.error_message);
+                            }
+							
+							$('#submit_button').loading_button(false);
+                        }
+                        catch (e) {
+                            $('#submit_button').loading_button(false);
+                            $.error_log('create_friend_poster', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#submit_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#submit_button').loading_button(false);
+                $.error_log('create_friend_poster',e);
+                alert(e);
+            }
+	}
+</script>

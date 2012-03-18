@@ -1,0 +1,108 @@
+<%
+	entity = Course[params[:id]]
+%>
+<span class="span-100 clearfix">
+	<span class="span-92 clearfix margin-left-4">
+		<form class="searchform">
+			<input class="searchfield" type="text" value="Search...">
+			<input class="searchbutton" type="button" value="Go">
+		</form>
+	</span>
+    <span class="span-92 clearfix margin-left-4 margin-top-2">
+		<%= render :partial=>"/course/side_profile",:locals=>{:member_id=>entity.member_id}%>
+		<span class="span-71 white_bg margin-left-1">
+			<span class="span-71 clearfix">
+				<span class="span-71 course_outline">
+					<h1>
+						<%=entity.title%>
+						<%
+			               if $member.id == entity.member_id or $member.is_admin
+			            %>
+							<a href="/course?id=<%=entity.id%>" title="Edit">
+						     Edit
+							 </a>
+						<%
+							end
+						%>
+					</h1>
+					<p>
+						<%=entity.description%>
+					</p>
+					<span class="span-71 height-1 display_block">
+					</span>
+				</span>
+				
+				<span class="float-left margin-top-1 margin-left-1 height20 eco_green_bg font12 normal_font white">
+					<span class="margin-left-1 margin-right-2">
+						<a href="/article?course_id=<%=params[:id]%>">
+						     Add Article
+					 	</a>
+					</span>
+				</span>
+				
+			</span>
+			<span class="span-71 shadow_line">
+			</span>
+			<span class="span-69 margin-left-1 margin-top-1">
+				<span class="course_lesson">
+					<ul>
+						<%
+							entity.articles.each do |article|
+						%>
+						<li>
+							<%= render :partial=>"/course/article_unit",:locals=>{:entity=>article}%>
+						</li>
+						<%end%>
+					</ul>
+				</span>
+				
+				<!--<button class="simple_round_button-orange margin-left-2 margin-top-1">
+					Add Article
+				</button>	-->		
+			
+			</span>
+			<span class="span-71 height-1 display_block clearfix">
+			</span>
+		</span>
+		<span class="span-92 height-2 display_block">
+		</span>
+    </span>
+</span>
+
+<script language="javascript">
+	
+	function submit_delete(sender,id) {
+
+		$(sender).loading_button(true);
+		$.ajax({
+			type: "POST",
+			url: '/article/delete',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"id": id
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					alert(data.ok);
+					$(sender).loading_button(false);
+					if (data.url != undefined) {
+						top.location.href = data.url;
+						return;
+					}
+				}
+				else
+				{
+					$(sender).loading_button(false);
+					alert(data.error_message);
+				}
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+</script>

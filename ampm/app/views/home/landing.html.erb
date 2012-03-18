@@ -1,0 +1,48 @@
+
+		<span class="span-76 margin-top-4 margin-bottom-4" style="width:758px !important;">
+			
+			<span class="span-70 margin-left-2">
+				
+				<span class="span-70 light_gray_bg round_corner-4">
+					<span class="span-68 margin-left-1 margin-top-1 margin-bottom-1">
+						<span class="span-68 font18 bold_font medium_dark_gray">
+							<%=word_for :welcome%>
+						</span>
+						
+						<span class="span-68 margin-top-2 font30 bold_font dark_gray">
+							<span class="span-55 height-18 margin-left-6 clearfix start_box">
+								<span class="span-18">
+									<a href="<%=generate_permission_url([],'http://apps.facebook.com/'+FACEBOOK_APP_NAME+'/event')%>" class="blue_button" style="margin-top:88px; margin-left:6px;" target="_top">
+										Create Meeting
+									</a>
+								</span>
+								<span class="span-19">
+								</span>
+								<span class="span-18">
+								</span>
+							</span>
+						</span>
+						<span class="span-68 font12 light_font medium_dark_gray margin-top-2">
+							<span class="span-58">
+								<%=word_for :instruction%>
+							</span>
+							<span class="span-68 margin-top-4px margin-top-1">
+								<a href="<%=generate_permission_url([],'http://apps.facebook.com/'+FACEBOOK_APP_NAME+request.path+'?'+request.env['QUERY_STRING'])%>" target="_top" class="blue_button_verybig">
+									&nbsp;&nbsp;<%=word_for :go_to_app_button%>&nbsp;&nbsp;
+								</a>
+							</span>
+						</span>
+					</span>
+				</span>
+				<span class="arrow_down margin-left-2">
+				</span>
+				<span class="span-70 margin-top-1 height-5">
+					<span class="facebook_pic" style="background-image:url(/images/facebookiconSearch.jpg) !important;">
+						<img src="/images/facebookiconSearch.jpg" width="50px" height="50px" />
+					</span>
+					<span class="span-36 margin-left-1 font18 bold_font white">
+						2Meet4 Team
+					</span>
+				</span>
+			</span>
+		</span>

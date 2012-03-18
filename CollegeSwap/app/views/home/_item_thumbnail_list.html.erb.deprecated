@@ -1,0 +1,25 @@
+<span class="span-16 margin-bottom-2">	
+	<span class="span-16 dark_blue_bg height01">
+	</span>
+	<span class="span-16 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		<span class="span-13 margin-left-1">
+			<%
+				if type == Item::ITEM_TYPE_WISH
+			%>
+				My wish
+			<%
+				else
+			%>
+				My stuff
+			<%
+				end
+			%>
+		</span>
+	</span>
+	<span class="my_unit_thumbnail">
+		<%
+			wishes = Item.all(:condtions=>{:facebook_id=>facebook_id,:item_type=>type})
+		%>
+		<span></span><span></span><span></span><span></span><span></span><span></span>
+	</span>
+</span>

@@ -1,0 +1,35 @@
+<%
+	owner = Member.first(:conditions=>{:id=>member_id})
+	courses = Course.find(:member_id=>member_id)
+%>
+<span class="underBox">
+	<span class="profile_container">
+		<span class="span-20 clearfix">
+			<span class="profile_picture">
+				<img src="../images/default_pic.jpg" alt="" />
+			</span>
+			<span class="span-18 margin-top-1 margin-left-1 font14 clearfix">
+				<a href="#" class="facebook_blue">
+					<%=owner.name%>
+				</a>
+			</span>
+		
+			<span class="span-18 margin-top-2 margin-left-1 font16 medium_dark_gray bold_font clearfix">
+				Course by this user
+			</span>
+			<span class="recent_activity">
+				<ul>
+					<%
+						courses.each do |course|
+					%>
+					<li>
+						<%= render :partial=>"/course/course_unit", :locals=>{:entity=>course}%>
+					</li>
+					<%end%>
+				</ul>
+			</span>
+		</span>
+		<span class="span-20 height-1 display_block clearfix">
+		</span>
+	</span>
+</span>

@@ -1,0 +1,66 @@
+<span class="span-100 clearfix">
+    <span class="span-92 clearfix margin-left-4 margin-bottom-2">
+		<span class="underBox">
+            <span class="contentBox">
+                <span class="span-20 clearfix">
+                    <span class="span-20 clearfix">
+						<span class="span-20 margin-top-1  display_inline_block margin-bottom-1">
+							<%
+								if @entities.length > 0
+							%>
+								<span class="span-18 margin-top-1 dark_gray margin-left-1 font18 display_block">
+									<%=word_for :news_list%>
+								</span>
+								<span class="span-20 margin-top-1 margin-bottom-1 eco_green font12 bold_font display_block country_list">
+									<ul>
+										<%
+											@entities.each do |entity|
+										%>
+											<li class="<%='country_selected' if entity.id == params[:entity_id].to_i%>" title="<%=entity.topic%>">
+												<a href="/research?entity_id=<%=entity.id%>" class="span-18" style="white-space:nowrap;overflow:hidden;"><%=entity.topic%></a>
+											</li>
+										<%
+											end
+										%>
+									</ul>
+								</span>
+							<%
+								end
+							%>
+							<span class="span-18 margin-top-1 eco_green margin-left-1 font18 display_block">
+								<%=word_for :country_list%>
+							</span>
+							<span class="span-20 margin-top-1 margin-bottom-1 eco_green font12 bold_font display_block country_list">
+								<ul>
+									<%
+										@countries.each do |entity|
+									%>
+										<li class="<%='country_selected' if entity.id == params[:country_id].to_i%>">
+											<a href="/research?country_id=<%=entity.id%>" class="span-18" style="white-space:nowrap;overflow:hidden;" title="<%=entity.name%>"><%=entity.name%></a>
+										</li>
+									<%
+										end
+									%>
+								</ul>
+							</span>
+						</span>
+                    </span>
+                </span>
+            </span>
+        </span>
+		<span class="span-71 white_bg margin-left-1">
+			<%
+				if @shown_entity
+			%>
+					<%=render :partial=>"view_news"%>
+			<%
+				else
+			%>
+					<%=render :partial=>"no_news"%>
+			<%
+				end
+			%>
+		</span>
+    </span>
+</span>
+

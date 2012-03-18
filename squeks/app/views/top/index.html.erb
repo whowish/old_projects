@@ -1,0 +1,41 @@
+<%
+  love_top = Figure.all(:conditions=>["status=? AND loves >= hates",Figure::STATUS_ACTIVE],:order=>"loves DESC",:offset=>0,:limit=>100)
+  hate_top = Figure.all(:conditions=>["status=? AND loves < hates",Figure::STATUS_ACTIVE],:order=>"hates DESC",:offset=>0,:limit=>100)
+%>
+<span class="span-98 margin-top-2">
+	<span class="span-98 height20">
+		<span class="float-left height20">
+			<span class="comment_filter font12">
+				<%=render :partial=>"top/menu"%>
+			</span>
+		</span>
+	</span>
+    <span class="span-98 clearfix">
+        <span class="span-49 search_result margin-top-1 clearfix really_light_pink">
+        	<span class="huneysuckle_pink_bg font14 white height20 align_center span-49 display_block bold_font">
+                        <%=word_for :love_top%>
+                    </span>
+            <ul class="margin-left-5px">
+                <%
+                    love_top.each do |l|
+                %>
+                	<%=render :partial=>"home/thumbnail_unit",:locals=>{:figure=>l}%>
+                <%end%>
+            </ul>
+        </span>
+		<span class="span-49 search_result margin-top-1 clearfix light_gray_bg">
+			<span class="medium_dark_gray_bg font14 white height20 align_center span-49 display_block bold_font">
+                        <%=word_for :hate_top%>
+                    </span>
+            <ul class="margin-left-5px">
+                <%
+                    hate_top.each do |h|
+                %>
+                	<%=render :partial=>"home/thumbnail_unit",:locals=>{:figure=>h}%>
+                <%end%>
+            </ul>
+        </span>
+    </span>
+</span>
+
+

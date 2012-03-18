@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html> 
+	<head> 
+		<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" /> 
+		<%=stylesheet_link_tag("reset.css")%>
+		<%=stylesheet_link_tag("swap.css")%>
+	</head> 
+	<body> 
+		<%=@title%>
+		<br/><br/>
+		<%if @request.response_message != "" and @request.response_message != nil%>
+			<%=@responder.name%> says:  <%=@request.response_message%>
+		<br/><br/>
+		<%end%>
+		<%if @suggest_wish.length > 0%>
+      		Here is some stuff from people who might be interested swapping with you :
+      		<br/><br/>
+      		<%@suggest_wish.each do |item|%>
+        		<span style="width:520px;margin-bottom:4px;margin-left:8px;margin-top:4px;">
+					<span style="width:520px;margin-top: 4px;" >
+						<span style="width:440px;margin-left: 1px;" >
+							<span style="width:440px;height: 200px;font-size: 12px;font-weight: bold;">
+								<span style="width:420px;white-space:normal;overflow:hidden;">
+									<a href="http://apps.facebook.com/<%=FACEBOOK_APP_NAME%>/item/view?item_id=<%=item.id%>" target="_new_<%=item.id%>"  onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=item.id%>'}); return false;">
+										<%=item.title%>
+									</a>
+								</span>
+							</span>
+							
+							<span  style="width:440px;font-size: 11px;font-weight: normal;white-space:normal;overflow:hidden;color: #A3A3A3;margin-top:2px;">
+								<span style="width:15px;">
+									By
+								</span>
+								<span >
+									<a href="http://apps.facebook.com/<%=FACEBOOK_APP_NAME%>/myswappage?user_id=<%=item.facebook_id%>"  target="_new_profile_<%=item.facebook_id%>" ><%=item[:name]%></a>
+										-
+									<%=item[:college_name]%>
+								</span>
+								
+							</span>
+						</span>
+					</span>
+					<span style="width:520px;display: block;height: 1px;margin-top: 4px;">
+					</span>
+				</span>
+      		<%end%>
+		<%elsif @suggest_wish.length == 0%>
+			Please click <a href="http://apps.facebook.com/<%=FACEBOOK_APP_NAME%>">here</a> to search more stuff from people who might be interested in swapping with you. 
+    	<%end%>
+		<br/>
+		Best regards,
+		<br/>
+		College Swap Team
+		<br/>
+	</body>
+</html>
+

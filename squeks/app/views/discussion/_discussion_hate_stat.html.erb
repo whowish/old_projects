@@ -1,0 +1,32 @@
+<span id="my_discussion_hate_<%=discussion.id%>" >&nbsp;
+    <%
+       logger.debug {"Enter #{self.template}"}
+		member_love_hate = DiscussionLove.first(:conditions=>{:discussion_id=>discussion.id,:facebook_id=>$member.facebook_id})
+        mutual_love_count = DiscussionLove.count(:conditions=>["discussion_id = ? and love_type = ? and not(facebook_id = ?) and facebook_id in (?)",discussion.id,DiscussionLove::TYPE_HATE,$member.facebook_id,$member.all_friends])
+    	other_love = discussion.hates - mutual_love_count
+		other_love = other_love - 1 if member_love_hate and member_love_hate.love_type == DiscussionLove::TYPE_HATE
+		if member_love_hate and member_love_hate.love_type == DiscussionLove::TYPE_HATE
+%>
+			You <%=((mutual_love_count > 0) or (other_love > 0))?",":""%>
+		<%end%>
+    <%
+        if mutual_love_count > 0
+    %>
+        <a href="#" class="medium_gray" onclick="$.whowish_box({url:'/discussion/show_mutual_friends?discussion_id=<%=discussion.id%>&love_type=<%=DiscussionLove::TYPE_HATE%>&filter=friend',background_color:'#999999'});return false;"><%=number_with_delimiter(mutual_love_count)%> <%=word_for :friends,:plural=>((mutual_love_count==1)?"":"s"),:and=>((other_love > 0)?",":"")%></a>
+    <%
+        end
+    %>
+</span>
+<%if other_love > 0%>
+	<span id="discussion_hate_stat_<%=discussion.id%>">
+	  <a href="#" class="medium_gray" onclick="$.whowish_box({url:'/discussion/show_mutual_friends?discussion_id=<%=discussion.id%>&love_type=<%=DiscussionLove::TYPE_HATE%>&filter=all',background_color:'#999999'});return false;"><%=word_for :hate_stat, :number=>number_with_delimiter(other_love)%></a>
+	</span>
+<%end%>
+
+<%if discussion.hates > 0%>
+	<%=word_for :hate%>
+<%end%>
+
+<%if member_love_hate and member_love_hate.love_type == DiscussionLove::TYPE_HATE%>
+    <a href="#" class="medium_gray display_inline_block" onclick="submit_discussion_love(this,'<%=DiscussionLove::TYPE_DONT_CARE%>',<%=discussion.id%>);return false;"><%=word_for :unhate%></a>
+<%end%>

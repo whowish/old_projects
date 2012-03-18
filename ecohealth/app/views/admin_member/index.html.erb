@@ -1,0 +1,163 @@
+<%
+	params[:limit] = 10 if !params[:limit]
+	params[:limit] = params[:limit].to_i
+	
+	params[:offset] = 0 if !params[:offset]
+	params[:offset] = params[:offset].to_i
+	
+	limit = params[:limit].to_i
+	offset = params[:offset].to_i		
+%>
+<%=stylesheet_link_tag("admin_activity.css")%>
+<script language="javascript">
+	function submit_delete(sender,member_id)
+	{
+		$(sender).loading_button(true);
+		if (!confirm('Are you sure you want to delete it?')) return;
+		
+		try {
+			$.ajax({
+				type: "POST",
+				url: '/admin_member/delete',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"member_id": member_id
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$('#member_unit_'+member_id).fadeOut(
+							function (){$('#member_unit_'+member_id).remove();})
+							$(sender).loading_button(false);
+						}
+						else {
+							$(sender).loading_button(false);
+						}
+					} 
+					catch (e) {
+						$.error_log('member_admin_delete', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('member_admin_delete',e);
+			alert(e);
+		}
+	}		
+	function edit_member(sender,member_id)
+	{
+		$(sender).loading_button(true);
+		try {
+			$.ajax({
+				type: "POST",
+				url: '/admin_member/edit',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"member_id": member_id,
+					"member_type":$('#member_type_'+member_id).val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+					        alert('save sucessfully!');
+							$(sender).loading_button(false);
+						}
+						else {
+							$(sender).loading_button(false);
+						}
+					} 
+					catch (e) {
+						$.error_log('member_admin_edit', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('member_admin_edit',e);
+			alert(e);
+		}
+	}		
+</script>	
+	<span class="span-74 margin-top-1 clearfix">
+		<span class="span-59 left_border clearfix">
+        	<% 
+				sql = "status != '" + Member::STATUS_DELETED + "'"
+				count = Member.count(:conditions=>[sql])
+				if count == 0
+			%>
+			
+				<span class="span-59  margin-left-1 fontsize18 bold_font margin-top-2 header align_center">
+					" There are no member "
+				</span>
+			<%
+				else
+			%>
+			<span class="row header">
+				<span class="date_container header">Email</span>
+				<span class="date_container header">Name</span>
+				<span class="date_container header">Type</span>
+				<span class="toolbox_container header">&nbsp;</span>
+			</span>
+			<%
+					all_members = Member.all(:conditions=>[sql],:offset=>offset,:limit=>limit, :order=>"name DESC")
+					all_members.each do |member|
+			%>
+						<%=render :partial=>"member/member_unit" ,:locals=>{:member=>member}%>
+			<%		
+					end
+			%>
+					<span class="span-68 margin-top-1">
+					    <span class="margin-left-4px total_page">
+					        <%=params[:offset]+1%> - <%=[(params[:offset]+params[:limit]),count].min%> of <%=count%> items
+					    </span>
+					    <span class="page_number">
+					        <ul>
+					            <%
+									pages = []
+									number_of_pages = (count.to_f/params[:limit].to_f).ceil
+					
+									if number_of_pages > 10
+										pages = [1,2,3, "...", number_of_pages-2,number_of_pages-1,number_of_pages]
+									else
+										pages = (1..number_of_pages)
+									end
+					
+									pages.each do |i|
+									
+										if i == "..."
+								%>
+											<li>...</li>
+								<%
+										else
+								%>
+											<li><a href="/admin_member?&offset=<%=params[:limit]*(i-1)%>&limit=<%=params[:limit]%>" <%='class="active"' if params[:limit]*(i-1) == params[:offset]%>><%=i%></a></li>
+								<%
+										end
+									end
+								%>
+					        </ul>
+					    </span>
+					</span>
+			<%
+				end
+			%>
+ 
+        </span>
+    </span>

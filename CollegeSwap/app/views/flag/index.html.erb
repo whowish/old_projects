@@ -1,0 +1,122 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<script language="javascript">
+
+	flag_form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("flag_form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"flag_reason" : function (input_obj) {
+				return true;
+			}
+			
+		}
+	}
+	
+	function submit_flag()
+	{
+		if (!flag_form_validator.validate_form()) return;
+		try {
+			$('#flag_submit_button').loading_button(true);
+			$.ajax({
+				type: "POST",
+				url: '/flag/save_flag',
+				cache: false,
+				headers:{"Connection":"close"},
+				dataType: "json",
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"item_id": "<%=params[:item_id]%>",
+					"reason": $('#flag_reason').val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+							/*
+							$('#item_unit_<%=params[:item_id]%>').fadeOut(function (){
+								$('#item_unit_<%=params[:item_id]%>').remove();
+							})
+							
+							$('#search_item_unit_<%=params[:item_id]%>').fadeOut(function (){
+								$('#search_item_unit_<%=params[:item_id]%>').remove();
+							})
+							*/
+						
+						
+							$(document).trigger('close.whowish_box');
+							
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#flag_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}
+							
+							$('#flag_submit_button').loading_button(false);
+						}
+					} 
+					catch (e) {
+						$.error_log('flag_item', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#flag_submit_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#flag_submit_button').loading_button(false);
+			$.error_log('flag_item',e);
+			alert(e);
+		}
+	}		
+</script>
+
+<span id="flag_flow_content" class="span-50">
+	<span class="span-48 margin-left-1 margin-top-1">
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-10" ><%=word_for :reason%></span> 
+			<span class="span-36 ">
+				<textarea class="dark_gray span-36 comment_zone" id="flag_reason"  onkeyup="flag_form_validator.validate(this);" type="text"></textarea>
+			</span>
+		</span>
+		<span class="span-48 margin-bottom-1">
+			<span class="span-10" >&nbsp;</span> 
+			<span class="span-36">
+				<a href="#" class="orange_button" id="flag_submit_button"  onclick="submit_flag();return false;">
+					<%=word_for :submit_button%>
+				</a>
+			</span>
+		</span>
+	</span>
+</span>
+
+<script language="javascript">
+	$('#flag_reason').default_text('<%=word_for :reason_default%>');
+</script>
+
+
+

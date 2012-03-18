@@ -1,0 +1,6 @@
+class WebMetricsActivity < ActiveRecord::Base
+  ACTION_TYPE_ACTION = "ACTION"
+  ACTION_TYPE_VIEW = "VIEW"
+  ACTION_TYPE_UPDATE = "UPDATE"
+  ACTION_TYPE_ADMIN = "ADMIN"
+end

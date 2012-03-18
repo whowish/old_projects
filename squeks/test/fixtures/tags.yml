@@ -1,0 +1,11 @@
+# Auto-generated template
+tag1:
+  id: 1
+  name: "tag1"
+  parent_id: 0
+  
+tag2:
+  id: 2
+  name: "tag2"
+  parent_id: 0
+

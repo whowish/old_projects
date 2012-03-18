@@ -1,0 +1,492 @@
+<script language="javascript">
+	<%if params[:item_type] == Item::ITEM_TYPE_JUNK%>
+	$.whowish_box_title_text("<%=word_for :whowish_box_title_junk%>");
+	<%else%>
+	$.whowish_box_title_text("<%=word_for :whowish_box_title_wish%>");
+	<%end%>
+</script>
+<%
+	is_edit = false
+	@item = Item.new
+	if params[:item_id] != nil
+		@item = Item.first(:conditions=>{:id=> params[:item_id]})
+		is_edit = true
+	end
+
+	
+%>
+
+<script language="javascript">
+	$(function() {
+			$("#item_expiration_date").datepicker({
+				changeMonth: true,
+				changeYear: true,
+				dateFormat: 'dd M yy',
+				
+       			minDate: 0
+		});
+	});
+
+
+	item_form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("item_form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"item_title" : function (input_obj) {
+				return validate_input_obj(input_obj,get_string_errors);
+			},
+			"item_value" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					if ($.trim(s)=="")return null;
+					return get_money_errors(s);
+				});
+			},
+			"item_expiration_date" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					if ($.trim(s)=="")return null;
+					if (!($.trim(s).match(/^[0-9]{2} [A-Za-z]{3} [0-9]{4}$/)))
+					{
+						return "Must be date with format DD MMM YYYY";
+					}
+					else
+					{
+						split_day = s.split(' ');
+						month = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+						is_match = false;
+						for(i=0;i<month.length;i++)
+						{
+							if (split_day[1].toLowerCase() == month[i])
+							{
+								is_match = true;
+								break;
+							}
+							
+						}
+						if (is_match) {
+							selected_date = new Date(split_day[2], i, split_day[0], 23, 59, 59, 0);
+							
+							var currentTime = new Date();
+							if (selected_date < currentTime) {
+								return "Expiration date is invalid";
+							}
+							else {
+								return null;
+							}
+						}
+						else
+						{
+							return "Expiration date is invalid";
+						}
+					}
+				});
+			},
+			"item_description" : function (input_obj) {
+				return true;
+			},
+			"item_category_id" : function (input_obj) {
+				return validate_input_obj(input_obj,function(s) {
+					if (s == "0") {
+						return "You must select category.";
+					}
+					else
+					{
+						return null;
+					}
+				});
+			}
+		}
+	}
+
+	function submit_item()
+	{
+		if (!item_form_validator.validate_form()) return;
+		try {
+			$('#item_submit_button').loading_button(true);
+			$.ajax({
+				type: "POST",
+				url: '/item/add',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"title": $('#item_title').val(),
+					"item_type": "<%=params[:item_type]%>",
+					"value": $('#item_value').val(),
+					"expiration_date": $('#item_expiration_date').val(),
+					"description": $('#item_description').val(),
+					"category_id": $('#item_category_id').val(),
+					"images": get_swfupload_uploaded_files().join(','),
+					"privacy": $('#item_privacy').val(),
+					"share_on_facebook":(($('#item_share_on_facebook')[0].checked == true)?"yes":"no")
+
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							
+							// <% if params[:item_type] == "WISH" %>
+								$('#my_wish_<%=$facebook.facebook_id%>').after(data.html)
+								$('#no_wish_item_panel_<%=$facebook.facebook_id%>').hide();
+							// <% else %>
+								$('#my_junk_<%=$facebook.facebook_id%>').after(data.html)
+								$('#no_junk_item_panel_<%=$facebook.facebook_id%>').hide();
+							// <% end%>
+							
+							$(document).trigger('close.whowish_box');
+							
+							$('#item_unit_'+data.item_id).hide();
+							$('#item_unit_'+data.item_id).fadeIn('slow');
+							
+							if ($('#result_panel').length > 0)
+							{
+								var str = "<span id='result_subpanel_" + result_global_id+"' style='display:none;'>";
+								str += data.search_result_unit_html;
+								str += "</span>";
+								
+								$('#result_panel').prepend(str);
+								
+								$("#result_subpanel_" + result_global_id).slideDown( 'slow', function() {
+									
+								} )
+								
+								if ($('#result_panel').html() == "")
+								{
+									$('#no_feed').show();
+								}
+								else
+								{
+									$('#no_feed').hide();
+								}
+								
+								$('#home_loading').hide();
+								
+								result_global_id++;
+							}
+							
+							try {
+								FB.Canvas.setAutoResize();
+							} catch (e) {}
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#item_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}
+							
+							$('#item_submit_button').loading_button(false);
+						}
+					} 
+					catch (e) {
+						$.error_log('submit_item', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#item_submit_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#item_submit_button').loading_button(false);
+			$.error_log('submit_item',e);
+			alert(e);
+		}
+	}		
+	
+	function submit_edit_item()
+	{
+		if (!item_form_validator.validate_form()) return;
+		try {
+			$('#item_submit_button').loading_button(true);
+			$.ajax({
+				type: "POST",
+				url: '/item/edit',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"item_id":"<%=params[:item_id]%>",
+					"title": $('#item_title').val(),
+					"item_type": "<%=params[:item_type]%>",
+					"value": $('#item_value').val(),
+					"expiration_date": $('#item_expiration_date').val(),
+					"description": $('#item_description').val(),
+					"category_id": $('#item_category_id').val(),
+					"privacy": $('#item_privacy').val(),
+					"images": get_swfupload_uploaded_files().join(','),
+					"share_on_facebook":(($('#item_share_on_facebook')[0].checked == true)?"yes":"no")
+
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							
+							$(document).trigger('close.whowish_box');
+							
+							$('#item_unit_'+data.item_id).replaceWith(data.html);
+							
+							
+							
+							
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#item_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}
+							
+							$('#item_submit_button').loading_button(false);
+						}
+					} 
+					catch (e) {
+						$.error_log('submit_item', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#item_submit_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#item_submit_button').loading_button(false);
+			$.error_log('submit_item',e);
+			alert(e);
+		}
+	}		
+	
+	function update_default() {
+		change_title_default();
+		change_description_default();
+	}
+	
+	function change_title_default() {
+		if ($('#item_category_id').val() == "1")
+		{
+			$('#item_title').default_text('Write course and professor, book title, or ISBN no.');
+		}
+		else
+		{
+			<% if params[:item_type] == "WISH" %>
+				$('#item_title').default_text('Write what you want...');
+			<% else %>
+				$('#item_title').default_text('Write what you can trade...');
+			<% end %>
+		}
+		
+		return;
+		
+			<% if params[:item_type] == "WISH" %>
+				$('#item_title_label').html(" *I want: ");
+			<% else %>
+				if ($('#item_category_id').val() == "4") {
+					$('#item_title_label').html(" *I can: ")
+				}
+				else {
+					$('#item_title_label').html(" *I have: ");
+				}
+			<% end %>
+		
+	}
+	
+	function change_description_default()
+	{
+		<% if params[:item_type] == "WISH" %>
+			if ($('#item_category_id').val() == "1")
+				$('#item_description').default_text("Explain what you want and please provide ISBN number...");
+			else
+				$('#item_description').default_text("Explain what you want...");
+		<% else %>
+			if ($('#item_category_id').val() == "4")
+				$('#item_description').default_text('Explain how cool your service is...');
+			else if ($('#item_category_id').val() == "1")
+				$('#item_description').default_text('Explain how cool your book is and please provide ISBN number...');
+			else
+				$('#item_description').default_text('Explain how cool your stuff is...');
+		<% end %>
+	}
+	
+	function enter_to_submit_item(code)
+	{
+		if (code == 13)
+        {
+            submit_item();
+        }
+	}
+</script>
+
+<span id="item_flow_content" class="span-50 margin-bottom-1">
+	<span class="light_blue_bg span-50 margin-top-1">
+		<%
+			image_url = []
+			image_url = "/" + @item.default_image_path if @item.default_image_path != nil and @item.default_image_path != ""
+		%>
+		<%=render :partial=>"temporary_image/upload_panel", :locals=>{:number_of_files=>1,:images=>image_url}%>
+	</span>
+	
+	<span class="span-48 margin-left-1 margin-top-1">
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-10" ><%=word_for :category%></span> 
+			<span class="span-13 ">
+				<select id="item_category_id" onchange="update_default();item_form_validator.validate(this);">
+					<option value="0">- Please select -</option>
+					<% categories = Category.all(:order=>"parent_id ASC")%>
+      				<% categories.each do |category| %>
+						<option value="<%=category.id%>" <%='selected' if @item.category_id == category.id%>>
+							<%if category.id.to_s == category.parent_id.to_s%>
+								<%=category.name%>
+							<%else%>
+								<%parent_category = Category.first(:conditions=>{:id => category.parent_id})%>
+								&nbsp;&nbsp;&nbsp;&nbsp;&gt; <%=category.name%>
+							<%end%>
+						</option>
+					<% end %>
+      			</select>
+				
+			</span>
+			<span><a href="#" onclick="$.whowish_box({title:'Description',url:'/misc/category_help',background_color:'#1963BD'});return false;">[?]</a>
+			</span>
+			
+		</span>
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-10" id="item_title_label" >
+				<% if params[:item_type] == "WISH" %>
+					<%=word_for :i_want%>
+				<% else %>
+					<%=word_for :i_have%>
+				<% end %>
+			</span> 
+			<span class="span-36 ">
+				<input class="dark_gray span-36 postbox_input" id="item_title" onkeyup="item_form_validator.validate(this);" type="text" value="<%=@item.title%>" />
+			</span>
+		</span>
+		
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-10" ><%=word_for :description%></span> 
+			<span class="span-36 ">
+				<textarea class="dark_gray span-36 comment_zone" id="item_description"  onkeyup="item_form_validator.validate(this);" type="text"><%=@item.description%></textarea>
+			</span>
+		</span>
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-10" ><%=word_for :est_value%></span> 
+			<span class="span-36 ">
+				<!--<span class="span-1">$</span> -->
+				<span class="span-20">
+					<input class="dark_gray span-10 postbox_input"  id="item_value"  onkeyup="item_form_validator.validate(this);" type="text" value="<%=@item.value%>"/>
+					<span class="margin-left-1">(<%=Currency.get_by_country_code($facebook.country_code).name%>)</span>
+				</span>
+				<!--<span class="span-36 fontsize10 medium_dark_gray">
+					<% if params[:item_type] == "WISH" %>
+						*This will also be the price you are willing to pay if there is no swap.
+					<% else %>
+						*This will also be the price you are willing to sell if there is no swap.
+					<% end %>
+				</span>-->
+			</span>
+		</span>
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-10" ><%=word_for :expiration_date%></span> 
+			<span class="span-36 ">
+				<input class="dark_gray span-10 postbox_input"  id="item_expiration_date"  onkeyup="item_form_validator.validate(this);" type="text" value="<%=@item.expiration_date.strftime('%d %b %Y') if @item.expiration_date != nil%>"/>
+			</span>
+		</span>
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-10" ><%=word_for :show_to%></span> 
+			<span class="span-36 ">
+				<select id="item_privacy">
+					<%
+						[{:id=>Item::PRIVACY_ALL,:label=>"Everyone"},
+							{:id=>Item::PRIVACY_FRIENDS,:label=>"Only My Friends"},
+							{:id=>Item::PRIVACY_FRIENDS_OF_FRIENDS,:label=>"Only Friends & Friends of Friends"}
+							].each do |privacy|
+					%>
+						<option value="<%=privacy[:id]%>" <%='selected' if @item.privacy == privacy[:id]%>><%=privacy[:label]%></option>
+					<%
+						end
+					%>
+      			</select>
+				
+			</span>
+		</span>
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-10" >&nbsp;</span> 
+			<span class="span-36 ">
+				<input type="checkbox" checked id="item_share_on_facebook"> Share on my wall
+			</span>
+		</span>
+		<span class="span-48">
+			<span class="span-10" >&nbsp;</span> 
+			<span class="span-36">
+				<%if !is_edit%>
+					<% if params[:item_type] == "WISH" %>
+						<a href="#" class="green_button" id="item_submit_button"  onclick="submit_item();return false;">
+							<%=word_for :post_stuff_i_want_button%>
+						</a>
+					<% else %>
+						<a href="#" class="blue_button" id="item_submit_button"  onclick="submit_item();return false;">
+							<%=word_for :post_stuff_i_trade_button%>
+						</a>
+					<% end %>
+				<%else%>
+					<% if params[:item_type] == "WISH" %>
+						<a href="#" class="green_button" id="item_submit_button"  onclick="submit_edit_item();return false;">
+							<%=word_for :edit_stuff_i_want_button%>
+						</a>
+					<% else %>
+						<a href="#" class="blue_button" id="item_submit_button"  onclick="submit_edit_item();return false;">
+							<%=word_for :edit_stuff_i_trade_button%>
+						</a>
+					<% end %>
+				<%end%>
+			</span>
+		</span>
+	</span>
+</span>
+<div style="height:0px;clear:left;">&nbsp;</div>
+<script language="javascript">
+	$( function () {
+		change_title_default();
+		change_description_default();
+		$('#item_value').default_text('How much...');
+	});
+</script>
+
+
+
+

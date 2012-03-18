@@ -1,0 +1,143 @@
+
+<span class="span-98 clearfix">
+    <script language="javascript">
+    	
+	confirm_form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("confirm_form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"user_mail" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					return get_email_errors(s)
+				});
+			},
+			"topic" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					return get_string_errors(s);
+				});
+			}
+		}
+	}
+		
+        function submit_confirm()
+        {
+			if (!confirm_form_validator.validate_form()) return;
+            try {
+                $('#confirm_submit_button').loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/help/send_contact_us',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+						from_mail:$('#user_mail').val(),
+						topic:$('#topic').val(),
+						content:$('#content').val()	
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+                                try
+                                {
+									$('#send_mail_unit').replaceWith(data.html)
+
+                                } catch(e) {
+                                    
+                                }
+                            }
+                            else {
+                                $('#confirm_submit_button').loading_button(false);
+                                $('#confirm_submit_button').ruby_box(true,data.error_message);
+                            }
+							$('#confirm_submit_button').loading_button(false);
+                        }
+                        catch (e) {
+                            $('#confirm_submit_button').loading_button(false);
+                            $.error_log('help_contact_us', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#confirm_submit_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#confirm_submit_button').loading_button(false);
+                $.error_log('help_contact_us',e);
+                alert(e);
+            }
+        }
+    </script>
+	<%=render :partial=>"/help/side_help"%>
+	<span class="span-60 margin-left-1 clearfix">
+		<span class="span-60">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%= word_for :faq%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-60 margin-top-1 font12 medium_dark_gray clearfix">
+				<%=render :partial=>"/help/faq"%>
+			</span>
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%= word_for :contact_us%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			
+			<span class="span-60 margin-top-1 font12 medium_dark_gray clearfix" id="send_mail_unit">
+				<span class="span-60 font12 dark_gray bold_font">
+					<span class="span-10 height26">
+						 <%= word_for :user_mail%>
+					</span>
+					<span class="span-50 height26">
+						<input id="user_mail" type="text" class="input_type span-50" onkeyup="confirm_form_validator.validate(this);" />
+					</span>
+				</span>
+				<span class="span-60 font12 dark_gray bold_font">
+					<span class="span-10 height26">
+						 <%= word_for :topic%>
+					</span>
+					<span class="span-50 height26">
+						<input id="topic" type="text" class="input_type span-50" onkeyup="confirm_form_validator.validate(this);" />
+					</span>
+				</span>
+				<span class="span-60 margin-top-1 font12 dark_gray bold_font">
+					<span class="span-10">
+						 <%= word_for :content%>
+					</span>
+					<span class="span-50">
+						 <span class="span-50">
+							<textarea class="input_type_area_red span-50" id="content" type="text"></textarea>
+						 </span>
+					</span>
+				</span>
+				<span class="span-60 margin-top-2 margin-bottom-2 font12 dark_gray bold_font">
+					<a href="#" class="gray_button30px" id="confirm_submit_button" onclick="submit_confirm();return false;">
+	                    <%= word_for :send_mail%>
+	                </a>
+				</span>
+				<div style="height:0px;clear:left;">&nbsp;</div>
+			</span>
+		</span>
+	</span>
+</span>	

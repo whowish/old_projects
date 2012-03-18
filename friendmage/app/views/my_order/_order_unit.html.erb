@@ -1,0 +1,120 @@
+<%
+	status_cancel = [Order::STATUS_PENDING,Order::STATUS_CUSTOMER_CONFIRM_TRANSFER,Order::STATUS_PAID]
+	status_cancel = [Order::STATUS_PENDING,Order::STATUS_CUSTOMER_CONFIRM_TRANSFER] if !order.buy_print_copy 
+	
+	status_download = [Order::STATUS_PAID,Order::STATUS_PRINTING,Order::STATUS_SHIPPING]
+	app = App.first(:conditions=>{:app_id=>order.app_id})
+%>
+<span id="order_unit_<%=order.id%>">
+	<span class="span-96 margin-top-1 clearfix" >
+		<span class="poster_icon">
+		</span>
+		<span class="span-93 margin-left-1">
+			<span class="span-93 clearfix">
+				<span class="span-52 font14 dark_gray bold_font">
+					<%= word_for :order,:id=>order.id%> - <%=app.name%>
+				</span>
+				<span class="float-left margin-left-1 font14 friendmage_red bold_font">
+					<%=order.price.to_i%> <%= word_for :currency%>
+				</span>
+				<span class="float-right font14 <%if order.status == Order::STATUS_CANCELLED%><%='friendmage_red'%><%else%><%='dark_blue'%><%end%> bold_font">
+					<%= word_for order.get_symbol_status%>
+				</span>
+			</span>
+			<span class="span-93 height01 margin-top-5px light_medium_gray_bg clearfix">
+			</span>
+			<span class="span-93 margin-top-5px clearfix">
+				<span class="span-93 font12 medium_dark_gray clearfix">
+					<span class="span-52">
+						<%if order.buy_print_copy%>
+							<span class="span-6">
+								<%= word_for :address%>
+							</span>
+							<span class="span-46 bold_font dark_gray">
+								<%=order.recipient_name%><br />
+								<%=order.address_identifier%> <%= word_for :address_street%> <%=order.address_street%>
+								<br />
+								<%= word_for :address_subdistrict%> <%=order.address_subdistrict%> 
+								<%= word_for :address_district%> <%=order.address_district%>
+								<br />
+								<%= word_for :address_province%> <%=order.address_province%> 
+								<%= word_for :address_postal_code%> <%=order.address_postal_code%> 
+								<br />
+							</span>
+						<%else%>
+							<span class="span-50 bold_font dark_gray">
+								<%= word_for :digital_only%>
+							</span>
+						<%end%>
+					</span>
+					<span class="span-40 margin-left-1">
+						<span class="span-40">
+							<span class="span-40">
+								<%= word_for :order_date%> 
+								<span class="bold_font dark_gray">
+									<%if order.created_date%>
+										<%=get_thai_date(order.created_date)%> <%=order.created_date.strftime("%H:%M")%>
+									<%else%>
+										-
+									<%end%>
+								</span>
+								<span class="span-40">
+									<%= word_for :print_date%> 
+									<span class="bold_font dark_gray">
+										<%if order.print_time%>
+											<%=get_thai_date(order.print_time)%> <%=order.print_time.strftime("%H:%M")%>
+										<%else%>
+											-
+										<%end%>
+									</span>
+									<span class="span-40">
+										<%= word_for :ship_date%> 
+										<span class="bold_font dark_gray">
+											<%if order.ship_time%>
+												<%=get_thai_date(order.ship_time)%> <%=order.ship_time.strftime("%H:%M")%>
+											<%else%>
+												-
+											<%end%>
+										</span>
+									</span>
+								</span>
+							</span>
+						</span>
+					</span>
+					<%if $facebook.facebook_id == order.facebook_id%>
+						<span class="span-93 margin-top-1 clearfix">
+							<%if order.status == Order::STATUS_PENDING%>
+								<a href="/order/confirm_transfer?order_key=<%=order.key%>" >
+									<span class="gray_button_small margin-left-1">
+										<%= word_for :confirm_transfer%>
+									</span>
+								</a>
+								<a href="/order/order_successfully?order_key=<%=order.key%>" id="paypal_submit_button" >
+									<span class="gray_button_small margin-left-1">
+										<%= word_for :pay_by_paypal%>
+									</span>
+								</a>
+							<%end%>
+							<%if status_download.include?(order.status) and order.buy_digital_copy and order.print_image_url and order.print_image_url != ""%>
+								<a href="<%=order.print_image_url%>" >
+									<span class="gray_button_small margin-left-1">
+										<%= word_for :download%>
+									</span>
+								</a>
+							<%end%>
+							<%if status_cancel.include?(order.status)%>
+								<a href="#" onclick="$.whowish_box({url:'/my_order/confirm_cancel?order_id=<%=order.id%>'});return false;">
+									<span class="red_button_small margin-left-1">
+										<%= word_for :cancel%>
+									</span>
+								</a>
+							<%end%>
+						</span>
+					<%end%>
+				</span>
+			</span>
+		</span>
+	</span>
+	<span class="span-96 height01 medium_gray_bg margin-top-1">
+	</span>
+</span>

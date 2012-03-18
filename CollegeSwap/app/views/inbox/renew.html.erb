@@ -1,0 +1,14 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50 margin-bottom-1">
+	<span class="span-50 light_gray_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		&nbsp;&nbsp; <%=word_for :your_item_is_renewed%>
+	</span>
+	<span class="span-49" style="overflow:hidden;">
+		<%=render :partial=>"home/search_result_unit",:locals=>{:item=>Item.first(:conditions=>{:id=>params[:item_id]})}%>
+	</span>
+</span>
+<script language="javascript">
+	$('#item_renew_<%=params[:item_id]%>').fadeOut(function (){$('#item_renew_<%=params[:item_id]%>').remove();})
+</script>

@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+		<script type="text/javascript" src="wiky_base_editor.js"></script>
+		<script type="text/javascript" src="wiky_editor.js"></script>
+		<script type="text/javascript" src="wiky_uploader.js"></script>
+		<link href="wiky_editor.css" type="text/css" rel="stylesheet">
+		<title>Untitled Document</title>
+		<style>
+			.button_hover {
+				background-color: blue;
+			}
+			
+			.button_down {
+				background-color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<input type="button" onclick="$('#textarea').wiky_editor_tools('b');" value="Bold">
+		<input type="button" onclick="$('#textarea').wiky_editor_tools('i');" value="Italic">
+		<input type="button" onclick="$('#textarea').wiky_editor_tools('h');" value="Heading">
+		<input type="button" onclick="$('#textarea').wiky_editor_tools('open_link');" value="Link">
+		<input type="button" onclick="$('#textarea').wiky_editor_tools('open_image');" value="Image">
+		<input type="button" onclick="$('#textarea').wiky_editor_tools('open_video');" value="Video">
+		<br/>
+		<textarea id="textarea" style="width:500px;height:200px;"></textarea><br/>
+		<div id="wiky_link_dialog_box" class="wiky_link_dialog_box" style="position: fixed; width: 400px; z-index: 1001; top: 50%; left: 50%; display: block; margin-top: -75.5px; margin-left: -203px;display:none;">
+			<div style="display:block;">
+				Link<br/>
+				<b>Name:</b> <input type="text" id="wiky_link_dialog_box_name"/><br/>
+				<b>URL:</b> <input type="text" id="wiky_link_dialog_box_url" onkeyup="if (event.which==13) $.wiky_editor_link_dialog_box_insert_link();"/><br/>
+				<input type="button" value="Add" onclick="$.wiky_editor_link_dialog_box_insert_link();"/>
+				<input type="button" value="Cancel" onclick="$.wiky_editor_close_dialog_box();"/>
+			</div>
+		</div>
+		<div id="wiky_video_dialog_box" class="wiky_video_dialog_box" style="position: fixed; width: 400px; z-index: 1001; top: 50%; left: 50%; display: block; margin-top: -75.5px; margin-left: -203px;display:none;">
+			<div style="display:block;">
+				Youtube<br/>
+				<b>URL:</b> <input type="text" id="wiky_video_dialog_box_url" onkeyup="if (event.which==13) $.wiky_editor_video_dialog_box_insert_video();"/><br/>
+				<input type="button" value="Add" onclick="$.wiky_editor_video_dialog_box_insert_video();"/>
+				<input type="button" value="Cancel" onclick="$.wiky_editor_close_dialog_box();"/>
+			</div>
+		</div>
+		<div id="wiky_image_dialog_box" class="wiky_image_dialog_box" style="position: fixed; width: 430px;height:200px; z-index: 1001; top: 50%; left: 50%; display: block; margin-top: -75.5px; margin-left: -223px;display:none;">
+			<div style="display:block;">
+				<span id="wiky_image_super_container" style="width: 430px;height:170px;overflow:hidden;display:block;">
+					<span id="wiky_image_container" style="width: 430px;height:190px;overflow:scroll;display:block;">
+					</span>
+				</span>
+				<input id="wiky_insert_image_button" type="button" value="Insert selected images" onclick="$.wiky_editor_image_dialog_box_insert_image();" /> 
+				<input id="wiky_upload_button" type="button" value="Upload File" />       
+				<input type="button" value="Close Dialog" onclick="$.wiky_editor_close_dialog_box();"/>
+			</div>
+		</div>
+	</body>
+</html>
+<script language="javascript">
+
+	$('#textarea').wiky_editor();
+	
+</script>

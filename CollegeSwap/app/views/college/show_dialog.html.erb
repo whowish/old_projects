@@ -1,0 +1,48 @@
+<%=stylesheet_link_tag("reset.css")%>
+<%=stylesheet_link_tag("swap.css")%>
+<%=stylesheet_link_tag("jquery.autocomplete.css")%>
+<%= javascript_include_tag "jquery-1.4.2.min.js"%>
+<%= javascript_include_tag "jquery.relative_offset.1.0.js"%>
+<%= javascript_include_tag "jquery.autocomplete.js"%>
+<%= javascript_include_tag "jquery.error_log.js"%>
+<%= javascript_include_tag "jquery.loading_button.js"%>
+<%= javascript_include_tag "jquery.json.js"%>
+<%= javascript_include_tag "basic.js"%>
+<%= javascript_include_tag "form_validator_helper.js"%>
+
+<%=stylesheet_link_tag("/whowish_box/jquery.whowish_box.css")%>
+<%= javascript_include_tag "/whowish_box/jquery.whowish_box.js"%>
+
+<%=stylesheet_link_tag("/default_text/jquery.default_text.css")%>
+<%= javascript_include_tag "/default_text/jquery.default_text.js" %>
+
+<%=stylesheet_link_tag("/ruby_box/jquery.ruby_box.css")%>
+<%= javascript_include_tag "/ruby_box/jquery.ruby_box.js" %>
+
+<script src="http://static.ak.fbcdn.net/connect/en_US/core.debug.js"></script>
+<link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico"/>
+<link rel="icon" type="image/png" href="/images/favicon.png" />
+<link rel="icon" type="image/gif" href="/images/favicon.png" />
+
+<script language="javascript">
+	$(function() {
+		$.whowish_box({title:"Select college",url:"/college",background_color:" #6D84B4"});
+	});
+</script>
+<% (1..10).each do |i| %>
+	<br/>
+<% end %>
+<div id="fb-root">
+</div>
+<script language="javascript">
+	$(function () {
+		 FB.init({
+		    appId  : '<%=APP_ID%>',
+		    status : true, // check login status
+		    cookie : true, // enable cookies to allow the server to access the session
+		    xfbml  : false  // parse XFBML
+		  });
+		
+		FB.Canvas.setAutoResize(100);
+	});
+</script>

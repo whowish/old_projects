@@ -1,0 +1,24 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<%
+	college = College.first(:conditions=>["name LIKE ? AND country_code=?",params[:college_name],$facebook.country_code])
+%>
+<span class="span-50 margin-top-1 margin-bottom-1">
+	<span class="span-49 margin-left-1">
+		<%=word_for :meeting_place_for%> <%=college.name%>
+		
+		<%
+			if college.place_name == nil
+		%>
+			<%=word_for :no_places%>
+		<%
+			else
+		%>
+			<%=college.place_name%></br>
+			<%=college.place_address%>
+		<%
+			end
+		%>
+	</span>
+</span>

@@ -1,0 +1,115 @@
+<%
+	params[:category_id] = 0 if !params[:category_id]
+%>
+<span class="span-539 light_gray_bg dark_gray fontsize12 bold_font" style="height:70px;">
+	<span class="span-13 margin-left-1 fontsize14 bold_font margin-top-3">
+		Live Feed | Filter
+	</span>
+	<span class="filterFeed float-right margin-top-1">
+		<ul>
+			<li><a href="/home?category_id=0"><img src="../images/thumbnail/thumbnailsmallAll.png" alt="all" /></a></li>
+			<li><a href="/home?category_id=1"><img src="../images/thumbnail/books.png" alt="textbooks" /></a></li>
+			<li><a href="/home?category_id=2"><img src="../images/thumbnail/toys.png" alt="toys" /></a></li>
+			<li><a href="/home?category_id=3"><img src="../images/thumbnail/crib.png" alt="cribs" /></a></li>
+			<li><a href="/home?category_id=4"><img src="../images/thumbnail/services.png" alt="services" /></a></li>
+			<li><a href="/home?category_id=5"><img src="../images/thumbnail.png" alt="everything else" /></a></li>
+		</ul>
+	</span>
+</span>
+<span id="result_panel">
+	<%
+		category_id = params[:category_id]
+		category_id = 0 if !params[:category_id]
+		
+		sql = ""
+		if category_id.to_i != 0
+			ids = [category_id]
+			cats = Category.all(:conditions=>{:parent_id=>category_id})
+			cats.each { |c|
+				ids.push(c.id);
+			}
+			
+			sql += " AND category_id in ('"+ids.join("','")+"')"
+		end 	
+
+		items = Item.all(:conditions=>["NOT(facebook_id = '"+$facebook.facebook_id+"') " + sql],:order=>"id DESC", :limit=>20)
+	
+		anchor = 0
+		anchor = items[0].id if items.length > 0
+	
+		items.each do |item|
+	%>
+		<%=render :partial=>"home/search_result_unit",:locals=>{:item=>item}%>
+	<% 	end %>
+</span>
+<script language="javascript">
+/*	
+	var anchor = "<%=anchor%>";
+	var result_global_id = 0;
+	var WAIT_TIME = 60000;
+	var NEWS_FEED_RUNNING = true;
+	
+	$(function() {
+		setTimeout("load_new_items();",WAIT_TIME);
+	});
+	
+	function load_new_items() {
+		if (!NEWS_FEED_RUNNING) return;
+		
+		try {
+			$.ajax({
+				type: "POST",
+				url: '/home/load_more',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request:"<%=params[:signed_request]%>",
+					"anchor": anchor,
+					"category_id": '<%=category_id%>'
+				},
+				success: function(data){
+					try {
+						if (data.ok == true
+							&& data.results.length > 0) {
+							
+							var str = "<span id='result_subpanel_" + result_global_id+"' style='display:none;'>";
+							for (var i=data.results.length-1;i>=0;i--)
+							{
+								str += data.results[i];
+								
+							}
+							str += "</span>";
+							
+							$('#result_panel').prepend(str);
+							
+							$("#result_subpanel_" + result_global_id).slideDown( 'slow', function() {
+								setTimeout("load_new_items();",10000);
+							} )
+							
+							result_global_id++;
+							
+							anchor = data.anchor;
+						}
+						else
+						{
+							setTimeout("load_new_items();",WAIT_TIME);
+						}
+					} 
+					catch (e) {
+						$.error_log('load_more', e);
+						setTimeout("load_new_items();",WAIT_TIME);
+					}
+
+				},
+				error: function(req, status, e){
+					setTimeout("load_new_items();",WAIT_TIME);
+				}
+			});
+		} catch (e)
+		{
+		}
+		
+		
+	}
+*/
+</script>

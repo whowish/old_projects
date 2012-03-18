@@ -1,0 +1,235 @@
+<%=stylesheet_link_tag("admin_activity.css")%>
+<%=javascript_include_tag "/sortable/jquery.sortable.js"%>
+<%= javascript_include_tag "/ckeditor/ckeditor.js"%>
+<%= javascript_include_tag "/whowish_foundation_asset/swfupload/ajaxupload.js"%>
+<%
+	@countries = Country.all(:order=>"name ASC")
+%>
+<span class="span-79">
+	<span class="span-12">
+		<span class="span-12">
+			<span id="uploaded_picture_panel" class="sortable">
+				<%
+					ConferenceImage.all(:conditions=>{:conference_id=>@entity.id},:order=>"ordered_number ASC").each do |image|
+				%>
+					<span class='upload_thumbnail' style="background-image: url('/thumbnail/110x110/uploads/<%=image.original_image_path%>');">
+						<input type='hidden' class='input_uploaded_image' value='<%=image.original_image_path%>'>
+						<span class='x_icon' onclick='delete_image(this);'></span>
+					</span>
+				<%
+					end
+				%>
+			</span>
+		</span>
+		<span class="span-12 margin-top-1">
+			<span class="orange_button" id="upload_picture_button">Upload Picture</span>
+		</span>
+	</span>
+	<span class="span-61">
+		<span class="span-60 font16 bold_font">Add Conference News</span>
+		<span class="span-60 margin-top-1">
+			<span class="float-left">Topic:</span>
+			<span class="float-left">
+				<input type="text" id="topic" style="width:400px;" value="<%=@entity.topic%>"  name="<%=rand()%>">
+			</span>
+		</span>
+		<span class="span-60 margin-top-1">
+			<span class="float-left">
+				Country:
+			</span>
+			<span class="float-left">
+				<select id="country_id"  name="<%=rand()%>">
+					<option value="">Please select...</option>
+					<%
+						@countries.each do |country|
+					%>
+						<option value="<%=country.id%>" <%='selected' if @entity.country_id==country.id%>><%=country.name%></option>
+					<%
+						end
+					%>
+				</select>
+			</span>
+		</span>
+		<span class="span-60 margin-top-1">
+			Description:
+		</span>
+		<span class="span-65 margin-top-1">
+			<textarea id="description" class="span-65" name="<%=rand()%>"><%=CGI.escapeHTML(@entity.description)%></textarea>
+		</span>
+		<span class="span-60 margin-top-1">
+			<span class="green_button" onclick="submit(this);">Create</span>
+		</span>
+	</span>
+</span>
+
+<script language="javascript">
+
+	
+	CKEDITOR.replace( 'description', {
+        toolbar : [
+			['Source'],
+			['Undo','Redo'],
+		    ['Bold','Italic','Underline','Strike','-','TextColor','-','Subscript','Superscript', '-', 'Link', 'Unlink','-','Maximize']
+		],
+		height : "600"
+    });
+	
+	form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"topic" : function (input_obj) {
+				return validate_input_obj(input_obj,get_string_errors);
+			},
+			"country_id" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					if ($.trim(s)!="")return null;
+					return "Must be selected";
+				});
+			}
+		}
+	}
+
+	function submit(sender)
+	{
+		if (!form_validator.validate_form()) return;
+		
+		try {
+			$(sender).loading_button(true);
+			
+			var all_images = $('.input_uploaded_image');
+			
+			var images = [];
+			for(var i=0;i<all_images.length;i++)
+			{
+				images.push(all_images[i].value);
+			}
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_conference/save',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"topic": $('#topic').val(),
+					"country_id": $('#country_id').val(),
+					"description": CKEDITOR.instances.description.getData(),
+					<%
+						if @entity.id != nil
+					%>
+						"id": <%=@entity.id%>,
+					<%
+						end
+					%>
+					"images": images.join(',')
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							location.href='/admin_conference?country_id='+$('#country_id').val();
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}
+							
+							$(sender).loading_button(false);
+						}
+					} 
+					catch (e) {
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			alert(e);
+		}
+	}
+	
+	function delete_image(sender)
+	{
+		var p = $(sender).parent('.upload_thumbnail');
+		$(p).fadeOut(function() {
+			$(p).remove();
+		});
+	}
+	
+	new AjaxUpload('upload_picture_button', {
+			action: '/temporary_image',
+			name: 'Filedata',
+			responseType: "json",
+			data:{authenticity_token: "<%=form_authenticity_token%>"},
+			
+			onSubmit: function(file, extension) {			
+				if (extension && /^(jpg|png|jpeg|gif)$/.test(extension.toLowerCase())) {
+					$('#upload_picture_button').loading_button(true);
+				}
+				else
+				{
+					alert("Only JPEG, GIF, and PNG are allowed.");
+					return false;
+				}
+			},
+			onComplete : function(file,response){
+				$('#upload_picture_button').loading_button(false);
+				try {
+					if (response.ok == true) {
+						
+						$('#uploaded_picture_panel').append(" \
+							<span class='upload_thumbnail' style=\"background-image: url('/thumbnail/110x110"+response.filename+"');\"> \
+								<input type='hidden' class='input_uploaded_image' value='"+response.filename+"'> \
+								<span class='x_icon' onclick='delete_image(this);'></span> \
+							</span>");
+					}
+					else {
+						alert(response.error_message);
+					}
+					
+				} catch (e)
+				{
+					
+				}
+				
+			},
+			onError: function (errorObj)
+			{
+				alert(errorObj);
+				$('#upload_picture_button').loading_button(false);
+			}
+		});	
+	
+	$( ".sortable" ).sortable({
+		opacity:0.5,
+		tolerance:'pointer'
+	});
+	$( ".sortable" ).disableSelection();
+</script>
+
+

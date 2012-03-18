@@ -1,0 +1,220 @@
+<script language="javascript">
+
+    var page_is_sliding = false;
+    var page_stack = [<%=@figure.id if @figure%>]
+    var page_index = page_stack.length-1;
+
+    function start_page_sliding(is_next)
+    {
+        page_is_sliding = true;
+        $('#previous_button').hide();
+        $('#next_button').hide();
+
+        if (is_next)
+            $('#next_button_loading').fadeIn();
+        else
+            $('#previous_button_loading').fadeIn();
+    }
+
+    function is_page_sliding()
+    {
+        return page_is_sliding;
+    }
+
+    function stop_page_sliding(dont_next_button)
+    {
+        page_is_sliding = false;
+
+        $('#next_button_loading').hide();
+        $('#previous_button_loading').hide();
+
+        if (page_index > 0) $('#previous_button').fadeIn();
+        if (!dont_next_button) $('#next_button').fadeIn();
+    }
+
+    $(function () {
+        stop_page_sliding(<%="true" if !@figure%>);
+    });
+
+    function previous_page()
+    {
+        if (is_page_sliding()) return;
+
+        if ((page_index-1) < 0)
+        {
+            alert("page_index invalid on previous_page.");
+            return;
+        }
+
+        start_page_sliding();
+
+        try {
+
+
+			$.ajax({
+				type: "POST",
+				url: '/figure/get_next',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+                    figure_id:page_stack[page_index-1]
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+                            $('#slide_panel').prepend(data.html);
+                            $('#slide_panel').css('margin-left','-980px');
+                            $('#slide_panel').animate({
+                                'margin-left': "+=980"
+                            },700,function() {
+                                var children = $('#slide_panel').children('span');
+                                $(children[1]).remove();
+                                $('#slide_panel').css('margin-left','0px');
+                                page_index--;
+                                stop_page_sliding();
+
+                            });
+						}
+						else {
+                           stop_page_sliding();
+						}
+						//$(sender).loading_button(false);
+					}
+					catch (e) {
+						//$(sender).loading_button(false);
+						$.error_log('slide_next', e);
+						alert(e);
+                        stop_page_sliding();
+					}
+
+				},
+				error: function(req, status, e){
+                    stop_page_sliding();
+					if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+
+				}
+			});
+		} catch (e)
+		{
+			//$(sender).loading_button(false);
+			$.error_log('slide_next',e);
+			alert(e);
+            stop_page_sliding();
+		}
+
+    }
+
+    function next_page()
+    {
+        if (is_page_sliding()) return;
+
+        var next_figure_id = 0;
+
+        if ((page_index + 1) < page_stack.length)
+            next_figure_id = page_stack[page_index+1];
+        else if ((page_index + 1) == page_stack.length)
+            next_figure_id = 0;
+        else
+        {
+            alert("Invalid page index.");
+            return;
+        }
+
+        start_page_sliding(true);
+
+
+        try {
+
+
+			$.ajax({
+				type: "POST",
+				url: '/figure/get_next',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+                    figure_id: next_figure_id,
+                    current_figure_id:page_stack[page_index],
+                    excluded_ids:page_stack.join(',')
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+
+                            $('#slide_panel').append(data.html);
+                            $('#slide_panel').animate({
+                                'margin-left': "-=980"
+                            },700,function() {
+                                var children = $('#slide_panel').children('span');
+                                $(children[0]).remove();
+                                $('#slide_panel').css('margin-left','0px');
+
+                                page_index++;
+                                if (page_index == page_stack.length &&  data.figure_id)
+                                    page_stack.push(data.figure_id);
+
+                                stop_page_sliding(data.end);
+                            });
+
+
+						}
+						else {
+                            stop_page_sliding();
+						}
+						//$(sender).loading_button(false);
+					}
+					catch (e) {
+						//$(sender).loading_button(false);
+						$.error_log('slide_next', e);
+						alert(e);
+                        stop_page_sliding();
+					}
+
+				},
+				error: function(req, status, e){
+                    stop_page_sliding();
+                    if (req.status == 0) return;
+					//$(sender).loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+
+				}
+			});
+		} catch (e)
+		{
+			//$(sender).loading_button(false);
+			$.error_log('slide_next',e);
+			alert(e);
+            stop_page_sliding();
+		}
+    }
+
+</script>
+<span id="previous_button" class="prev_button" onclick="previous_page();" style="display:none;"></span>
+<span id="next_button" class="next_button" onclick="next_page();" style="display:none;"></span>
+<span id="previous_button_loading" class="prev_button loading" style="display:none;">
+    <img src="/images/button_loader_verticle.gif" style="vertical-align:middle;margin-top:30px;margin-left:15px;" />
+</span>
+<span id="next_button_loading" class="next_button loading" style="display:none;">
+    <img src="/images/button_loader_verticle.gif" style="vertical-align:middle;margin-top:30px;margin-left:15px;" />
+</span>
+<span class="span-98 margin-top-1" style="white-space:nowrap;overflow:hidden;">
+    <span id="slide_panel">
+        <%
+            if @figure
+        %>
+            <%=render :partial=>"figure/view_page",:locals=>{:figure=>@figure}%>
+        <%
+            else
+				if $facebook.is_guest
+        %>
+					<%=render :partial=>"figure/not_login"%>
+		<%
+				else
+		%>
+            		<%=render :partial=>"figure/add_page"%>
+        <%
+				end
+            end
+        %>
+    </span>
+</span>

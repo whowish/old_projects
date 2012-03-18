@@ -1,0 +1,80 @@
+<script language="javascript">
+        function submit_discussion(sender)
+        {
+            try {
+
+                $(sender).loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/discussion/add',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+						"is_anonymous":(($('#discussion_hide_identity')[0].checked)?"yes":"no"),
+                        "title": $('#discussion_title').val(),
+						"description":"",
+						"figure_list_id": "<%=figure.id%>"
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+                                if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+                                location.href = data.discussion_url;
+								return;
+                            }
+                            else {
+								if (data.error_message == "<%=MUST_LOGIN_ERROR%>") {
+									$('#must_login_balloon').hide();
+									$('#must_login_balloon').fadeIn();
+								}
+								else {
+									$(sender).loading_button(false);
+									$(sender).ruby_box(true, data.error_message);
+								}
+                            }
+
+							$(sender).loading_button(false);
+                        }
+                        catch (e) {
+                            $(sender).loading_button(false);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $(sender).loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $(sender).loading_button(false);
+                alert(e);
+            }
+        }
+</script>
+<span class="span-68 margin-top-1 white_bg clearfix">
+    <span class="span-67 margin-all-5px">
+    	<span class="span-67 margin-top-1">
+            <span class="font12 squeks_blue bold_font">
+                <%= word_for :title%>
+            </span>
+            <span class="span-67 margin-top-5px">
+                <input id="discussion_title" type="text" class="text_input span-66"/>
+            </span>
+			<span class="span-67 margin-top-5px">
+                <input id="discussion_hide_identity" type="checkbox"/> <%=word_for :hide_identity%>
+            </span>
+        </span>
+        <span class="span-67 margin-top-1">
+            <a href="#" class="facebook_button" id="discussion_submit_button" onclick="submit_discussion(this);return false;">
+                <%= word_for :add_button%>
+            </a>
+        </span>
+    </span>
+</span>

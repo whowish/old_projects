@@ -1,0 +1,19 @@
+<%
+	cancel_order = CancelOrder.first(:conditions=>{:order_id=>order.id})
+%>
+<%if cancel_order%>
+<span class="span-93 font12 friendmage_red clearfix margin-top-1">
+	<span >
+		<%= word_for :reason%> <%=cancel_order.reason%>
+	</span>
+	<span >
+		<%= word_for :cus_account%> <%=cancel_order.cus_account_number%>
+	</span>
+	<span >
+		<%= word_for :old_status%> <%=cancel_order.old_status%>
+	</span>
+	<span >
+		<%= word_for :cancel_date%> <%=get_thai_date(cancel_order.created_date)%> <%=cancel_order.created_date.strftime("%H:%M")%>
+	</span>
+</span>
+<%end%>

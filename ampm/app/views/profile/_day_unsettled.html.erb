@@ -1,0 +1,154 @@
+<%
+	first_availble = EventAvailableDate.first(:conditions=>{:event_id => event.id},:order=>"available_date asc")
+	category = Category.first(:conditions=>{:id => event.category_id})
+	owner_event = get_facebook_info(event.facebook_id)
+	bgcolor = "white_bg"
+	mode = ""
+	if event.facebook_id == facebook_id
+		mode = MODE_CREATOR
+	else
+		event_friend = EventFriend.first(:conditions=>{:event_id => event.id,:facebook_id=>facebook_id})
+		mode = event_friend.status
+		if mode == EventFriend::STATUS_ACCEPTED
+			bgcolor = "light_green_bg"
+		elsif mode == EventFriend::STATUS_REJECTED
+			bgcolor = "light_gray_bg"
+		elsif mode == EventFriend::STATUS_PENDING
+			bgcolor = "light_blue_bg"
+		end
+	end
+
+	is_show = true
+	if defined?(is_show_button)
+		is_show = false if !is_show_button
+	end
+%>
+<span class="span-58 margin-all-5px <%=bgcolor%>">
+	<%if mode == MODE_CREATOR%>
+		<span class="span-9 height-9 blue_2meet4_bg margin-all-4px">
+			<span class="span-8 font11 bold_font white margin-left-4px margin-top-4px">
+                 <%=first_availble.available_date.strftime("%B")%>
+			</span>
+			<span class="span-9 day_home white bold_font margin-top--8px">
+				?
+			</span>
+		</span>
+	<%else%>
+		<span class="span-9 height-9 white_bg margin-all-4px">
+			<span class="span-8 font11 bold_font medium_dark_gray margin-left-4px margin-top-4px">
+	            <%=first_availble.available_date.strftime("%B")%>
+			</span>
+			<span class="span-9 day_home facebook_blue bold_font margin-top--8px">
+				?
+			</span>
+		</span>
+	<%end%>
+	
+	<span class="span-47 margin-top-4px margin-left-1">
+		<span class="span-47 font14 bold_font">
+			<span class="<%=category.class_name%>" title="<%=category.name%>">
+			</span>
+       		<a href="/event/view?event_id=<%=event.id%>" class="dark_gray margin-left-4px" title="<%=event.title%>">
+               	<%=event.title%>
+            </a>
+           	<span class="font11 medium_dark_gray bold_font">
+           		created by
+      		</span>
+     		<a href="/profile?user_id=<%=event.facebook_id%>" class="font11"><%=owner_event.name%></a>
+        </span>
+    	<%
+			if is_show
+				if facebook_id == $facebook.facebook_id 
+					if mode == EventFriend::STATUS_ACCEPTED
+			%>
+					<span class="span-47 height20 margin-bottom-1">
+			        	<span class="float-left ar font10 padding_horizontal_4px medium_dark_gray bold_font">
+			            	<%=word_for(:accept_event)%>
+			            </span>
+			            <a href="/event/view?event_id=<%=event.id%>&force_edit=yes" onclick="$(this).loading_button(true)" class="gray_button_small">
+			            	<%=word_for(:edit_button)%>
+			            </a>
+					</span>
+				<%
+					elsif mode == EventFriend::STATUS_PENDING
+				%>
+					<span class="span-47 height20 margin-bottom-1">
+		                <a href="/event/view?event_id=<%=event.id%>&force_edit=yes" onclick="$(this).loading_button(true)" class="facebook_button_small">
+		                	<%=word_for(:join_button)%>
+		                </a>
+		                <a href="#" onclick="submit_response(this,'REJECT',<%=event.id%>);return false;" class="gray_button_small margin-left-4px">
+		                	 <%=word_for(:reject_button)%>
+		                </a>
+						<span id="invited_event_status_<%=event.id%>" class="margin-left-1" style="height:20px;line-height:20px;color:#EB8045;font-weight:bold;">
+							
+						</span>
+					</span>
+			<%
+					elsif mode == EventFriend::STATUS_PENDING
+			%>
+				<span class="span-47 height20 margin-bottom-1">
+	                <a href="/event/view?event_id=<%=event.id%>&force_edit=yes" onclick="$(this).loading_button(true)" class="facebook_button_small">
+	                	<%=word_for(:join_button)%>
+	                </a>
+	                <a href="#" onclick="submit_response(this,'REJECT',<%=event.id%>);return false;" class="gray_button_small margin-left-4px">
+	                	 <%=word_for(:reject_button)%>
+	                </a>
+					<span id="invited_event_status_<%=event.id%>" class="margin-left-1" style="height:20px;line-height:20px;color:#EB8045;font-weight:bold;">
+						
+					</span>
+				</span>
+			<%
+					elsif mode == EventFriend::STATUS_REJECTED
+			%>
+				<span class="span-47 height20 margin-bottom-1">
+	            	<span class="float-left ar font10 padding_horizontal_4px medium_dark_gray bold_font">
+	                	<%=word_for(:reject_event)%>
+	                </span>
+	                <a href="/event/view?event_id=<%=event.id%>&force_edit=yes" onclick="$(this).loading_button(true)"  class="gray_button_small">
+	                	<span class="facebook_blue" style="text-shadow:1px 1px #FFF;"> 
+							<%=word_for(:edit_reject_button)%>
+						</span>
+	                </a>
+				</span>
+			<%
+					elsif mode == MODE_CREATOR
+			%>
+				<span class="span-47 height20 margin-bottom-1">
+	            	<span class="float-left ar font10 padding_horizontal_4px medium_dark_gray bold_font">
+	                	<%=word_for(:settle_event)%>
+	                </span>
+	                <a href="/event/view?event_id=<%=event.id%>" onclick="$(this).loading_button(true)"  class="facebook_button_small">
+	                	<%=word_for(:settle_button)%>
+	                </a>
+	                <a href="/event/index?id=<%=event.id%>" onclick="$(this).loading_button(true)"  class="gray_button_small margin-left-4px">
+	                	<%=word_for(:edit_event_button)%>
+	                </a>
+				</span>
+			<%
+					end
+				end
+			end
+		%>
+        <span class="span-47 margin-bottom-1 medium_dark_gray">
+            <%
+					shown_friend_number = 3				
+
+					friends = EventFriend.all(:conditions=>{:event_id => event.id},:order=>"rand()")
+					friends = friends.push(owner_event)
+					shown_friends = friends[0..2]
+					shown_friends.each do |friend|
+						tail = ""
+						tail = "," if friend != shown_friends.last or friends.length > shown_friend_number
+				%>
+						<a href="/profile?user_id=<%=friend.facebook_id%>" style="text-decoration:none;color:#333333;font-weight:normal;"><%=friend.name%></a><%=tail%>
+				<%
+					end
+
+					if friends.length > shown_friend_number
+				%>
+					and <a href="/event/view?event_id=<%=event.id%>" style="text-decoration:none;"><%=friends.length-3%> people</a> invited
+				<% end %>
+		</span>				
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>

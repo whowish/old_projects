@@ -1,0 +1,232 @@
+
+<span class="span-50">
+	<span class="swfupload_pic light_green_bg">
+		<span id="swfupload_image_container" class="span-50">
+			<% (1..number_of_files).each do |i| %>
+				<span class="swfupload_dialogbox_empty_image"><input type="hidden" id="swfupload_image_<%=i%>"></span>
+			<% end %>
+		</span>
+		<span id="swfupload_button_panel" class="span-50 margin-left-1 margin-top-1">
+			<span id="swfupload_flash_upload_image_button" type="button" class="gray_button top_margin-2">
+			</span>
+		</span>
+		<span class="span-50 margin-left-1">
+			<%=word_for :trouble_with_upload%>
+			<span>
+				<span id="swfupload_upload_loading" style="display:none;"><img src="/images/button_loader.gif"> <%=word_for :loading%></span>
+				<a id="swfupload_simple_upload_image_button" href="#" onclick="return false;"><%=word_for :simple_upload%></a>
+			</span>.
+		</span>
+	</span>
+</span>
+<script language="javascript">
+	
+	/*
+	var swfupload_deleted_files = [];
+	
+	function get_swfupload_deleted_files()
+	{
+		return swfupload_deleted_files;
+	}
+	*/
+	<%(images).each do |image|%>
+		$(function() {
+			add_swfupload_image("<%=image%>");
+		});
+	
+	<%end%>
+
+	function get_swfupload_uploaded_files()
+	{
+		var images = []
+		for (var i=1;i<=8;i++)
+		{
+			var filename = $.trim($('#swfupload_image_'+i).val());
+			
+			if (filename == "") continue;
+			
+			images.push(filename);
+		}
+		
+		return images;
+	}
+	
+	function add_swfupload_image(filename)
+	{
+		var available_span = $('#swfupload_image_container > span[class=swfupload_dialogbox_empty_image]');
+		
+		if (available_span.length == 0)
+		{
+			delete_image($('.swfupload_dialogbox_image_unit')[0]);
+			available_span = $('#swfupload_image_container > span[class=swfupload_dialogbox_empty_image]');
+		}
+		
+		if (available_span.length > 0) {
+			available_span = available_span[0];
+			$(available_span).removeClass('swfupload_dialogbox_empty_image').addClass('swfupload_dialogbox_image_unit');
+			
+			$("input", available_span).val(filename);
+			$(available_span).css({
+				"background-image": "url(/thumbnail/480x275" + filename + ")"
+			})
+			$(available_span).bind('mouseenter', function(){
+			
+				if ($('.swfupload_dialogbox_delete_image_overlay', this).length == 0) {
+					$(this).append(' \
+					<div class="swfupload_dialogbox_delete_image_overlay"> \
+						<span class="swfupload_dialogbox_delete_image_overlay_caption"> \
+							<table><tr><td>\
+								<span class="swfupload_dialogbox_delete_image_overlay_icon"></span> \
+							</td><td>\
+								<span class="swfupload_dialogbox_delete_image_overlay_text">delete</span> \
+							</td></tr></table> \
+						</span>\
+					</div>\
+				');
+					
+					$('.swfupload_dialogbox_delete_image_overlay_caption', this).bind('click', function(){
+						var container = $(this).parents(".swfupload_dialogbox_image_unit")[0];
+						
+						delete_image(container);
+					});
+				}
+				
+			});
+			
+			
+			$(available_span).bind('mouseleave', function(){
+				$('.swfupload_dialogbox_delete_image_overlay', this).remove();
+			});
+			
+		}
+	}
+	
+	var swfupload_is_loading = false;
+	function start_swfupload_loading()
+	{
+		swfupload_is_loading = true;
+		$('#swfupload_upload_loading').show();
+		$('#swfupload_simple_upload_image_button').hide();
+	}
+	
+	function stop_swfupload_loading()
+	{
+		swfupload_is_loading = false;
+		$('#swfupload_upload_loading').hide();
+		$('#swfupload_simple_upload_image_button').show();
+	}
+
+	new AjaxUpload('swfupload_simple_upload_image_button', {
+			action: '/temporary_image',
+			name: 'Filedata',
+			responseType: "json",
+			data:{authenticity_token: "<%=form_authenticity_token%>"},
+			
+			onSubmit: function(file, extension) {
+				if (swfupload_is_loading == true) return;
+				start_swfupload_loading();
+								
+				if (extension && /^(jpg|png|jpeg|gif)$/.test(extension.toLowerCase())) {
+					$('#swfupload_simple_upload_image_button').attr('disabled', 'disabled');
+					$('#swfupload_upload_loading').show();
+				}
+				else
+				{
+					alert("Only JPEG, GIF, and PNG are allowed.");
+					return false;
+				}
+			},
+			onComplete : function(file,response){
+				try {
+					if (response.ok == true) {
+						add_swfupload_image(response.filename);
+					}
+					else {
+						alert(response.error_message);
+						$.error_log('ajaxupload(response.ok=false)', response.error_message);
+					}
+					
+					stop_swfupload_loading();
+				} catch (e)
+				{
+					$.error_log('ajaxupload.onComplete', e);
+				}
+				
+				
+			},
+			onError: function (errorObj)
+			{
+				alert(errorObj);
+				$.error_log('ajaxupload.onError',errorObj);
+				stop_swfupload_loading();
+			}
+		});	
+		
+	
+	
+	function delete_image(container)
+	{
+		/*
+		var filename = $(container).children("input").val();
+		if (filename != "" && filename.match("^\/uploads\/temp")==null)
+		{
+			swfupload_deleted_files.push(filename);
+		}
+		*/
+		
+		$(container).css({
+			"background-image": ""
+		})
+		$(container).children("input").val("");
+		
+		$(container).addClass('swfupload_dialogbox_empty_image')
+					.removeClass('swfupload_dialogbox_image_unit')
+					.removeClass('swfupload_dialogbox_loading_image');
+		
+		$(container).unbind('mouseenter');
+		$(container).unbind('mouseleave');
+		
+		$(".swfupload_dialogbox_delete_image_overlay", container).remove();
+		$(".progress", container).remove();
+	}
+		
+	var swfUploadInstance = new SWFUpload({
+		flash_url : "/whowish_foundation_asset/swfupload/swfupload.swf",
+		upload_url: "/temporary_image",
+		post_params: {authenticity_token: "<%=form_authenticity_token%>",signed_request:"<%=params[:signed_request]%>"},
+		file_size_limit : "4 MB",
+		file_types : "*.*",
+		file_types_description : "All Files",
+		file_upload_limit : 0,
+		file_queue_limit : 1,
+/*		custom_settings : {
+			progressTarget : "fsUploadProgress",
+			cancelButtonId : "btnCancel"
+		},*/
+		debug: false,
+
+		// Button settings
+		button_image_url: "/whowish_foundation_asset/swfupload/swfupload_button.png",
+		button_width: "127",
+		button_height: "24",
+		button_placeholder_id: "swfupload_flash_upload_image_button",
+		button_text: '&nbsp;',
+		button_text_style: ".theFont { font-size: 16; }",
+		button_text_left_padding: 12,
+		button_text_top_padding: 3,
+		
+		// The event handler functions are defined in handlers.js
+		file_queued_handler : fileQueued,
+		file_queue_error_handler : fileQueueError,
+		file_dialog_complete_handler : fileDialogComplete,
+		upload_start_handler : uploadStart,
+		upload_progress_handler : uploadProgress,
+		upload_error_handler : uploadError,
+		upload_success_handler : uploadSuccess,
+		upload_complete_handler : uploadComplete,
+		queue_complete_handler : queueComplete	// Queue plugin event
+	});
+	
+	//
+	
+</script>

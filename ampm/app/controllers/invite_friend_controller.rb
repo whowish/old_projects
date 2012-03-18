@@ -1,0 +1,3 @@
+class InviteFriendController < ApplicationController
+
+end

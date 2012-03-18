@@ -1,0 +1,32 @@
+# Auto-generated template
+image1:
+  id: 1
+  figure_id: 1
+  original_image_path: "img1"
+  ordered_number: 1
+  likes: 5
+  dislikes: 5
+
+image2:
+  id: 2
+  figure_id: 1
+  original_image_path: "img2"
+  ordered_number: 2
+  likes: 5
+  dislikes: 5
+  
+image3:
+  id: 3
+  figure_id: 2
+  original_image_path: "img3"
+  ordered_number: 1
+  likes: 5
+  dislikes: 5
+  
+image4:
+  id: 4
+  figure_id: 2
+  original_image_path: "img4"
+  ordered_number: 2
+  likes: 5
+  dislikes: 5

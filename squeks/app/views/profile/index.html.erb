@@ -1,0 +1,30 @@
+<%
+	params[:user_id] = $facebook.facebook_id if !params[:user_id]
+	params[:view] =  "squeks" if !params[:view]
+%>
+<div id="container" class="clearfix">
+	<span class="global_width">
+		<span class="span-98 margin-top-2">
+			<%=render :partial=>"profile/side_profile"%>
+			<span class="span-70">
+				<span class="span-69 margin-left-1">
+					<span class="span-69 height20 font12">
+						<a href="/profile?user_id=<%=params[:user_id]%>&view=manager" class="<%=(params[:view] == 'manager')?'white medium_dark_gray_bg':'medium_dark_gray'%>  padding_horizontal_4px display_inline_block">
+							<%=word_for(:personal_manager)%>
+						</a>
+						<a href="/profile?user_id=<%=params[:user_id]%>&view=squeks" class="<%=(params[:view] == 'squeks')?'white medium_dark_gray_bg':'medium_dark_gray'%> padding_horizontal_4px display_inline_block margin-left-1">
+							<%=word_for(:squeks_list)%>
+						</a>
+					</span>
+					<span class="span-69 height01 medium_gray_bg">
+					</span>
+				</span>
+				<%if params[:view] == "manager"%>
+					<%=render :partial=>"profile/manager_list"%>
+				<%else%>
+					<%=render :partial=>"profile/squeks_list"%>
+				<%end%>
+			</span>
+		</span>
+	</span>
+</div>

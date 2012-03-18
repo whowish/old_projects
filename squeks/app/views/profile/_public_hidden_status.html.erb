@@ -1,0 +1,8 @@
+<%
+  return if figure_love.facebook_id != $facebook.facebook_id
+  color = "medium_gray_bg"
+  color = "squeks_blue_bg" if figure_love.is_anonymous == false
+%>
+<span id="figure_love_unit_<%=figure_love.id%>" class="span-5 margin-left-1 <%=color%> display_block height20 font10 round_corner-4 align_center margin-top-15px">
+    <a href="#" onclick="change_love_anonymity(this,<%=figure_love.id%>,'<%="yes" if !figure_love.is_anonymous%>');return false;" class="white"><%=(figure_love.is_anonymous)? word_for(:hidden):word_for(:public)%></a>
+</span>

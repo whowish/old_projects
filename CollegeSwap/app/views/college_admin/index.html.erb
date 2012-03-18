@@ -1,0 +1,181 @@
+<script language="javascript">
+	
+	$(function () {
+		$('input[id^=alias_college_name_]').autocomplete('/college/list',{
+			parse : function(data) {
+				//data = $.parseJSON(data);
+				
+				var parsed = [];
+				var rows = data.result;
+				for (var i=0; i < rows.length; i++) {
+					var row = $.trim(rows[i]);
+					if (row) {
+						parsed[parsed.length] = {
+							data: [row],
+							value: row,
+							result: row
+						};
+					}
+				}
+				return parsed;
+			},
+			matchContains: true,
+			width: 300
+		});
+	});
+	
+	function remove(college_id)
+	{
+		$('#remove_button_'+college_id).loading_button(true);
+		$.ajax({
+			type: "POST",
+			url: '/college_admin/remove',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"college_id": college_id,
+			},
+			success: function(data){
+				try {
+					if (data.ok == true) {
+					
+						$('#college_'+college_id).fadeOut(function () {
+							$('#college_'+college_id).remove();
+						})
+					}
+					else {
+						$('#remove_button_'+college_id).loading_button(false);
+					}
+				} 
+				catch (e) {
+					$.error_log('submit_swap', e);
+					$('#remove_button_'+college_id).loading_button(false);
+				}
+				
+			},
+			error: function(req, status, e){
+				$('#remove_button_'+college_id).loading_button(false);
+			}
+		});
+	}
+	
+	function link(college_id)
+	{
+		$('#link_button_'+college_id).loading_button(true);
+		$.ajax({
+			type: "POST",
+			url: '/college_admin/link',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"college_id": college_id,
+				"new_name": $('#college_name_'+college_id).val(),
+				"alias_name": $('#alias_college_name_'+college_id).val()
+			},
+			success: function(data){
+				try {
+					if (data.ok == true) {
+					
+						$('#college_'+college_id).fadeOut(function () {
+							$('#college_'+college_id).remove();
+						})
+					}
+					else {
+						if ('college_name' in data.error_message)
+							$('#college_name_'+college_id).ruby_box(true,data.error_message['college_name']);
+						else
+							$('#college_name_'+college_id).ruby_box(false);
+							
+						if ('alias_college_name' in data.error_message)
+							$('#alias_college_name_'+college_id).ruby_box(true,data.error_message['alias_college_name']);
+						else
+							$('#alias_college_name_'+college_id).ruby_box(false);
+							
+						$('#link_button_'+college_id).loading_button(false);
+					}
+				} 
+				catch (e) {
+					$.error_log('submit_swap', e);
+					$('#link_button_'+college_id).loading_button(false);
+				}
+				
+			},
+			error: function(req, status, e){
+				$('#link_button_'+college_id).loading_button(false);
+			}
+		});
+	}
+	
+	function save_new(college_id)
+	{
+		if ($('#alias_college_name_'+college_id).val() != "")
+		{
+			$('#alias_college_name_'+college_id).ruby_box(true,'Please leave it blank if you want to add new.')
+			return;
+		}
+		
+		$('#save_new_button_'+college_id).loading_button(true);
+		$.ajax({
+			type: "POST",
+			url: '/college_admin/save_new',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"college_id": college_id,
+				"college_name": $('#college_name_'+college_id).val()
+			},
+			success: function(data){
+				try {
+					if (data.ok == true) {
+					
+						$('#college_'+college_id).fadeOut(function () {
+							$('#college_'+college_id).remove();
+						})
+					}
+					else {
+						
+						$('#college_name_'+college_id).ruby_box(true,data.error_message);
+						
+						$('#save_new_button_'+college_id).loading_button(false);
+					}
+				} 
+				catch (e) {
+					$.error_log('submit_swap', e);
+					$('#save_new_button_'+college_id).loading_button(false);
+				}
+				
+			},
+			error: function(req, status, e){
+				$('#save_new_button_'+college_id).loading_button(false);
+			}
+		});
+	}
+	
+	
+</script>
+<%
+	colleges = College.all(:conditions=>{:status=>College::STATUS_PENDING},:order=>"id ASC")
+	colleges.each do |college|
+%>
+	<span id="college_<%=college.id%>" class="span-80">
+		<span class="span-40">
+			<input type="text" id="college_name_<%=college.id%>" value="<%=college.name%>">
+			is linked with
+			<input type="text" id="alias_college_name_<%=college.id%>">
+		</span>
+		<span class="float-left whowish_green_bg give" id="link_button_<%=college.id%>" onclick="link(<%=college.id%>);">
+			Link
+		</span>
+		<span class="float-left dark_blue_bg take" id="save_new_button_<%=college.id%>" onclick="save_new(<%=college.id%>);">
+			Save as new
+		</span>
+		<span id="remove_button_<%=college.id%>" class="float-left  reject margin-left-1" onclick="remove(<%=college.id%>);">
+			Remove
+	</span>
+	</span>
+<%
+	end
+%>

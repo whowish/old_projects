@@ -1,0 +1,21 @@
+<span onclick="view_entity(<%=entity.id%>);">
+	<span class="document_icon">
+	</span>
+	<span class="span-64">
+		<h1>
+			<%=entity.title%>
+		</h1>
+		<h2>
+			<%=entity.abstract%>
+		</h2>
+		<p>
+			<%=Time.at(entity.created_date.to_i).strftime("%d %b %Y")%>
+		</p>
+	</span>
+</span>
+
+<script language="javascript">
+	function view_entity(id) {
+		top.location.href = "/article/view?id="+id;
+	}
+</script>

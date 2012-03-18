@@ -1,0 +1,113 @@
+<%
+	mutual_love_count = FigureLove.count(:conditions=>["figure_id = ? and love_type = ? and not(facebook_id = ?) and facebook_id in (?)",@figure.id,FigureLove::TYPE_LOVE,$member.facebook_id,$member.all_friends])
+	mutual_hate_count = FigureLove.count(:conditions=>["figure_id = ? and love_type = ? and not(facebook_id = ?) and facebook_id in (?)",@figure.id,FigureLove::TYPE_HATE,$member.facebook_id,$member.all_friends])
+%>
+
+<script language="javascript">
+	function submit_love(sender,type)
+	{
+		try {
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/figure/love',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"is_anonymous":get_anonymous_value(),
+					"figure_id":"<%=params[:id] if params[:id]%>",
+					"type": type
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+						}
+						else {
+							$(sender).loading_button(false);
+							for (var i in data.error_message) {
+								try {
+									$('#figure_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}	
+						}
+						$(sender).loading_button(false);
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('submit_love', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('submit_love',e);
+			alert(e);
+		}
+	}		
+</script>
+<span class="span-57">
+	<span class="span-4 font12 medium_dark_gray bold_font align_center" style="margin-top:8px;">
+    	<%= word_for :title%>
+    </span>
+    <span class="span-54 clearfix">
+    	<span>
+    	<input id="figure_title" type="text" class="span-53 input_type margin-top-5px" value="<%=@figure.title%>" />
+		</span>
+    </span>
+</span>
+<span class="span-57">
+	<span class="span-4 font12 medium_dark_gray bold_font align_center" style="margin-top:8px;">
+		<%="You and" if FigureLove.first(:conditions=>{:figure_id=>@figure.id,:facebook_id=>$member.facebook_id,:love_type=>FigureLove::TYPE_LOVE,:is_anonymous=>false})%>
+		<%="You (anonymous) and" if FigureLove.first(:conditions=>{:figure_id=>@figure.id,:facebook_id=>$member.facebook_id,:love_type=>FigureLove::TYPE_LOVE,:is_anonymous=>true})%>
+    	<a href="#" onclick="$.whowish_box({title: '<%= word_for :view%>',url:'/figure/show_mutual_friends?figure_id=<%=@figure.id%>&love_type=<%=FigureLove::TYPE_LOVE%>'}); return false;" >
+			<%=mutual_love_count%> friends love this
+		</a>
+		
+    </span>
+	<span class="span-4 font12 medium_dark_gray bold_font align_center" style="margin-top:8px;">
+    	<%="You and" if FigureLove.first(:conditions=>{:figure_id=>@figure.id,:facebook_id=>$member.facebook_id,:love_type=>FigureLove::TYPE_HATE,:is_anonymous=>false})%>
+		<%="You (anonymous) and" if FigureLove.first(:conditions=>{:figure_id=>@figure.id,:facebook_id=>$member.facebook_id,:love_type=>FigureLove::TYPE_HATE,:is_anonymous=>true})%>
+		<a href="#" onclick="$.whowish_box({title: '<%= word_for :view%>',url:'/figure/show_mutual_friends?figure_id=<%=@figure.id%>&love_type=<%=FigureLove::TYPE_HATE%>'}); return false;" >
+			<%=mutual_hate_count%> friends hate this
+		</a>
+    </span>
+   
+</span>
+<span class="span-57">
+	<span class="span-4 font12 medium_dark_gray bold_font align_center" style="margin-top:8px;">
+    	<%= word_for :description%>
+    </span>
+    <span class="span-54 clearfix">
+    	<span>
+    	<input id="figure_description" type="text" class="span-53 input_type margin-top-5px" value="<%=@figure.description%>" />
+		</span>
+    </span>
+</span>
+<span class="span-57">
+	<a href="#" onclick="submit_love(this,'<%=FigureLove::TYPE_LOVE%>');return false;" id="love_submit_button" class="facebook_button margin-top-1 event_submit_button">
+		<%= word_for :love%>
+	</a>
+</span>
+<span class="span-57">
+	<a href="#" onclick="submit_love(this,'<%=FigureLove::TYPE_HATE%>');return false;" id="hate_submit_button" class="facebook_button margin-top-1 event_submit_button">
+		<%= word_for :hate%>
+	</a>
+</span>
+<span class="span-57">
+	<a href="#" onclick="submit_love(this,'<%=FigureLove::TYPE_DONT_CARE%>');return false;" id="dont_care_submit_button" class="facebook_button margin-top-1 event_submit_button">
+		<%= word_for :dont_care%>
+	</a>
+</span>

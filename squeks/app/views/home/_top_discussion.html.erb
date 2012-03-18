@@ -1,0 +1,27 @@
+<%
+	return ""
+%>
+<span class="span-52 margin-top-1">
+	<span class="span-52 height20 huneysuckle_pink_bg white bold_font font11">
+		<span class="margin-left-1">
+			<%=word_for :top_discussion%>
+		</span>
+	</span>
+	<span class="span-50 margin-left-1">
+		<%
+			top_discussion_ids = []
+
+			yesterday = Time.utc(Time.now.utc.year,Time.now.utc.month,Time.now.utc.mday) - 86400
+			yesterday = "#{"%04d" % yesterday.year}-#{"%02d" % yesterday.month}-#{"%02d" % yesterday.mday}"
+			DiscussionHourCount.all(:select=>"SUM(loves+hates) AS pop_count, discussion_id",:group=>"discussion_id",:order=>"pop_count DESC",:limit=>5,:conditions=>["date = ?",yesterday],:joins=>:discussions).each { |d|
+				top_discussion_ids.push(d.discussion_id)
+			} 
+
+			Discussion.all(:conditions=>{:id=>top_discussion_ids}).each do |entity|
+		%>
+				<%=render :partial=>"home/top_discussion_unit",:locals=>{:entity=>entity}%>
+		<%
+			end
+		%>
+	</span>
+</span>

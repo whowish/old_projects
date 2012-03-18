@@ -1,0 +1,78 @@
+<%
+	unsettle_events = Event.all(:conditions=>{:facebook_id=>$facebook.facebook_id,:status=>Event::STATUS_ACTIVE},:limit=>10)
+
+
+	if unsettle_events.length > 0
+		
+%>
+<span style="display:none;" class="span-18 height-18 clearfix request_box">
+	<span class="span-16 height-14 margin-left-1 margin-top-1 clearfix" style="overflow:hidden;position:relative;">
+		<span id="sliding_unsettled_event_panel" class="height-14" style="white-space:nowrap;position:absolute;left:0px;top:0px;width:<%=160*unsettle_events.length%>px;">
+ 		<%
+			unsettle_events.each do |event|
+				people_join_count = EventFriend.count(:conditions=>{:event_id=>event.id})
+				category = Category.first(:conditions=>{:id => event.category_id})
+		%>
+			<span class="span-16 font12 bold_font white" style='display:inline-block'>
+				<span class="<%=category.class_name%>" title="<%=category.name%>">
+				</span>
+	            <span class="span-13">
+	                <span class="span-13 margin-left-1">
+	                    <a href="/event/view?event_id=<%=event.id%>" class="dark_gray"><%=event.title%></a>
+	                </span>
+	                <span class="span-13 margin-top-1 font10 normal_font margin-left-1 dark_gray">
+	                	<%=word_for(:settled_hover_join, :number=>people_join_count)%>
+	                </span>
+	                <span class="span-13 margin-top-1 normal_font margin-left-1">
+	                    <a href="/event/view?event_id=<%=event.id%>" class="blue_button" onclick="$(this).loading_button(true);"><%=word_for(:settled_hover_button)%></a>
+	                </span>
+	            </span>
+	   		</span>
+		<%
+			end
+		%>
+        </span>
+	</span>
+    <span class="span-16 font11 margin-top-1 margin-left-1 height20 clearfix">
+    	<span class="float-left">
+        	<a href="/profile" class="dark_gray"><%=word_for(:view_all)%></a>
+        </span>
+        <span class="float-right">
+          	<a href="#" class="dark_gray" id="previous_unsettled_event_button" onclick="previous_unsettled_event();return false;"><%=word_for(:prev)%></a> 
+    		<a href="#" class="dark_gray" id="next_unsettled_event_button" onclick="next_unsettled_event();return false;"><%=word_for(:next)%></a>
+        </span>
+    </span>		
+</span>
+<script language="javascript">
+	function next_unsettled_event() {
+		$('#sliding_unsettled_event_panel').animate({
+		    left: '-=160'
+		  }, 100, function() {
+		  	update_unsettled_event_button();
+		  });
+	}
+
+	function previous_unsettled_event() {
+		$('#sliding_unsettled_event_panel').animate({
+		    left: '+=160'
+		  }, 100, function() {
+		  	update_unsettled_event_button();
+		  });
+	}
+	
+	function update_unsettled_event_button()
+	{
+		var pos = 	$('#sliding_unsettled_event_panel').position();
+		
+		if (pos.left >= -20) $('#previous_unsettled_event_button').css({"visibility":"hidden"})
+		else $('#previous_unsettled_event_button').css({"visibility":"visible"})
+	
+		if (pos.left <= (160-$('#sliding_unsettled_event_panel').width()+20)) $('#next_unsettled_event_button').css({"visibility":"hidden"})
+		else $('#next_unsettled_event_button').css({"visibility":"visible"})
+	}
+	
+	update_unsettled_event_button();
+</script>
+<%
+	end
+%>

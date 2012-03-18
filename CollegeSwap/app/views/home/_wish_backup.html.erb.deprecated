@@ -1,0 +1,71 @@
+<%
+	image = ItemImage.first(:conditions=>{:item_id=>entity.id},:order=>"ordered_number ASC")
+%>
+<span id="item_unit_<%=entity.id%>" class="swap-unit span-28 margin-swap_unit">
+	<span class="span-28 height-5 margin-swap_line">
+		<% if image%>
+			<span class="facebook_pic margin-swap_pic" style="background-image:url(<%=get_thumbnail_url image.original_image_path, 50, 50%>)" onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=entity.id%>'}); return false;">
+			</span>
+		<% else%>
+			<span class="facebook_pic margin-swap_pic">
+			</span>
+		<% end%>
+		<span class="span-20 margin-left-1">
+			<span class="span-20  height-3">
+				<span class="span-20 fontsize12 bold_font">
+					<a href="#" class="medium_dark_green" onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=entity.id%>'}); return false;"><%=entity.title%></a>
+				</span>
+				<span class="span-20 fontsize11 normal_font  medium_gray">
+					<%=entity.description%>
+				</span>
+			</span>
+			<% if $facebook.facebook_id == entity.facebook_id%>
+			<span class="del_icon" id="item_delete_button_<%=entity.id%>" onclick="del_item_<%=entity.id%>();">Del</span>
+			<% end %>
+			<span class="span-20 height-2">
+				<% if $facebook.facebook_id != entity.facebook_id%>
+					<span class="float-left whowish_green_bg give" onclick="give('<%=entity.facebook_id%>','<%=entity.id%>')">
+						<a href="#" onclick="return false;">Give</a>
+					</span>
+				<% end %>
+			</span>
+			
+		</span>
+	</span>
+	<% if !defined?(is_last) or is_last == false%>
+		<span class="height01 span-28 margin-swap_line medium_gray_bg">
+		</span>
+	<% end %>
+</span>
+
+<script language="javascript">
+	
+	function del_item_<%=entity.id%>()
+	{
+		var data = {
+			signed_request:"<%=params[:signed_request]%>",
+			authenticity_token: "<%=form_authenticity_token%>",
+			"item_id": "<%=entity.id%>"
+		};
+		
+		
+		$('#item_delete_button_<%=entity.id%>').loading_button(true,{word:""});
+		
+		$.ajax({
+			type: "POST",
+			url: '/item/delete',
+			cache: false,
+			data: data,
+			success: function(response){
+				if (response.ok == true) {
+					$('#item_unit_<%=entity.id%>').remove();
+				}
+				
+				$('#item_delete_button_<%=entity.id%>').loading_button(false);
+			},
+			error: function(){
+				$('#item_delete_button_<%=entity.id%>').loading_button(false);
+			}
+		});
+	}
+	</script>

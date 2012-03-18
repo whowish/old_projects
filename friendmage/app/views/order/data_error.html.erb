@@ -1,0 +1,20 @@
+<%
+	order = Order.first(:conditions=>{:key=>params[:order_key]})
+	app = App.first(:conditions=>{:app_id=>order.app_id})
+%>
+<span class="span-98 clearfix">
+	<%=render :partial=>"/order/instruction",:locals=>{:number=>4,:app_name=>app.name}%>
+	<span class="span-60 margin-left-10 clearfix">
+		<span class="span-60">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%= word_for :error%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-60 margin-top-1 margin-bottom-2 font12 bold_font dark_gray clearfix">
+				<%= word_for :try_again%>
+			</span>
+		</span>
+		<div style="height:0px;clear:left;">&nbsp;</div>
+	</span>
+</span>

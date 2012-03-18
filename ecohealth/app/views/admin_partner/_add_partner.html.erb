@@ -1,0 +1,78 @@
+<span class="row" id="add_partner_unit" style="margin-bottom:20px;border-bottom:1px solid #999999;">
+	<span class="toolbox_container">
+		<a href="#" class="blue_button_small" id="add_button" onclick="submit_partner(this);return false;"><%= word_for :add%></a>
+	</span>
+	<span class="name_container">
+		Name:<br/>
+		<input id="partner_name" type="text" class="span-30" /><br/>
+		URL:<br/>
+		<input id="partner_url" type="text" class="span-30" /><br/>
+		Country:<br/>
+		<input id="partner_country" type="text" class="span-30" /><br/>
+		Ordered Number:<br/>
+		<input id="partner_ordered_number" type="text" class="span-30" /><br/>
+		Description:<br/>
+		<textarea id="partner_description" class="span-30" style="height:110px;"  name="<%=rand()%>"></textarea>
+	</span>
+</span>
+<script language="javascript">
+	
+	UNIQUE_PARTNER_ID = 0;
+	function submit_partner(sender)
+	{
+		try {
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_partner/add',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"country": $('#partner_country').val(),
+					"name": $('#partner_name').val(),
+					"url": $('#partner_url').val(),
+					"desc": $('#partner_description').val(),
+					"ordered_number": $('#partner_ordered_number').val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+							$('#new_partner').before('<span id="new_partner_'+UNIQUE_PARTNER_ID+'" style="display:none;">'+data.partner_view+'</span>');
+							
+							$('#new_partner_'+UNIQUE_PARTNER_ID).fadeIn();
+							
+							$('#partner_country').val('');
+							$('#partner_description').val('');
+							$('#partner_name').val('');
+							$('#partner_url').val('');
+							$('#partner_ordered_number').val('');
+							UNIQUE_PARTNER_ID++;
+						}
+						else {
+							$(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('partner', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('partner',e);
+			alert(e);
+		}
+	}
+</script>

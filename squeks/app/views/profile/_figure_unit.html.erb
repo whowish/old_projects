@@ -1,0 +1,70 @@
+<%
+	figure = Figure.first(:conditions=>{:id=>figure_love.figure_id})
+%>
+<li class="span-34 <%=(figure_love.love_type == FigureLove::TYPE_LOVE)?'light_pink_shadow':'medium_gray_bg'%>" id="figure_unit_<%=figure_love.id%>">
+	<span class="firstChild span-34 white_bg">
+		<span class="figure_thumb">
+            <a href="<%=figure.get_url%>">
+			    <img src="<%=figure.get_thumbnail_image_url%>" alt="<%=figure.title%>"/>
+            </a>
+		</span>
+		<span class="span-21 margin-top-5px margin-left-5px" style="overflow:hidden;white-space:nowrap;">
+			<span class="span-21 font12 bold_font">
+				<a href="<%=figure.get_url%>" class="huneysuckle_pink">
+					<%=figure.title%>
+				</a>
+			</span>
+			<span class="span-21 small-meter">
+				<%
+                	love_width, hate_width = calculate_love_hate_width(figure.loves,figure.hates,208)
+            	%>
+			<!--==== (width(210) - pinkMargin(2) = 208px =================================================-->
+				<span class="pink-meter-small" style="width:<%=love_width%>px;">
+				</span>
+				<span class="gray-meter-small" style="width:<%=hate_width%>px;">
+				</span>
+			</span>
+			<span class="span-21 font10 medium_dark_gray">
+				 <%=word_for :love_hate_stat,:love=>figure.loves,:hate=>figure.hates%>
+			</span>
+			<span class="span-21 height20">
+				<%
+	                if figure_love
+	                    if figure_love.love_type == FigureLove::TYPE_LOVE
+	            %>
+						<span class="love_icon_small">
+						</span>
+						<span class="font11 huneysuckle_pink bold_font">
+							 <%=render :partial=>"figure/figure_my_love",:locals=>{:figure=>figure}%>
+						</span>
+	                    
+	            <%
+	                    elsif figure_love.love_type == FigureLove::TYPE_HATE
+	            %>
+	                    <span class="hate_icon_small">
+						</span>
+						<span class="font11 medium_dark_gray bold_font">
+							<%=render :partial=>"figure/figure_my_hate",:locals=>{:figure=>figure}%>
+						</span>
+	            <%
+	                    end
+					end
+	            %>
+				
+			</span>														
+		</span>
+        <%
+          if $facebook.facebook_id == figure_love.facebook_id
+        %>
+            <span class="span-5 margin-left-1 margin-top-1 clearfix">
+                <span class="font10 dark_gray display_block align_center" style="position:relative;">Hide?</span>
+                <span class="mini_slide_bg" id="anonymous_<%=figure_love.id%>_switch_button" onmousedown="$(this).toggle_switch_button(anonymity_callback,'<%=figure_love.id%>');">
+                    <span class="mini_slider" style="<%='margin-left:20px;' if figure_love.is_anonymous == true%>">
+                    </span>
+                </span>
+            </span>
+        <%
+          end
+        %>
+	</span>
+</li>

@@ -1,0 +1,136 @@
+<span class="span-100 clearfix">
+    <span class="span-92 clearfix margin-left-4 margin-bottom-2">
+    	<span class="contentBox">
+			<span class="span-92 clearfix">
+			    <span class="span-92 confirm_register_bg clearfix">
+					<span class="span-44 margin-top-1 margin-left-1 eco_green_bg display_inline_block">
+						<span class="span-40 margin-top-1 margin-left-1 white font18 bold_font display_block">
+							<%= word_for :thank_you%>
+						</span>
+						<span class="span-40 bold_font font16 white margin-top-2 margin-left-1 clearfix">
+							<span class="span-10">
+								<%= word_for :password%>
+							</span>
+							<span class="span-30">
+								<input name="" type="password" class="dark_gray span-29 input_type" id="member_password" />
+							</span>
+						</span>
+						<span class="span-40 bold_font font16 white margin-top-1  margin-left-1 clearfix">
+							<span class="span-10">
+								<%= word_for :confirm_password%>
+							</span>
+							<span class="span-30">
+								<input name="" type="password" class="dark_gray span-29 input_type" id="member_confirm_password" />
+							</span>
+						</span>
+						<span class="span-20 margin-top-1 margin-bottom-1 margin-left-11 eco_green_bg display_inline_block">
+							<a href="#" class="green_button" id="set_password_form_button" onclick="submit_set_password();return false;">
+								<%= word_for :submit%>
+							</a>
+						</span>
+						<div style="height:0px;clear:left;">&nbsp;</div>
+					</span>
+			    </span>
+			</span>
+		</span>
+    </span>
+</span>
+
+<script language="javascript">
+	set_password_form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("set_password_form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"member_password" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					
+					if (s == "")
+					{
+						return "Please specify password";
+					}
+					
+					if (s != $('#member_confirm_password').val())
+					{
+						return "The password and its confirmation do not match.";
+					}
+					return null;
+				});
+			},
+			"member_confirm_password" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					return null;
+				});
+			}
+		
+		}
+	}
+
+	function submit_set_password()
+	{
+		if (!set_password_form_validator.validate_form()) {
+			return;
+		}
+		
+		try {
+			$('#set_password_form_button').loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/member/set_first_time_password',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"password": $('#member_password').val(),
+					"confirm_password": $('#member_confirm_password').val(),
+					"email":"<%=params[:email]%>",
+					"unique_key":"<%=params[:unique_key]%>"
+					
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							top.location.href = "/home";
+						}
+						else {
+							$('#set_password_form_button').loading_button(false);
+							$('#member_password').ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$('#set_password_form_button').loading_button(false);
+						$.error_log('set_first_time_password', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#set_password_form_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#set_password_form_button').loading_button(false);
+			$.error_log('set_first_time_password',e);
+			alert(e);
+		}
+	}		
+</script>	
+	
+
+
+

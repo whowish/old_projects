@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="padding: 0px 0px 0px 0px; margin:0px 0px 0px 0px;">
+	<head>
+		<link rel="P3Pv1" href="/w3c/p3p.xml">
+		<meta http-equiv="P3P" policyref="/w3c/p3p.xml"  content='CP="<%=COMPACT_POLICY%>"'>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>2Meet4</title>
+		<%=stylesheet_link_tag("reset.css")%>
+		
+		<%=stylesheet_link_tag("jquery.autocomplete.css")%>
+		<%=stylesheet_link_tag("2meet4.css")%>
+		<%=stylesheet_link_tag("button.css")%>
+		
+		<%= javascript_include_tag "jquery-1.5.min.js"%>
+		<%= javascript_include_tag "jquery.escape.js"%>
+		<%= javascript_include_tag "jquery.relative_offset.1.0.js"%>
+		<%= javascript_include_tag "jquery.autocomplete.js"%>
+		<%= javascript_include_tag "jquery.error_log.js"%>
+		<%= javascript_include_tag "jquery.loading_button.js"%>
+		<%= javascript_include_tag "jquery.json.js"%>
+		
+		<%= javascript_include_tag "basic.js"%>
+		<%= javascript_include_tag "form_validator_helper.js"%>
+		
+		<%=stylesheet_link_tag("/whowish_box/jquery.whowish_box.css")%>
+		<%= javascript_include_tag "/whowish_box/jquery.whowish_box.js"%>
+		
+		<%=stylesheet_link_tag("/default_text/jquery.default_text.css")%>
+		<%= javascript_include_tag "/default_text/jquery.default_text.js" %>
+		
+		<%=stylesheet_link_tag("/ruby_box/jquery.ruby_box.css")%>
+		<%= javascript_include_tag "/ruby_box/jquery.ruby_box.js" %>
+		
+		<%=stylesheet_link_tag("jquery.ui.core.css")%>
+		<%=stylesheet_link_tag("jquery.ui.theme.css")%>
+		<%=stylesheet_link_tag("jquery.ui.datepicker.css")%>
+		<%= javascript_include_tag "jquery.ui.core.js"%>
+		<%= javascript_include_tag "jquery.ui.datepicker.js"%>
+		
+		<%= javascript_include_tag "/swfupload/swfupload.js" %>
+		<%= javascript_include_tag "/swfupload/swfupload.queue.js" %>
+		<%= javascript_include_tag "/swfupload/swfupload.handler.js" %>
+		<%=stylesheet_link_tag("/swfupload/swfupload.css")%>
+		<%= javascript_include_tag "/swfupload/ajaxupload.js" %>
+
+		<script src="http://connect.facebook.net/en_US/all.js"></script>
+		<link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico"/>
+		<link rel="icon" type="image/png" href="/images/favicon.png" />
+		<link rel="icon" type="image/gif" href="/images/favicon.png" />
+	</head>
+	<body style="padding: 0px 0px 0px 0px; margin:0px 0px 0px 0px;">
+		<img src="/images/button_loader.gif" style="visibility:hidden;">
+		<div style="display:block;background: none repeat scroll 0 0 #202020;">
+			<div id="navigator">
+				<span class="float-left clearfix">
+					<a title="2Meet4" class="logo_2meet4" href="/">&nbsp;</a>
+				</span>
+				<span class="float-left clearfix font14 bold_font line_height26px margin-left-14">
+					<ul class="medium_dark_gray">
+						<li>
+							<a class="tab <%='selected' if params[:controller] == 'home'%>" href="/">
+								<%=word_for :home%>
+							</a>
+						</li>
+						<li class="dot_between">
+						</li>
+						<li>
+							<a class="tab <%='selected' if params[:controller] == 'profile'%>" href="/profile">
+								<%=word_for :profile%>
+		                    </a>
+						</li>
+						<li class="dot_between">
+						</li>
+						<li>
+							<a class="create_button" href="/event">
+		                    	<%=word_for :create_new_meeting%>
+							</a>
+						</li>
+					</ul>
+				</span>        	
+				<span class="span-6 medium_gray_bg height-8 clearfix display_block">
+					<span class="facebook_id_pic_nav" style="background-image:url(<%=$facebook.profile_picture_url%>) !important;">
+					</span>
+				</span>
+			</div>
+	    	<div id="container" class="margin-top-1">
+				<%=yield%>
+			</div>
+			<div id="footer">
+		    	<span class="span-72 margin-left-1 clearfix">
+		        	<span class="font11 medium_gray">
+						2meet4 © 2011 · 
+						<a href="#" onclick="$.whowish_box({title:'',url:'/misc/terms'});return false;"><%=word_for :terms_and_privacy%></a>
+						·
+						<a href="#" onclick="$.whowish_box({title:'',url:'/misc/report_bug'});return false;"><%=word_for :report_bug%></a>
+						·
+						<a href="#" onclick="$.whowish_box({title:'',url:'/misc/request_feature'});return false;"><%=word_for :request_feature%></a>
+						· Powered by 
+						<a  href="http://www.whowish.com" target="_top">
+							<span class="whowish_green">who</span><span class="dark_blue">wish</span>
+						</a>
+		            </span>
+		        </span>
+		    </div>
+		</div>
+		<div id="fb-root">
+		</div>
+	</body>
+</html>
+<script language="javascript">
+ 	FB.init({
+	    appId  : '<%=APP_ID%>',
+	    status : true, // check login status
+	    cookie : true, // enable cookies to allow the server to access the session
+	    xfbml  : false  // parse XFBML
+	  });
+	  
+	FB.Canvas.setSize();
+	$(function() {
+		FB.Canvas.setSize();
+		FB.Canvas.setAutoResize(500);
+	})
+	
+	function change_whowish_word(self,combined_id,word_arg,event)
+	{
+		if (!event) event = window.event;
+		event.cancelBubble = true;
+		if (event.stopPropagation) event.stopPropagation();
+		
+		tokens = combined_id.split("|");
+		page_id = tokens[1];
+		word_id = tokens[2];
+		
+		var content = ""
+		$.ajax({
+			type: "POST",
+			url: '/whowish_word/get_word',
+			cache: false,
+			async: false,
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"page_id": page_id,
+				"word_id": word_id
+			},
+			success: function(data){
+				content = data.content;
+			}
+		});
+		
+		var new_word = prompt("Please insert new word:",content);
+		
+		if (new_word == null) return
+		
+		$.ajax({
+				type: "POST",
+				url: '/whowish_word/change_word',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"page_id":page_id,
+					"word_id":word_id,
+					"content":new_word
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+							for (var i in word_arg)
+							{
+								re = new RegExp("\{"+i+"\}","g")
+								new_word = new_word.replace(re, word_arg[i])
+							}
+							
+							var the_container = $(self).parent().children('*:first')[0];
+							
+							try {$(the_container).val(new_word);} catch (e) {}
+							try {$(the_container).html(new_word);} catch (e) {}
+								
+						}
+						else {
+							alert(data.error_message);
+						}
+						
+					} 
+					catch (e) {
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+			
+			
+	}
+</script>
+

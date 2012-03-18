@@ -1,0 +1,84 @@
+<span class="span-67 margin-top-1 light_blue_bg" id="meeting_place_unit_<%=college.id%>">
+     <span class="span-67 margin-left-2 margin-top-1" >
+		College name: <%=college.name%> / Country code : <%=college.country_code%>
+	 </span>
+	 <span class="span-67 margin-left-2 margin-top-1" >
+	 	<span class="span-15">
+			Official place name:
+		</span>
+		<span >
+			<input id="college_place_name" type="text" class="text_input span-60" value="<%=college.place_name%>" />
+		</span>
+	</span>
+	 <span class="span-67 margin-left-2 margin-top-1" >
+	 	<span class="span-15">
+			Official place address:
+		</span>
+		<span >
+			<textarea id="college_place_address" class="textarea_input span-60"><%=college.place_address%></textarea>
+			
+		</span>
+	</span>
+	<span class="span-5 margin-left-2 margin-top-1 margin-bottom-1" >
+	 	<a href="#" class="" id="entity_submit_button" onclick="submit_entity(this);return false;">
+           save
+    	</a>
+	</span>
+	
+</span>
+
+<script language="javascript">
+    function submit_entity(sender)
+    {
+        try {
+            $(sender).loading_button(true);
+            $.ajax({
+                type: "POST",
+                url: '/admin_meeting_place/save',
+                cache: false,
+                data: {
+                    authenticity_token: "<%=form_authenticity_token%>",
+                    "id":"<%=college.id%>",
+                    "place_name": $('#college_place_name').val(),
+       				"place_address": $('#college_place_address').val()
+                },
+                success: function(data){
+                    try {
+                        if (data.ok == true) {
+                           
+                            try
+                            {
+                          
+
+                            } catch(e) {
+                                $.error_log('submit_entity', e);
+                            	alert(e);
+                            }
+
+                        }
+                        else {
+								$(sender).loading_button(false);
+								$(sender).ruby_box(true, data.error_message);					
+                        }
+           				$(sender).loading_button(false);
+                    }
+                    catch (e) {
+                        $(sender).loading_button(false);
+                        $.error_log('submit_entity', e);
+                        alert(e);
+                    }
+                },
+                error: function(req, status, e){
+                    $(sender).loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+        } catch (e)
+        {
+            $(sender).loading_button(false);
+            $.error_log('submit_entity',e);
+            alert(e);
+        }
+    }
+</script>

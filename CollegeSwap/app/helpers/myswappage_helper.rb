@@ -1,0 +1,2 @@
+module MyswappageHelper
+end

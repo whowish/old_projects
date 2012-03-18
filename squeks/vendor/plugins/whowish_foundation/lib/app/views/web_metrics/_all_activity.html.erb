@@ -1,0 +1,62 @@
+<%
+	WebMetricsActivity.all(:order=>"controller ASC,action ASC").each do |activity|
+%>
+	<span style="display:block;width:800px;" id="activity_<%=activity.id%>">
+		/<%=activity.controller%>/<%=activity.action%> (<span id="action_type_<%=activity.id%>"><%=activity.action_type%></span>)
+		&nbsp;
+		<a href="#" onclick="change_type(<%=activity.id%>,'<%=WebMetricsActivity::ACTION_TYPE_ACTION%>',this);return false;">Action</a>
+		&nbsp;
+		<a href="#" onclick="change_type(<%=activity.id%>,'<%=WebMetricsActivity::ACTION_TYPE_VIEW%>',this);return false;">View</a>
+		&nbsp;
+		<a href="#" onclick="change_type(<%=activity.id%>,'<%=WebMetricsActivity::ACTION_TYPE_UPDATE%>',this);return false;">Update</a>
+		&nbsp;
+		<a href="#" onclick="change_type(<%=activity.id%>,'<%=WebMetricsActivity::ACTION_TYPE_ADMIN%>',this);return false;">Admin</a>
+	</span>
+<%
+	end
+%>
+<script language="javascript">
+	function change_type(id,action_type,sender) {
+		try {
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/web_metrics/change_type',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"id":id,
+					"action_type": action_type
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$('#action_type_'+id).html(data.action_type);
+							
+							for (var i=0;i<data.other_ids.length;i++) {
+								$('#activity_'+data.other_ids[i]).remove();
+							}
+						}
+						
+						$(sender).loading_button(false);
+					}
+					catch (e) {
+						$(sender).loading_button(false);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+		             if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			alert(e);
+		}
+	}
+</script>

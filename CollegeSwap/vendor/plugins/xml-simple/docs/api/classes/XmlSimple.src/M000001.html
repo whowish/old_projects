@@ -1,0 +1,20 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>new (XmlSimple)</title>
+<link rel=StyleSheet href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body bgcolor="white">
+<pre><span class="cmt"># File lib/xmlsimple.rb, line 127</span>
+  <span class="kw">def</span> initialize(defaults = <span class="kw">nil</span>)
+    <span class="kw">unless</span> defaults.nil? || defaults.instance_of?(Hash)
+      raise ArgumentError, <span class="str">&quot;Options have to be a Hash.&quot;</span>
+    <span class="kw">end</span>
+    @default_options = normalize_option_names(defaults, KNOWN_OPTIONS[<span class="str">'in'</span>] &amp; KNOWN_OPTIONS[<span class="str">'out'</span>])
+    @options = Hash.new
+    @_var_values = <span class="kw">nil</span>
+  <span class="kw">end</span></pre>
+</body>
+</html>

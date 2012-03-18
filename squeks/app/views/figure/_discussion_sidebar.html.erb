@@ -1,0 +1,49 @@
+<%
+	related_discussion = DiscussionFigure.all(:conditions=>{:figure_id=>figure.id})
+	sql = "id in (:id) and status = :status"
+	sql_params = {:id=>related_discussion.map{|s| s.discussion_id},:status=>Discussion::STATUS_ACTIVE}
+	top_discussions = Discussion.all(:conditions=>[sql,sql_params],:order=>"loves+hates desc",:offset=>0,:limit=>5)
+%>
+<span class="figure-unit">
+	<ul>
+		<li class="span-28 squeks_shadow_bg">
+			<span class="float-left figure_header squeks_blue_bg" >
+				<a href="#" class="font14 white span-10" style="white-space:nowrap;overflow:hidden;">
+					<%=word_for :discussion%>
+				</a>
+				<span class="float-right">
+					<%
+						if top_discussions.length > 0
+					%>
+					<a href="/discussion/view_all?figure_id=<%=figure.id%>" target="_view_discussion_<%=figure.id%>" class="float-left white font12 light_font">
+						<%=word_for :view_all%>
+					</a>
+					<%end%>
+					<a href="/discussion" target="_add_discussion_<%=figure.id%>" class="facebook_button margin-left-5px font14 white" style="margin-right:-10px;">
+						<%=word_for :new%>
+					</a>
+				</span>
+			</span>
+		</li>
+		<%
+			top_discussions.each do |discussion|
+		%>
+			<li class="span-28 light_medium_gray_bg">
+				<%=render :partial=>"figure/discussion_sidebar_unit",:locals=>{:discussion=>discussion}%>
+			</li>
+		<%end%>
+		<%
+			if top_discussions.length == 0
+		%>
+		<span class="firstChild span-28 white_bg">
+			<span class="span-27 margin-top-5px margin-left-5px margin-bottom-5px">
+				<span class="span-27 font12 bold_font">
+					<a href="/discussion" target="_add_discussion_<%=figure.id%>" class="dark_gray">
+						<%=word_for :no_discussion%>
+					</a>
+				</span>
+			</span>
+		</span>
+		<%end%>
+	</ul>
+</span>

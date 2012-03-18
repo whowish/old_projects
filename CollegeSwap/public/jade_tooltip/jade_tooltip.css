@@ -1,0 +1,59 @@
+.jade{
+	background-color: #78bd40;
+	height: 20px;
+	width: 20px;
+	background-image: url(whowish_icon.png);
+	background-repeat: no-repeat;
+	background-position: 0px -20px;
+	cursor:pointer;
+	background-position: 0px 0px;
+	background-position: 0px 0px;
+	background-repeat: no-repeat;
+	background-position: 0px -20px;
+	position:relative;
+	display:inline-block;
+	margin-left: 4px;
+}
+.jade:hover{
+	cursor:help;
+}
+.jade_tooltip{
+	position:absolute;
+	font-weight: bold;
+}
+.jade_tolltip_content{
+	white-space:nowrap;
+	background-image:url(toolTip_bg.png);
+	clear: both;
+	float: left;	
+	/* Corner */
+	-moz-border-radius-topleft: 8px;
+	border-top-left-radius: 8px;
+	-moz-border-radius-bottomright: 8px;
+	border-bottom-right-radius: 8px;
+	-moz-border-radius-topright: 8px;
+	border-top-right-radius: 8px;
+	-moz-border-radius-bottomright: 8px;
+	border-bottom-right-radius: 8px;
+	
+	padding-top: 4px;
+	padding-right: 8px;
+	padding-bottom: 4px;
+	padding-left: 8px;	
+	/* shadow */
+	-moz-box-shadow: 3px 3px 4px #000;
+	-webkit-box-shadow: 3px 3px 4px #000;
+	box-shadow: 3px 3px 4px #000;
+	/* For IE 8 */
+	-ms-filter: progid:DXImageTransform.Microsoft.dropShadow(color=#000, offX=3, offY=3, positive=true);
+	/* For IE 5.5 - 7 */
+	filter: progid:DXImageTransform.Microsoft.dropShadow(color=#000, offX=3, offY=3, positive=true);
+}
+.jade_tooltip_buttom{
+	background-image: url(tooltipCorner.png);
+	background-repeat: no-repeat;
+	height: 16px;
+	width: 12px;
+	clear: both;
+	float: left;		
+}

@@ -1,0 +1,169 @@
+<%
+	figures = Figure.all(:conditions=>{:status=>Figure::STATUS_ACTIVE})
+%>
+<span class="span-74 margin-top-1 clearfix">
+	<span class="span-27 margin-left-2 clearfix">
+        <div style="height:0px;clear:left;">&nbsp;</div>
+		<%= word_for :main_figure%>
+        <span class="span-27 height26 squeks_light_gray_blue_bg" style="margin-top:7px;">
+            <input type="text" id="search_main" class="search_input span-23" style="line-height:26px;" onkeypress="if(event.keyCode==13)search_main_item();" />
+            <a href="#" class="search_button" onclick="search_figure(true);return false;"></a>
+        </span>
+    </span>
+	<span class="span-27 margin-left-2 clearfix">
+        <div style="height:0px;clear:left;">&nbsp;</div>
+		<%= word_for :merged_figure%>
+        <span class="span-27 height26 squeks_light_gray_blue_bg" style="margin-top:7px;">
+            <input type="text" id="search_merged" class="search_input span-23" style="line-height:26px;" onkeypress="if(event.keyCode==13)search_merged_item();" />
+            <a href="#" class="search_button" onclick="search_figure(false);return false;"></a>
+        </span>
+    </span>
+	<%= render :partial=>"/admin_merge_figure/main_results", :locals=>{:figures=>[]}%>
+	<%= render :partial=>"/admin_merge_figure/merged_results", :locals=>{:figures=>[]}%>
+	
+
+	<span class="span-57 margin-top-1 margin-left-2">
+		<a href="#" onclick="submit_merge();return false;" id="figure_submit_button" class="squeks_button round_corner-4" >
+			<%= word_for :merge%>
+		</a>
+	</span>
+</span>
+
+<script language="javascript">
+	function search_figure(is_main)
+	{
+		data = {
+                  authenticity_token: "<%=form_authenticity_token%>"
+               }
+        if (is_main)
+        {
+            data['q'] = $('#search_main').val();
+			data['is_main'] = 'yes';
+        }
+		else
+		{
+			data['q'] = $('#search_merged').val();
+			data['is_main'] = 'no';
+		}
+		try {
+			$.ajax({
+				type: "POST",
+				url: '/admin_merge_figure/search',
+				cache: false,
+				data: data,
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							if(is_main)
+							{
+								$('#main_results').replaceWith(data.html);
+							}
+							else
+							{
+								$('#merged_results').replaceWith(data.html);
+							}
+						}
+						else {
+			
+							for (var i in data.error_message) {
+								try {
+									$('#search_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}	
+						}
+						
+					} 
+					catch (e) {
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			alert(e);
+		}
+	}		
+
+	function submit_merge()
+	{
+		var all_radios = $('input[id^=radio_figure_]');
+		for ( var i=0;i<all_radios.length;i++)
+		{
+			if (all_radios[i].checked == true) 
+			{ 
+				main_figure_id = all_radios[i].value;
+				break;
+			}
+		}
+		
+		var all_chkboxes = $('input[id^=chkbox_figure_]');
+		var merge_figures_id = []
+		for ( var i=0;i<all_chkboxes.length;i++)
+		{
+			if (all_chkboxes[i].checked == true) 
+			{ 
+				merge_figures_id.push(all_chkboxes[i].value);
+			}
+		}
+		
+		try {
+			
+			$('#figure_submit_button').loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_merge_figure/merge',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"main_figure_id":main_figure_id,
+					"merge_figure_list": merge_figures_id.join(',')
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							alert('merge success!');
+							$('#main_results').replaceWith("");
+							$('#merged_results').replaceWith("");
+						}
+						else {
+							$('#figure_submit_button').loading_button(false);
+							for (var i in data.error_message) {
+								try {
+									$('#figure_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}	
+						}
+						$('#figure_submit_button').loading_button(false);
+					} 
+					catch (e) {
+						$('#figure_submit_button').loading_button(false);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#figure_submit_button').loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#figure_submit_button').loading_button(false);
+			alert(e);
+		}
+	}		
+</script>

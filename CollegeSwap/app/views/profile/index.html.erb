@@ -1,0 +1,71 @@
+<%
+	member = Member.first(:conditions=>{:facebook_id=>$facebook.facebook_id})
+%>
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span id="item_flow_content" class="span-50 margin-bottom-1">
+	<span class="span-48 margin-left-1 margin-top-1">
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-7" ><%=word_for :profile_label%></span> 
+			<span class="span-39 ">
+				<textarea class="dark_gray span-38 postbox_input" id="profile_text" style="height:100px;"><%=member.profile_text%></textarea>
+			</span>
+		</span>
+		<!--<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-15" >&nbsp;</span> 
+			<span class="span-31 fontsize11 light_dark_gray">
+				*The currency of your items will change to that of the country where the college islocated.
+			</span>
+		</span>-->
+		<span class="span-48">
+			<span class="span-7" >&nbsp;</span> 
+			<span class="span-39">
+				<a href="#" class="facebook_button" onclick="submit_profile_text(this);return false;">
+					<%=word_for :save_button%>
+				</a>
+			</span>
+		</span>
+	</span>
+</span>
+<div style="height:0px;clear:left;">&nbsp;</div>
+<script language="javascript">
+	function submit_profile_text(button)
+	{
+		$(button).loading_button(true);
+		
+		$.ajax({
+				type: "POST",
+				url: '/profile/save',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token:"<%=form_authenticity_token%>",
+					profile_text: $('#profile_text').val()
+				},
+				success: function(response){
+					try {
+						if (response.ok == true) {
+							$('#profile_text_box_<%=$facebook.facebook_id%>').html($.escape_html(response.profile_text));
+							$(document).trigger('close.whowish_box');
+						} else {
+							$('#profile_text').ruby_box(true,response.error_message)
+						}
+						
+						$.whowish
+					} 
+					catch (e) {
+						alert(e);
+						$.error_log('submit_profile_text', e);
+					}
+					
+					$(button).loading_button(false);
+					
+				},
+				error: function(req, status, e){
+					alert('Cannot connect to the server. Please try again.')
+					$(button).loading_button(false);
+				}
+			});
+	}
+</script>

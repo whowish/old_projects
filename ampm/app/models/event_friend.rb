@@ -1,0 +1,5 @@
+class EventFriend < ActiveRecord::Base
+  STATUS_PENDING = "PENDING"
+  STATUS_ACCEPTED = "ACCEPTED"
+  STATUS_REJECTED = "REJECTED"
+end

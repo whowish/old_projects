@@ -1,0 +1,55 @@
+<%
+	related_discussion = DiscussionFigure.all(:conditions=>{:figure_id=>figure.id})
+	agree_discussions = Discussion.all(:conditions=>["id in (:id) and status = :status and loves >= hates",{:id=>related_discussion.map{|s| s.discussion_id},:status=>Discussion::STATUS_ACTIVE}],:order=>"loves desc",:offset=>0,:limit=>20)
+	disagree_discussions = Discussion.all(:conditions=>["id in (:id) and status = :status and hates > loves",{:id=>related_discussion.map{|s| s.discussion_id},:status=>Discussion::STATUS_ACTIVE}],:order=>"hates desc",:offset=>0,:limit=>20)
+	return "" if (agree_discussions.length + disagree_discussions.length) == 0
+%>
+<span class="span-68 margin-top-1">
+	<span class="comment_unit span-68 margin-top-1">
+		<span class="commentator span-33 ">
+			<span class="span-33 height26 font16 bold_font whowish_green">
+				<span class="margin-left-5px">
+					<%=word_for :top_agree_discussion%>
+				</span>
+			</span>
+			<span class="span-32 margin-left-5px margin-bottom-5px height01 medium_gray_bg display_block">
+			</span>
+			<%
+				if agree_discussions.length > 2
+					x = rand(agree_discussions.length-2)
+					agree_discussions_random = agree_discussions[x..x+1]
+				else
+					agree_discussions_random = agree_discussions
+				end
+
+				agree_discussions_random.each do |discussion|
+			%>
+				<%=render :partial=>"/discussion/discussion_popular_unit",:locals=>{:discussion=>discussion}%>
+			<%
+				end
+			%>
+		</span>
+		<span class="commentator span-33 margin-left-2">
+			<span class="span-33 height26 font16 bold_font medium_gray">
+				<span class="margin-left-5px">
+					<%=word_for :top_disagree_discussion%>
+				</span>
+			</span>
+			<span class="span-32 margin-left-5px margin-bottom-5px height01 medium_gray_bg display_block">
+			</span>
+			<%
+				if disagree_discussions.length > 2
+					x = rand(disagree_discussions.length-2)
+					disagree_discussions_random = disagree_discussions[x..x+1]
+				else
+					disagree_discussions_random = disagree_discussions
+				end
+				disagree_discussions_random.each do |discussion|
+			%>
+				<%=render :partial=>"/discussion/discussion_popular_unit",:locals=>{:discussion=>discussion}%>
+			<%
+				end
+			%>
+		</span>
+	</span>
+</span>

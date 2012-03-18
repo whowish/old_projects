@@ -1,0 +1,28 @@
+<%
+	order = Order.first(:conditions=>{:key=>params[:order_key]})
+	app = App.first(:conditions=>{:app_id=>order.app_id})
+%>
+<span class="span-98 clearfix">
+	<%=render :partial=>"/order/instruction",:locals=>{:number=>4,:app_name=>app.name}%>
+	<span class="span-60 margin-left-10 clearfix">
+		<span class="span-60">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%= word_for :thank_you%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			<%if order.buy_print_copy%>
+				<span class="span-60 margin-top-1 font12 bold_font dark_gray clearfix">
+					<%= word_for :paid_success%>
+				</span>
+				<span class="span-60 margin-top-3 font12 medium_dark_gray clearfix">
+					<%=render :partial=>"/order/order_detail_unit",:locals=>{:order=>order}%>
+				</span>
+			<%else%>
+				<span class="span-60 margin-top-1 font12 bold_font dark_gray clearfix">
+					<%= word_for :complete_digital_only%>
+				</span>
+			<%end%>
+		</span>
+	</span>
+</span>

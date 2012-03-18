@@ -1,0 +1,23 @@
+<ul class="medium_dark_gray">
+	<li>
+		<a class="<%=(params[:action]=='worth')?'selected':'tab'%>" href="/top/worth">
+			<span>
+				<%=word_for :valuable_figure%>
+			</span>
+		</a>
+	</li>
+	<li>
+		<a class="<%=(params[:action]=='index')?'selected':'tab'%>" href="/top">
+			<span>
+				<%=word_for :top_figure%>
+			</span>
+		</a>
+	</li>
+	<li>
+		<a class="<%=(params[:action]=='richest')?'selected':'tab'%>" href="/top/richest">
+			<span>
+				<%=word_for :richest%>
+			</span>
+		</a>
+	</li>
+</ul>

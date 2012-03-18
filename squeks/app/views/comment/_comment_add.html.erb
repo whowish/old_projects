@@ -1,0 +1,43 @@
+<%
+	commentor = get_facebook_info($facebook.facebook_id)
+%>
+
+<span class="comment span-68 margin-top-1">
+    <span class="span-68 height20 squeks_blue font11 bold_font">
+        <span class="comment_icon">
+        </span>
+        <a href="#" class="squeks_blue margin-left-1"><%=word_for :please_comment,:title=>figure.title%></a>
+    </span>
+	<%
+		if $facebook.is_guest
+
+
+			facebook_redirect_url = "http://"+DOMAIN_NAME+request.path
+
+			if params[:controller] == "home" and @figure
+				facebook_redirect_url = "http://"+DOMAIN_NAME + @figure.get_url(false)
+			end
+	%>
+	    <span class="span-68 margin-top-1" style="border:1px solid #999999;">
+	    	<span class="span-66 margin-left-1 margin-bottom-1">
+		        Please login with Facebook before posting a comment.
+				<a id="facebook_login_button" href="https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape(facebook_redirect_url)%>" style="margin-top:10px;cursor:pointer;display:block;">
+	                <img src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_medium_short.gif"  alt="Login with Facebook"/>
+	            </a>
+			</span>
+	    </span>
+	<%
+		else
+	%>
+	    <span class="span-68 margin-top-1">
+	        <span style="float:left;">
+	            <textarea id="event_comment" class="comment_input"></textarea>
+	        </span>
+	        <span style="float:left;">
+	            <a href="#" class="comment_button" id="comment_submit_button" onclick="submit_comment();return false;"><%= word_for :comment_add%></a>
+	        </span>
+	    </span>
+	<%
+		end
+	%>
+</span>

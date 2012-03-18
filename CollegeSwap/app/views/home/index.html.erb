@@ -1,0 +1,192 @@
+<%
+	
+	params[:category_id] = 0 if !params[:category_id]
+	params[:category_id] = params[:category_id].to_i
+
+	# params[:college_name] = get_college_name($facebook.college_id) if !params[:college_name]
+	params[:college_name] = params[:college_name] || get_college_name_of($facebook.facebook_id) || ""
+
+
+	college_name = params[:college_name]
+	college_name = "All colleges" if params[:college_name] == ""
+
+	from_college = params[:college_name]
+	from_college = "your country" if params[:college_name] == ""
+%>
+
+<span class="span-80 dark_gray fontsize12 bold_font margin-bottom-2 light_gray_bg" style="height:70px;">
+	<span class="span-40 margin-left-1 fontsize14 bold_font margin-top-1">
+		<!--<span class="span-16 fontsize11 medium_gray normal_font">
+			College: 
+		</span>-->
+		<span class="span-40 fontsize12 bold_font " style="white-space:nowrap;overflow:hidden;">
+			<%=college_name%>
+		</span>
+		<span class="span-40 height01 medium_dark_gray_bg margin-swap_line">
+		</span>
+		<span class="span-40 fontsize11 bold_font ">
+			<%
+				if params[:college_name] != ""
+			%>
+			<a href="#"  onclick="submit_college_all(this);return false;"><%=word_for :live_feed_all_college%></a><br/>
+			<%
+				end
+			%>
+			<a href="#"  onclick="$.whowish_box({title:'Live Feed: Change College',url:'/home/change_college?college_name=<%=CGI.escape params[:college_name]%>',background_color:'#6D84B4'});return false;"><%=word_for :live_feed_change_college%></a>
+		</span>
+	</span>
+	
+	<span class="filterFeed float-left margin-top-4 margin-left-4"><a href="#" onclick="$.whowish_box({title:'Description',url:'/misc/category_help',background_color:'#1963BD'});return false;">[?]</a>
+	</span>
+	<span class="filterFeed float-right margin-top-1">
+		<ul>
+			<%
+				categories = [{:id=>0,:title=>"All",:class=>"all_button"},
+								{:id=>1,:title=>"Textbooks",:class=>"book_button"},
+								{:id=>2,:title=>"Toys",:class=>"toy_button"},
+								{:id=>3,:title=>"Crib",:class=>"crib_button"},
+								{:id=>4,:title=>"Services",:class=>"service_button"},
+								{:id=>5,:title=>"Everything else",:class=>"else_button"}]
+
+				categories.each do |c|
+			%>
+				<li><a href="/home?category_id=<%=c[:id]%>&college_name=<%=params[:college_name]%>" title="<%=c[:title]%>"><span class="<%=c[:class]%> <%='selected' if params[:category_id] == c[:id]%>"></span></a></li>
+			<%
+				end
+			%>
+		</ul>
+	</span>
+	<span class="medium_gray_bg height01 span-80" style="margin-top:6px;">
+	</span>
+</span>
+<span id="result_panel" class="span-80" ></span>
+<span id="home_loading" style="margin-left:180px;margin-right:auto;margin-top:20px;display:block;float:left;">
+	<img src="/images/home_loading.gif">
+	<span class="fontsize13 bold_font" style="text-align:center;display:block;">
+		<%=word_for :loading%>
+	</span>
+</span>
+<span id="no_feed" class="dark_gray" style="margin-left:15px;margin-right:auto;margin-top:20px;display:none;float:left;">
+	<span class="span-80 margin-left-2 margin-bottom-2">
+		<%=word_for :there_is_no_post_from,:college=>from_college%>
+		<% if get_college_name($facebook.college_id) == params[:college_name]%><%=word_for :be_the_first%><%end%>
+	</span>
+	<% if get_college_name($facebook.college_id) == params[:college_name]%>
+	<span class="span-80 margin-left-2 margin-bottom-2">
+		<span class="green_button" style="margin-left:40px;" onclick="$.whowish_box({url:'/item?item_type=WISH'});">
+			<%=word_for :add_stuff_i_want%>
+		</span>
+		<span class="blue_button" style="margin-left:10px;" onclick="$.whowish_box({url:'/item?item_type=JUNK',background_color:'#1963BD'});">
+			<%=word_for :add_stuff_i_can_trade%>
+		</span>
+	</span>
+	<%end%>
+</span>
+<script language="javascript">
+
+	var anchor = "0";
+	var result_global_id = 0;
+	var WAIT_TIME = 120000;
+	
+	$(function() {
+		load_new_items(true);
+	});
+	
+	function load_new_items(is_timeout) {
+
+		try {
+			$.ajax({
+				type: "POST",
+				url: '/home/load_more',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"anchor": anchor,
+					"category_id": '<%=params[:category_id]%>',
+					"college_name": '<%=params[:college_name]%>'
+				},
+				success: function(data){
+					try {
+						if (data.ok == true
+							&& data.results.length > 0) {
+
+							var str = "<span id='result_subpanel_" + result_global_id+"' style='display:none;'>";
+							for (var i=0;i<data.results.length;i++)
+							{
+								str += data.results[i];
+							}
+							str += "</span>";
+							
+							$('#result_panel').prepend(str);
+							
+							$("#result_subpanel_" + result_global_id).slideDown( 'slow', function() {
+								if (is_timeout == true)
+									setTimeout("load_new_items(true);",10000);
+							} )
+							
+							result_global_id++;
+							
+							anchor = data.anchor;
+						}
+						else
+						{
+							if (is_timeout == true)
+								setTimeout("load_new_items(true);",WAIT_TIME);
+						}
+						
+						if ($('#result_panel').html() == "")
+						{
+							$('#no_feed').show();
+						}
+						else
+						{
+							$('#no_feed').hide();
+						}
+						
+						$('#home_loading').hide();
+						try {
+							FB.Canvas.setAutoResize();
+						} catch (e) {}
+					} 
+					catch (e) {
+						$.error_log('load_more', e);
+						if (is_timeout == true)
+							setTimeout("load_new_items(true);",WAIT_TIME);
+					}
+
+				},
+				error: function(req, status, e){
+					if (is_timeout == true)
+						setTimeout("load_new_items(true);",WAIT_TIME);
+				}
+			});
+		} catch (e)
+		{
+		}
+
+		if (anchor == "0") anchor = "1";
+	}
+
+	function submit_college_all(button)
+	{
+		location.href = '/home?college_name=';
+	}
+</script>
+<% if $is_first_time and ($facebook.is_guest or $facebook.is_new)%>
+	<!--<script language="javascript">
+		$(function() {
+			//$.whowish_box({title:"Welcome to CollegeSwap!",url:"/college?new",background_color:"#6D84B4"});
+			$.whowish_box({title:"Welcome to CollegeSwap!",url:"/home/introduce",background_color:"#666666"});
+		});
+	</script>-->
+<% end%>
+
+<% if params[:show_zip_code_box]=="yes"%>
+	<script language="javascript">
+		$(function() {
+			
+			$.whowish_box({url:'/college',background_color:'#6D84B4'});
+		});
+	</script>
+<% end %>

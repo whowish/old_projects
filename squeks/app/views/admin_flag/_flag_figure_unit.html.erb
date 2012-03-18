@@ -1,0 +1,46 @@
+<%
+	user = @facebook_data[entity.facebook_id]
+	user = Member.get_guest if user == nil
+	user_name =  user.name
+
+	image_url = @figure_data[entity.figure_id].get_thumbnail_image_url
+%>
+<span class="stream_content margin-top-5px" id="flag_<%=entity.id%>">
+	<a href="<%=@figure_data[entity.figure_id].get_url%>">
+	<span class="figure_feed round_corner-4" style="background-image:url(<%=image_url%>);cursor:pointer;">
+    </span>
+	</a>
+	<span class="span-37 margin-left-1">
+		<span class="span-37">
+			<%
+				if user.is_guest
+			%>
+					<span style="font-weight:bold;">Guest</span>
+			<%
+				else
+			%>
+					<a href="/profile?user_id=<%=user.facebook_id%>" class="float-left font12 squeks_blue bold_font">
+						<%=user_name%>
+					</a>
+			<%
+				end
+			%>
+			<span class="float-right margin-left-5px font10 light_font medium_gray">
+				<span class="span-4">
+                   <a href="#" class="x_icon" title="delete flag" onclick="delete_flag(<%=entity.id%>,this);return false;"></a>
+                </span>
+			</span>
+		</span>
+		<span class="span-37">
+			<span class="span-37 font11 dark_gray normal_font">
+				<%=word_for :flag_reason,:reason=>entity.reason%>
+			</span>
+			<a href="<%=@figure_data[entity.figure_id].get_url%>" class="float-left font14 bold_font huneysuckle_pink margin-top-5px">
+				<%=@figure_data[entity.figure_id].title%>
+			</a>
+		</span>
+		<span class=" light_medium_gray margin-top-5px">
+			<%=semantic_time(entity.created_date)%>
+		</span>
+	</span>
+</span>

@@ -1,0 +1,18 @@
+<span class="span-98 margin-top-2">
+    <span class="span-98 white_bg gp_bg">
+        <span class="span-96 margin-top-1 margin-left-1 margin-bottom-4">
+            <span class="span-96 font18 squeks_blue bold_font">
+                <%=word_for :please_login%>
+            </span>
+            <span class="span-96 font11 squeks_blue bold_font">
+                <%=word_for :some_instruction%>
+            </span>
+            <a href="https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://"+DOMAIN_NAME+request.path)%>" class="facebook_connection_button margin-top-1">
+            </a>
+        </span>
+    </span>
+    <span class="left_shadow">
+    </span>
+    <span class="right_shadow">
+    </span>
+</span>

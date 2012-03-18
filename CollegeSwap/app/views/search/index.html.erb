@@ -1,0 +1,341 @@
+<%
+   	params[:scope] ||= "all"
+    params[:item_type] ||= "all"
+    #params[:college_name] ||= get_college_name($facebook.college_id)
+	params[:college_name] ||= ""	
+    params[:q] ||= ""
+    params[:category_id] ||= 0
+    params[:offset] ||= 0
+    params[:limit] ||= 10
+    params[:order] ||= "best"
+
+	friends = $facebook.all_friends
+	friends_of_friends = $facebook.all_friends_of_friends
+	friends.push($facebook.facebook_id)
+	friends_of_friends.push($facebook.facebook_id)
+
+	sql = "status = :status AND is_money = :is_money "
+
+	sql += " AND ((privacy = '"+Item::PRIVACY_ALL+"') " +
+			" OR (privacy = '"+Item::PRIVACY_FRIENDS+"' AND facebook_id IN (:friends))" +
+			" OR (privacy = '"+Item::PRIVACY_FRIENDS_OF_FRIENDS+"' AND facebook_id IN (:friends_of_friends)))"
+	
+	item_type_sql = ""
+	if params[:item_type] == "WISH" or params[:item_type] == "JUNK"
+		item_type_sql = " AND item_type = :item_type"
+	end
+	
+	
+	if params[:scope] == "friends"
+		sql += " AND facebook_id in (:friends)";
+	elsif params[:scope] == "friends_of_friends"
+		sql += " AND facebook_id in (:friends_of_friends)";
+	end
+
+	sql += " AND title LIKE :q"
+
+	category_sql = ""
+	category_ids = []
+	if params[:category_id].to_i != 0
+		category_ids = [params[:category_id]]
+		cats = Category.all(:conditions=>{:parent_id=>params[:category_id]})
+		cats.each { |c|
+			category_ids.push(c.id);
+		}
+		
+		category_sql = " AND category_id in (:category_ids)"
+	end 
+
+	if params[:college_name] != ""
+		sql += " AND owner_university = :college_name"
+	else
+		sql += " AND country_code = :country_code"
+	end
+	
+	order_sql = "id DESC"
+	
+	if params[:order] == "recent"
+		order_sql = "created_date DESC"
+	elsif params[:order] == "soonest"
+		order_sql = "(CASE \
+						WHEN expiration_date IS NULL THEN '2100-10-10 00:00:00' \
+						ELSE expiration_date \
+					END) ASC"
+	elsif params[:order] == "highest_value"
+		order_sql = "value DESC"
+	elsif params[:order] == "lowest_value"
+		order_sql = "(CASE \
+						WHEN value IS NULL THEN 999999999999 \
+						ELSE value \
+					END) ASC"
+	end
+
+	sql += " " + session[:flagged_item_sql]
+
+	items = Item.all(:conditions=>[sql + category_sql + item_type_sql,{:status=>Item::STATUS_ACTIVE,
+										:is_money=>0,
+										:q=>"%%"+params[:q]+"%%",
+										:college_name=>params[:college_name],
+										:country_code=>$facebook.country_code,
+										:category_ids=>category_ids,
+										:friends=>friends,
+										:friends_of_friends=>friends_of_friends,
+										:item_type=>params[:item_type]
+									}],
+									:offset=>params[:offset],:limit=>params[:limit],:order=>order_sql)
+
+	count_item_type_result = Item.all(:select =>"item_type,COUNT(1) AS num",
+			 :conditions =>[sql + category_sql,{:status=>Item::STATUS_ACTIVE,
+										:is_money=>0,
+										:q=>"%%"+params[:q]+"%%",
+										:college_name=>params[:college_name],
+										:country_code=>$facebook.country_code,
+										:category_ids=>category_ids,
+										:friends=>friends,
+										:friends_of_friends=>friends_of_friends,
+										:item_type=>params[:item_type]
+									}],
+			 :group => "item_type")
+
+	counts_item_type = {"WISH"=>0,"JUNK"=>0,"all"=>0}
+
+	count_item_type_result.each { |result|
+		counts_item_type[result.item_type] += result.num.to_i
+		counts_item_type["all"] += result.num.to_i
+	}
+
+	count_category_result = Item.all(:select =>"category_id,COUNT(1) AS num",
+			 :conditions =>[sql + item_type_sql,{:status=>Item::STATUS_ACTIVE,
+										:is_money=>0,
+										:q=>"%%"+params[:q]+"%%",
+										:college_name=>params[:college_name],
+										:country_code=>$facebook.country_code,
+										:category_ids=>category_ids,
+										:friends=>friends,
+										:friends_of_friends=>friends_of_friends,
+										:item_type=>params[:item_type]
+									}],
+			 :group => "category_id")
+
+	counts_category = {"all"=>0}
+
+	categories = Category.all
+	categories.each { |cat|
+		counts_category["category_"+cat.id.to_s] = 0
+	}
+
+	count_category_result.each { |result|
+		counts_category["category_"+result.category_id.to_s] += result.num.to_i
+		counts_category["all"] += result.num.to_i
+	}
+
+%>
+<span class="span-18" style="border-right:1px solid #CCCCCC;">
+	<span class="span-18 margin-bottom-2">	
+		<span class="span-18 dark_blue_bg height01">
+		</span>
+		<span class="span-18 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+			<span class="span-15 margin-left-1">
+				<%=word_for :college_search%>
+			</span>
+		</span>
+		<span class="span-16 margin-left-1 margin-bottom-1">
+			<span class="span-16 fontsize12 dark_gray bold_font">
+				<%
+					college_name = params[:college_name]
+					college_name = "All colleges" if params[:college_name] == ""
+				%>
+				<%=college_name%>
+			</span>
+			<span class="span-16 fontsize12 dark_gray bold_font">
+				 <a href="#"  onclick="submit_college_all(this);return false;"><%=word_for :view_all_college%></a>
+			</span>
+			<span class="span-16 height01 medium_gray_bg" style="margin-top:4px; margin-bottom:4px" >
+			</span>
+			<span class="span-16 fontsize11 normal_font">
+				<a href="#" onclick="$.whowish_box({url:'/search/change_college?college_name=<%=CGI.escape params[:college_name]%>',background_color:'#6D84B4'});return false;"><%=word_for :change_college%></a>
+			</span>
+		</span>
+	</span>
+	
+	<span class="span-18 margin-bottom-2">	
+		<span class="span-18 dark_blue_bg height01">
+		</span>
+		<span class="span-18 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+			<span class="span-15 margin-left-1">
+				<%=word_for :type_search%>
+			</span>
+		</span>
+		<span class="span-16 margin-left-1 margin-bottom-2">
+			<span class="span-16 fontsize12 dark_gray bold_font">
+				<span class="span-14 search_filter_unit <%='selected' if !(['WISH','JUNK'].include? params[:item_type])%>">
+					<a href="javascript:search_item({item_type:'all'});" class="span-11 margin-left-1 height20"><%=word_for :all_count,:number=>counts_item_type["all"]%></a>
+				</span>
+				<span class="span-14 search_filter_unit <%='selected' if params[:item_type]=='WISH'%>">
+					<a href="javascript:search_item({item_type:'WISH'});" class="span-11 margin-left-1 height20"><%=word_for :want_count,:number=>counts_item_type["WISH"]%></a>
+				</span>
+				<span class="span-14 search_filter_unit <%='selected' if params[:item_type]=='JUNK'%>">
+					<a href="javascript:search_item({item_type:'JUNK'});" class="span-11 margin-left-1 height20"><%=word_for :have_count,:number=>counts_item_type["JUNK"]%></a>
+				</span>
+			</span>
+		</span>					
+	</span>
+	
+	<span class="span-18 margin-bottom-2">	
+		<span class="span-18 dark_blue_bg height01">
+		</span>
+		<span class="span-18 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+			<span class="span-15 margin-left-1">
+				<%=word_for :category_search%>
+			</span>
+		</span>
+		<span class="span-16 margin-left-1 margin-bottom-2">
+			<span class="span-16 fontsize12 dark_gray bold_font">
+				<span class="span-14 search_filter_unit <%='selected' if params[:category_id].to_i==0%>">
+					<a href="javascript:search_item({category_id:0});" class="span-11 margin-left-1 height20"><%=word_for :all_category_count,:number=>counts_category["all"]%></a>
+				</span>
+				<%
+					categories.each do |cat|
+				%>
+					<span class="span-14 search_filter_unit <%='selected' if params[:category_id].to_i==cat.id%>">
+						<a href="javascript:search_item({category_id:<%=cat.id%>});" class="span-11 margin-left-1 height20"><%=cat.name%> (<%=counts_category["category_"+cat.id.to_s]%>) </a>
+					</span>
+				<%
+					end
+				%>
+			</span>
+		</span>					
+	</span>
+</span>
+<span class="span-80 margin-left-1">
+	<span class="span-80 light_gray_bg dark_gray fontsize12 bold_font height24 margin-bottom-1">
+		<span class="span-40 margin-left-1">
+			<%
+				sort_bys = [{:id=>"best",:label=>"Best Matches"},
+						{:id=>"recent",:label=>"Most Recent"},
+						{:id=>"soonest",:label=>"Ending Soonest"},
+						{:id=>"highest_value",:label=>"Highest Value"},
+						{:id=>"lowest_value",:label=>"Lowest Value"}
+						]
+			%>	
+			<select id="search_order_by" onchange="search_item({order:$(this).val()});">
+				<%
+					sort_bys.each do |i|
+				%>
+					<option value="<%=i[:id]%>" <%='selected' if params[:order] == i[:id]%>><%=i[:label]%></option>
+				<%
+					end
+				%>
+			</select>
+		</span>
+		<span class="filter float-right">
+			<ul>
+				<li id="search_all" <%='class="filter_selected"' if !(["friends","friends_of_friends"].include?(params[:scope]))%> onclick="search_item({scope:'all'});"><a href="#" onclick="return false;"><%=word_for :all_filter%></a></li>
+				<li id="search_friend" <%='class="filter_selected"' if params[:scope] == 'friends'%> onclick="search_item({scope:'friends'});"  title="Show only friends."><a href="#" onclick="return false;"><%=word_for :friend_filter%></a></li>
+				<li id="search_friend_of_friend" <%='class="filter_selected"' if params[:scope] == 'friends_of_friends'%> onclick="search_item({scope:'friends_of_friends'});" title="Show only Friends + Friends of Friends."><a href="#" onclick="return false;"><%=word_for :friend_of_friend_filter%></a></li>
+				
+			</ul>
+		</span>
+	</span>
+	<span class="span-80">
+	<%
+		if items.length == 0
+		
+			require 'ebay_helper'
+			ebay_items = find_item_by_keyword(params[:q],5)[:result]
+
+			require 'amazon_helper'
+			amazon_items = find_item_amazon_by_keyword(params[:q],5)
+
+
+	%>
+	<% if (ebay_items.length + amazon_items.length) == 0%>
+		<%=render :partial=>"home/search_not_found"%>
+		<br/>
+	<% elsif (ebay_items.length + amazon_items.length) > 0%>
+		<%=render :partial=>"search/search_outside_bar"%>
+		<br/>
+	<%end%>
+		<%
+			amazon_items.each do |item|
+		%>
+			<%=render :partial=>"home/amazon_unit",:locals=>{:item=>item}%>
+		<%
+			end
+
+			ebay_items.each do |ebay_item|
+		%>
+			<%=render :partial=>"home/ebay_unit",:locals=>{:item=>ebay_item}%>
+		<%
+			end
+		else
+			items.each do |item|%>
+				<%=render :partial=>"home/search_result_unit",:locals=>{:item=>item,:location=>'search'}%>
+		<%	end
+
+			count = Item.count(:conditions =>[sql+category_sql+item_type_sql,{:status=>Item::STATUS_ACTIVE,
+									:is_money=>0,
+									:q=>"%%"+params[:q]+"%%",
+									:college_name=>params[:college_name],
+									:country_code=>$facebook.country_code,
+									:category_ids=>category_ids,
+									:friends=>friends,
+									:friends_of_friends=>friends_of_friends,
+									:item_type=>params[:item_type]
+								}])
+			%>
+		
+			<span class="span-80 margin-left-1">
+				<span class="total_page whowish_green_bg">
+					<%=params[:offset].to_i+1%> - <%=[(params[:offset].to_i+params[:limit].to_i),count].min%> of <%=count%> items
+				</span>
+				<span class="page_number">
+					<ul>
+						<%
+							number_of_pages = (count.to_f/params[:limit].to_f).ceil
+						
+							(1..number_of_pages).each do |i|
+						%>
+							<li><a href="#" onclick="search_item({offset:<%=params[:limit].to_i*(i-1)%>});return false;" <%='class="active"' if (params[:limit].to_i*(i-1)) == params[:offset].to_i%>><%=i%></a></li>
+						<%
+							end
+						%>
+					</ul>
+				</span>
+			</span>
+			
+			<%if count < params[:limit].to_i and params[:offset].to_i == 0
+				require 'ebay_helper'
+				ebay_items = find_item_by_keyword(params[:q],(params[:limit].to_i - count) / 2 )[:result]
+
+				require 'amazon_helper'
+				amazon_items = find_item_amazon_by_keyword(params[:q],(params[:limit].to_i - count)-((params[:limit].to_i - count) / 2))
+				if ebay_items.length + amazon_items.length > 0
+			%>
+					<%=render :partial=>"search/search_outside_more"%>
+					<br/>
+					<%
+						amazon_items.each do |item|
+					%>
+						<%=render :partial=>"home/amazon_unit",:locals=>{:item=>item}%>
+					<%
+						end
+		
+						ebay_items.each do |ebay_item|
+					%>
+						<%=render :partial=>"home/ebay_unit",:locals=>{:item=>ebay_item}%>
+						<%end%>
+				<%end%>
+			<%end%>
+		<%end%>
+	</span>
+</span>
+<script language="javascript">
+
+	function submit_college_all(button)
+	{
+		search_item({college_name:""});
+	}
+	
+</script> 
+

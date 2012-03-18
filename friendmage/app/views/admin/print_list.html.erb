@@ -1,0 +1,14 @@
+<%
+	order_by = "created_date ASC"
+	sql = "status = :status and buy_print_copy = true" 
+	orders = Order.all(:conditions =>[sql,{:status=>Order::STATUS_PRINTING}],:order=>order_by)
+%>
+ <span class="span-68 search_result margin-top-1 clearfix">
+    <ul>
+        <%
+            orders.each do |o|
+        %>
+            <%=render :partial=>"/admin/print_unit",:locals=>{:order=>o}%>
+        <%end%>
+    </ul>
+</span>

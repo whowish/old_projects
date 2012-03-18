@@ -1,0 +1,33 @@
+# Auto-generated template
+member1:
+  name: "Tanun Niyomjit"
+  gender: "male"
+  facebook_id: 632591624
+  updated_date: <%= DateTime.now %>
+  college: ""
+  email: ""
+
+member2:
+  name: "Tanin Na Nakorn"
+  gender: "male"
+  facebook_id: 632818246
+  updated_date: <%= DateTime.now %>
+  college: ""
+  email: ""
+  
+member3:
+  name: "Nilobol Ariyamongkollert"
+  gender: "female"
+  facebook_id: 100000201256691
+  updated_date: <%= DateTime.now %>
+  college: ""
+  email: ""
+
+member4:
+  name: "Moopino"
+  gender: "female"
+  facebook_id: 100002085428291
+  updated_date: <%= DateTime.now %>
+  college: ""
+  email: ""
+

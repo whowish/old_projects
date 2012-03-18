@@ -1,0 +1,4 @@
+<span id="thumbnail_<%=image.id%>" class="image_thumbnail" onclick="select_image(this);" style="background-image:url(<%=image.get_160x160_thumbnail_image_url%>);">
+	<span class="image_url" style="display:none;">http://s3.amazonaws.com/<%=AWS_S3_BUCKET_NAME%>/uploads/<%=image.original_image_path%></span>
+	<span class="image_id" style="display:none;"><%=image.id%></span>
+</span>

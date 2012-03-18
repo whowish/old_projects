@@ -1,0 +1,32 @@
+<span class="span-59 height24 light_gray_bg clearfix">      
+	<span class="filter float-left margin-left-1 height24" style="line-height:24px">
+		<%
+			if is_settled
+		%>
+		<select id="sort_by" onchange="update_sort_by($(this).val());" style="height:20px;margin-top:2px;">
+			<option value="ending_soonest"  <%if params[:sort] == "ending_soonest"%>selected <%end%>><%=word_for(:ending_soonest)%></option>
+			<option value="completed" <%if params[:sort] == "completed"%>selected <%end%>><%=word_for(:completed)%></option>
+		</select>
+		<%
+			else
+		%>
+			&nbsp;
+		<%
+			end
+		%>
+	</span>
+	<span class="filter float-right">
+		<ul>
+			<li class="<%='filter_selected' if !is_settled%>"><a href="/profile?user_id=<%=facebook_id%>"><%=word_for(:filter_unsettled)%></a></li>
+			<li class="<%='filter_selected' if is_settled%>"><a href="/profile/settled?user_id=<%=facebook_id%>"><%=word_for(:filter_settled)%></a></li>
+		</ul>
+	</span>
+</span>
+<script language="javascript">
+			
+	function update_sort_by(val) {
+		location.href = "/profile/settled?sort="+val+"&filter=<%=params[:filter]%>&user_id=<%=facebook_id%>";
+		return;
+	}
+			
+</script>

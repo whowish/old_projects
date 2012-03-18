@@ -1,0 +1,101 @@
+<%
+	user = Member.first(:conditions=>{:facebook_id=>$facebook.facebook_id})
+%>
+
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+	
+</script>
+<span class="span-50 margin-bottom-1">
+	<span class="span-50 light_green_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		&nbsp;&nbsp; <%=word_for(:change_name)%>
+	</span>
+	<span class="span-50 margin-top-1 font11 squeks_blue bold_font">
+		<span class="span-14 font14 squeks_blue bold_font margin-left-1" style="line-height:20px;" >
+			<%=word_for(:Name)%>
+		</span>
+		<input id="anonymous_name" type="text" class="text_input span-34" value="<%=user.anonymous_name%>" onkeyup="event_form_validator.validate(this);" />
+	</span>
+	<span class="span-50 margin-top-1 margin-bottom-1">
+		<span class="squeks_button round_corner-4" style="margin-left:150px;" id="edit_button"  onclick="change_name(this)">
+			<%=word_for(:save_button)%>
+		</span>
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>
+
+<script language="javascript">
+	
+	function change_name(sender)
+	{
+		if (!event_form_validator.validate_form()) {
+			return;
+		}
+		
+		$(sender).loading_button(true);
+			var data = {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"facebook_id": "<%=$facebook.facebook_id%>",
+				"anonymous_name": $('#anonymous_name').val()
+			};
+			
+			
+			$.ajax({
+				type: "POST",
+				url: '/profile/change_name',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						$('#side_name_container').replaceWith(response.html);
+						$(document).trigger('close.whowish_box');
+					}
+					 else {
+                        $(sender).loading_button(false);
+                        $('#anonymous_name').ruby_box(true,response.error_message);
+                    }
+					
+				},
+				error: function(req){
+					if (req.status == 0) return;
+				}
+			});
+		
+	}
+	
+	event_form_validator = {
+		validate: function(input_obj){
+			if (input_obj.id in this.validatees) 
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("event_form_validator does not validate '" + input_obj.id + "'");
+		},
+		validate_form: function(){
+			var bool = true;
+			
+			for (var i in this.validatees) {
+				bool = (this.validatees[i])(jQuery("#" + i)[0]) && bool;
+			}
+			
+			return bool;
+		},
+		validatees: {
+			"anonymous_name": function(input_obj){
+				return validate_input_obj(input_obj, function(s){
+					if ($.trim(s).length <= 0) {
+						return "Cannot be empty";
+					}
+					if ($.trim(s).length <= 5) {
+						return "Must contain at least 6 character";
+					}
+					if ($.trim(s).match(/[A-Z ]/)) {
+						return "Must not contain capital letter or space";
+					}
+					return null;
+				});
+			}
+		}
+	}
+
+</script>

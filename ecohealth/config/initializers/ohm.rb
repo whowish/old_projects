@@ -1,0 +1,3 @@
+require 'ohm'
+
+Ohm.connect

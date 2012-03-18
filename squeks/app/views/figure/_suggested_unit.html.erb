@@ -1,0 +1,72 @@
+<span class="firstChild span-28 white_bg" id="suggested_unit_<%=figure.id%>">
+    <span class="figure_thumb">
+        <a href="<%=figure.get_url%>">
+            <img src="<%=figure.get_thumbnail_image_url%>" alt="<%=figure.title%>"/>
+        </a>
+    </span>
+    <span class="span-21 margin-top-5px margin-left-5px">
+        <span class="span-21 font12 bold_font">
+            <a href="<%=figure.get_url%>" class="squeks_blue">
+                <%=figure.title%>
+            </a>
+        </span>
+        <span class="span-21 small-meter">
+            <%
+                love_width, hate_width = calculate_love_hate_width(figure.loves,figure.hates,208)
+            %>
+            <!--==== (width(210) - pinkMargin(2) = 208px =================================================-->
+            <span class="pink-meter-small" style="width:<%=love_width%>px;">
+            </span>
+            <span class="gray-meter-small" style="width:<%=hate_width%>px;">
+            </span>
+        </span>
+        <span class="span-21 font10 medium_dark_gray">
+            <%=word_for :love_hate_stat,:love=>number_with_delimiter(figure.loves),:hate=>number_with_delimiter(figure.hates)%>
+        </span>
+        <span class="span-21 height20">
+            <%
+				if !$facebook.is_guest
+				
+					figure_love = nil
+
+					if defined?(@figure_love_hash)
+	                	figure_love = @figure_love_hash[figure.id]
+					else
+						figure_love = FigureLove.first(:conditions=>{:figure_id=>figure.id,:facebook_id=>$facebook.facebook_id})
+					end
+
+	                if figure_love \
+	                    and (figure_love.love_type == FigureLove::TYPE_LOVE \
+	                    or figure_love.love_type == FigureLove::TYPE_HATE)
+	                    if figure_love.love_type == FigureLove::TYPE_LOVE
+            %>
+                    		You love this
+            <%
+                		elsif figure_love.love_type == FigureLove::TYPE_HATE
+            %>
+                    		You hate this
+            <%
+	                    end
+	                else
+            %>
+	                <a href="#" class="float-left" onclick="submit_love(this,'<%=FigureLove::TYPE_LOVE%>',<%=figure.id%>);return false;">
+	                    <span class="love_icon_small">
+	                    </span>
+	                    <span class="font11 huneysuckle_pink bold_font" style="margin-left:2px;">
+	                        <%=word_for :love_button%>
+	                    </span>
+	                </a>
+	                <a href="#" class="float-left margin-left-1" onclick="submit_love(this,'<%=FigureLove::TYPE_HATE%>',<%=figure.id%>);return false;">
+	                    <span class="hate_icon_small">
+	                    </span>
+	                    <span class="font11 medium_dark_gray bold_font" style="margin-left:2px;">
+	                        <%=word_for :hate_button%>
+	                    </span>
+	                </a>
+            <%
+                	end
+				end
+            %>
+        </span>
+    </span>
+</span>

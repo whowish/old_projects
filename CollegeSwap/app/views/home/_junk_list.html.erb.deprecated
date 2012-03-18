@@ -1,0 +1,32 @@
+<span class="span-30">
+	<span id="user_junk_list_<%=facebook_id%>" class="span-28">
+		<%
+			sql = "facebook_id = '"+facebook_id+"' AND item_type ='JUNK'"
+			sql += " AND status = '" + Item::STATUS_ACTIVE + "'"
+			sql += " AND title LIKE '%%"+q+"%%'" if defined?(q)
+
+			if defined?(category_id) and category_id.to_i > 0
+				ids = [category_id]
+				cats = Category.all(:conditions=>{:parent_id=>category_id})
+				cats.each { |c|
+					ids.push(c.id);
+				}
+				
+				sql += " AND category_id in ('"+ids.join("','")+"')"
+				
+			end
+
+			junks = Item.all(:conditions=>[sql])
+			if junks.length == 0
+		%>
+			&nbsp;
+		<%
+			else
+				junks.each do |junk|
+		%>
+			<%=render :partial=>"item",:locals=>{:entity=>junk,:is_last=>(junk == junks.last)}%>
+		<% 		end
+			end
+		%>
+	</span>
+</span>		

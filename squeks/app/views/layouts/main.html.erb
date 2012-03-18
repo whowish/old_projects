@@ -1,0 +1,522 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="padding: 0px 0px 0px 0px; margin:0px 0px 0px 0px;">
+	<head>
+        <script language="javascript">
+            if (location.hash.match(/^#!\//))
+            {
+                location.href = location.hash.substring(2);
+            }
+        </script>
+		<link rel="P3Pv1" href="/w3c/p3p.xml">
+		<meta http-equiv="P3P" policyref="/w3c/p3p.xml"  content='CP="<%=COMPACT_POLICY%>"'>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta name="description" content="Love or hate anyone or anything with Squeks, the coolest love it or hate it website and Facebook app. Show us some love, or some hate!" />
+        <%= yield(:facebook_meta_tag) or "" %>
+		<title>Squeks: Love it or Hate it!</title>
+		<%=stylesheet_link_tag("reset.css")%>
+
+		<%=stylesheet_link_tag("jquery.autocomplete.css")%>
+		<%=stylesheet_link_tag("squeks.css")%>
+		<%=stylesheet_link_tag("button.css")%>
+
+		<%= javascript_include_tag "jquery-1.5.min.js"%>
+		<%= javascript_include_tag "jquery.escape.js"%>
+		<%= javascript_include_tag "jquery.relative_offset.1.0.js"%>
+        <%= javascript_include_tag "jquery.flip_panel.js"%>
+		<%= javascript_include_tag "jquery.autocomplete.js"%>
+		<%= javascript_include_tag "jquery.loading_button.js"%>
+        <%= javascript_include_tag "jquery.urldecoder.js"%>
+		<%= javascript_include_tag "jquery.json.js"%>
+        <%= javascript_include_tag "jquery.switch_button.js"%>
+        <%= javascript_include_tag "form_validator_helper.js"%>
+		<%= javascript_include_tag "jquery.balloon_popup.js"%>
+		
+		<%=stylesheet_link_tag("/jade_tooltip/jade_tooltip.css")%>
+		<%= javascript_include_tag "/jade_tooltip/jquery.jade_tooltip.js" %>
+		
+		<%=stylesheet_link_tag("/whowish_box/jquery.whowish_box.css")%>
+		<%= javascript_include_tag "/whowish_box/jquery.whowish_box.js"%>
+
+		<%=stylesheet_link_tag("/default_text/jquery.default_text.css")%>
+		<%= javascript_include_tag "/default_text/jquery.default_text.js" %>
+
+		<%=stylesheet_link_tag("/ruby_box/jquery.ruby_box.css")%>
+		<%= javascript_include_tag "/ruby_box/jquery.ruby_box.js" %>
+
+		<%= javascript_include_tag "/whowish_foundation_asset/swfupload/ajaxupload.js" %>
+
+
+		<link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico"/>
+		<link rel="icon" type="image/png" href="/images/favicon.png" />
+		<link rel="icon" type="image/gif" href="/images/favicon.png" />
+        <script language="javascript">
+        	
+			function format_price(v)
+			{
+				// add comma
+				x1 = v+"";
+				var rgx = /(\d+)(\d{3})/;
+				while (rgx.test(x1)) {
+					x1 = x1.replace(rgx, '$1' + ',' + '$2');
+				}
+				
+				return x1;
+			}
+        	
+			function update_squeks_credit(new_credit,previous_credit)
+			{
+				if (new_credit == undefined) return;
+				
+				
+				
+				$('#squeks_credit_label').html(format_price(new_credit));
+				
+				
+				if (previous_credit == undefined) return;
+				
+				new_credit = parseInt(new_credit);
+				previous_credit = parseInt(previous_credit);
+				
+				if (new_credit > previous_credit) {
+					$.coin_balloon("+" + (new_credit - previous_credit));
+				}
+				else if (new_credit < previous_credit) {
+					$.coin_balloon("" + (new_credit - previous_credit));
+				}
+			}
+			
+            function get_share_option_value()
+            {
+                return {
+                    share_love: $('#share_love_switch_button').get_switch_button_value(),
+                    share_hate: $('#share_hate_switch_button').get_switch_button_value(),
+                    share_comment: $('#share_comment_switch_button').get_switch_button_value(),
+                    share_comment_agree: $('#share_comment_agree_switch_button').get_switch_button_value(),
+                    share_comment_disagree: $('#share_comment_disagree_switch_button').get_switch_button_value()
+                }
+            }
+
+            var share_option_ajax_anchor = 0;
+            var share_option_changed_callback = function ()
+            {
+               share_option_ajax_anchor++;
+               setTimeout("submit_share_option("+share_option_ajax_anchor+");",500);
+            }
+
+            function submit_share_option(anchor)
+            {
+                if (anchor != share_option_ajax_anchor) return;
+
+                $.ajax({
+                        type: "POST",
+                        url: '/share_option/save',
+                        cache: false,
+                        headers:{"Connection":"close"},
+                        data: $.extend({
+                            authenticity_token: "<%=form_authenticity_token%>",
+                            is_anonymous:get_anonymous_value()
+                        },get_share_option_value()),
+                        success: function(data){
+
+                        },
+                        error: function(req, status, e){
+                            if (req.status == 0) return;
+                        }
+                    });
+            }
+
+            function get_anonymous_value()
+            {
+              return $('#anonymous_switch').get_switch_button_value();
+            }
+
+            function main_love_start_loading(sender,type)
+            {
+                if (type == "<%=FigureLove::TYPE_HATE%>") {
+                    $(sender).hide();
+                    $('#hate_button_loading').show();
+                }
+                else {
+                    if (type == "<%=FigureLove::TYPE_LOVE%>") {
+                        $(sender).hide();
+                        $('#love_button_loading').show();
+                    }
+                    else {
+                        $(sender).loading_button(true, {word: ""});
+                    }
+                }
+            }
+
+            function main_love_stop_loading(sender,type)
+            {
+                if (type == "<%=FigureLove::TYPE_HATE%>") {
+                    $('#hate_button_loading').hide();
+                    $(sender).show();
+                }
+                else  {
+                    if (type == "<%=FigureLove::TYPE_LOVE%>") {
+                        $('#love_button_loading').hide();
+                        $(sender).show();
+                    }
+                    else {
+                        $(sender).loading_button(false);
+                    }
+                }
+            }
+
+            function normal_love_start_loading(sender)
+            {
+                $(sender).loading_button(true, {word: ""});
+            }
+
+            function normal_love_stop_loading(sender)
+            {
+                $(sender).loading_button(false);
+            }
+
+            function submit_love(sender,type,figure_id,is_main)
+            {
+                var start_loading = normal_love_start_loading;
+                var stop_loading = normal_love_stop_loading;
+
+                if (is_main) {
+                   start_loading = main_love_start_loading;
+                   stop_loading = main_love_stop_loading;
+                }
+
+                try {
+                    start_loading(sender,type);
+                    var share_value = get_share_option_value().share_love;
+
+                    if (type == "<%=FigureLove::TYPE_HATE%>")
+                        share_value = get_share_option_value().share_hate;
+
+                    $.ajax({
+                        type: "POST",
+                        url: '/figure/love',
+                        cache: false,
+                        data: {
+                            authenticity_token: "<%=form_authenticity_token%>",
+                            "share_on_facebook": share_value,
+                            "is_anonymous":get_anonymous_value(),
+                            "figure_id":figure_id,
+                            "type": type
+                        },
+                        success: function(data){
+                            try {
+                                if (data.ok == true) {
+									
+									if (data.redirect_url != null) {
+										location.href = data.redirect_url;
+										return;
+									}
+									
+                                    $('#love_meter_container_'+figure_id).replaceWith(data.love_meter);
+                                    $('#suggested_unit_'+figure_id).replaceWith(data.suggested_unit);
+                                    $('#search_result_unit_'+figure_id).replaceWith(data.search_result_unit);
+									$('#thumbnail_unit_'+figure_id).replaceWith(data.thumbnail_unit);
+									$('#manager_love_unit_'+figure_id).replaceWith(data.manager_love);
+
+                                    $('#love_meter_container_'+figure_id).hide();
+                                    $('#suggested_unit_'+figure_id).hide();
+                                    $('#search_result_unit_'+figure_id).hide();
+									$('#thumbnail_unit_'+figure_id).hide();
+
+                                    $('#love_meter_container_'+figure_id).fadeIn();
+                                    $('#suggested_unit_'+figure_id).fadeIn();
+                                    $('#search_result_unit_'+figure_id).fadeIn();
+									$('#thumbnail_unit_'+figure_id).fadeIn();
+									
+									update_squeks_credit(data.credits,data.previous_credits);
+									
+									
+									
+                                }
+                                else {
+                                   if (data.error_message == "<%=MUST_LOGIN_ERROR%>")
+                                   {
+                                       $('#must_login_balloon').hide();
+                                       $('#must_login_balloon').fadeIn();
+                                   }
+
+                                }
+                            }
+                            catch (e) {
+                                $.error_log('submit_love', e);
+                                alert(e);
+                            }
+
+                            stop_loading(sender,type);
+
+                        },
+                        error: function(req, status, e){
+                            stop_loading(sender,type);
+                            if (req.status == 0) return;
+                            alert('Cannot connect to the server. Please try again later.');
+                        }
+                    });
+                } catch (e)
+                {
+                    stop_loading(sender,type);
+                    $.error_log('submit_love',e);
+                    alert(e);
+                }
+            }
+			
+			function start_discussion_unit_loading(sender,type,discussion_id) {
+				if (type == "<%=DiscussionLove::TYPE_HATE%>") {
+                    $(sender).hide();
+                    $('#hate_button_loading_discussion_unit_'+discussion_id).show();
+                }
+                else {
+                    if (type == "<%=DiscussionLove::TYPE_LOVE%>") {
+                        $(sender).hide();
+                        $('#love_button_loading_discussion_unit_'+discussion_id).show();
+                    }
+                    else {
+                        $(sender).loading_button(true, {word: ""});
+                    }
+                }
+			}
+			
+			function stop_discussion_unit_loading(sender,type,discussion_id) {
+                if (type == "<%=DiscussionLove::TYPE_HATE%>") {
+                    $('#hate_button_loading_discussion_unit_'+discussion_id).hide();
+                    $(sender).show();
+                }
+                else  {
+                    if (type == "<%=DiscussionLove::TYPE_LOVE%>") {
+                        $('#love_button_loading_discussion_unit_'+discussion_id).hide();
+                        $(sender).show();
+                    }
+                    else {
+                        $(sender).loading_button(false);
+                    }
+                }
+			}
+			
+			function start_discussion_pop_unit_loading(sender,type,discussion_id) {
+				$(sender).loading_button(true,{word:""});
+			}
+			
+			function stop_discussion_pop_unit_loading(sender,type,discussion_id) {
+                $(sender).loading_button(false,{word:""});
+			}
+			
+			
+			function submit_discussion_love(sender,type,discussion_id,is_main,partial_name)
+		    {
+		        var start_loading = start_discussion_unit_loading;
+		        var stop_loading = stop_discussion_unit_loading;
+
+		        if (is_main) {
+		           start_loading = main_love_start_loading;
+		           stop_loading = main_love_stop_loading;
+		        }
+
+				if (partial_name == "pop_unit" || partial_name == "top_unit") {
+		           start_loading = start_discussion_pop_unit_loading;
+		           stop_loading = stop_discussion_pop_unit_loading;
+				}
+
+		        try {
+		            start_loading(sender,type,discussion_id);
+		
+		            $.ajax({
+		                type: "POST",
+		                url: '/discussion/love',
+		                cache: false,
+		                data: {
+		                    authenticity_token: "<%=form_authenticity_token%>",
+		                    "is_anonymous":get_anonymous_value(),
+		                    "discussion_id":discussion_id,
+		                    "type": type,
+							"return_html_type": partial_name
+		                },
+		                success: function(data){
+		                    try {
+		                        if (data.ok == true) {
+									
+									if (data.redirect_url) {
+										location.href=data.redirect_url;
+										return;
+									}
+									
+									if (partial_name == "unit") {
+										$('#discussion_unit_' + discussion_id).replaceWith(data.html);
+										$('#discussion_unit_' + discussion_id).hide();
+										$('#discussion_unit_' + discussion_id).fadeIn();
+									}
+									else if (partial_name == "pop_unit") {
+										$('#discussion_popular_unit_' + discussion_id).replaceWith(data.html);
+										$('#discussion_popular_unit_' + discussion_id).hide();
+										$('#discussion_popular_unit_' + discussion_id).fadeIn();
+									}
+									else if (partial_name == "top_unit") {
+										$('#top_discussion_unit_' + discussion_id).replaceWith(data.html);
+										$('#top_discussion_unit_' + discussion_id).hide();
+										$('#top_discussion_unit_' + discussion_id).fadeIn();
+									}
+									else {
+									
+										$('#love_meter_discussion_' + discussion_id).replaceWith(data.love_meter);
+										$('#love_meter_discussion_' + discussion_id).hide();
+										$('#love_meter_discussion_' + discussion_id).fadeIn();
+									}
+		       
+		                        }
+		                        else {
+		                           if (data.error_message == "<%=MUST_LOGIN_ERROR%>")
+		                           {
+		                               $('#must_login_balloon').hide();
+		                               $('#must_login_balloon').fadeIn();
+		                           }
+		
+		                        }
+		                    }
+		                    catch (e) {
+		                        alert(e);
+		                    }
+		
+		                    stop_loading(sender,type,discussion_id);
+		
+		                },
+		                error: function(req, status, e){
+		                    stop_loading(sender,type,discussion_id);
+		                    if (req.status == 0) return;
+		                    alert('Cannot connect to the server. Please try again later.');
+		                }
+		            });
+		        } catch (e)
+		        {
+		            stop_loading(sender,type,discussion_id);
+		            alert(e);
+		        }
+		    }
+			
+        </script>
+	</head>
+	<body style="padding: 0px 0px 0px 0px; margin:0px 0px 0px 0px;">
+		<img src="/images/logo75x75.jpg" style="display:none;"/>
+        <%= yield(:header) or render :partial=>"home/header"%>
+        <div style="height:0px;clear:left;">&nbsp;</div>
+        <div id="container" class="clearfix">
+            <span class="global_width">
+                <%=yield%>
+            </span>
+        </div>
+        <div id="footer" class="margin-top-2 margin-bottom-1 clearfix">
+            <span class="global_width">
+                <span class="float-left font10 bold_font medium_dark_gray">
+                    &copy; Squeks 2011.&nbsp;&nbsp;Squeks your love.
+                </span>
+                <span class="float-right font10 bold_font medium_gray">
+                	<span class="float-left">
+	                    <a href="/" class="squeks_blue">Squeks</a> |
+	                    <a href="/misc/terms" class="squeks_blue">Terms of Use</a> |
+	                    <a href="/misc/privacy" class="squeks_blue">Privacy Policy</a> 
+						<%
+							if $facebook.is_aesir
+						%>
+							| <a href="/valhalla" class="orange">Valhalla</a>
+						<%
+							end
+						%>
+                	</span>
+					<a href="<%=request.path+'?country_code=us'%>" class="float-left language margin-left-5px light_medium_gray_bg height20 round_corner-4">
+						<span class="float-left">
+							<img src="/images/flag/flag_usa copy.png" alt=""  />
+						</span>
+						<span class="float-left margin-left-5px">
+							US
+						</span>
+					</a>
+					<a href="<%=request.path+'?country_code=jp'%>" class="float-left language margin-left-5px light_medium_gray_bg height20 round_corner-4">
+						<span class="float-left">
+							<img src="/images/flag/flag_japan copy.png" alt=""  />
+						</span>
+						<span class="float-left margin-left-5px">
+							JP
+						</span>
+					</a>
+				</span>
+            </span>
+        </div>
+    </body>
+</html>
+<script language="javascript">
+	function change_whowish_word(self,word_id,word_arg,event)
+	{
+		if (!event) event = window.event;
+		event.cancelBubble = true;
+		if (event.stopPropagation) event.stopPropagation();
+		
+		$(self).loading_button(true,{word:""});
+
+		var content = ""
+		$.ajax({
+			type: "POST",
+			url: '/whowish_word/get_word',
+			cache: false,
+			async: false,
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"word_id": word_id
+			},
+			success: function(data){
+				content = data.content;
+			}
+		});
+
+		$(self).loading_button(false);
+		var new_word = prompt("Please set "+word_id+":",content);
+
+		if (new_word == null) return
+		
+		$(self).loading_button(true,{word:""});
+
+		$.ajax({
+				type: "POST",
+				url: '/whowish_word/change_word',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"word_id":word_id,
+					"content":new_word
+				},
+				success: function(data){
+					$(self).loading_button(false);
+					try {
+						if (data.ok == true) {
+
+							for (var i in word_arg)
+							{
+								re = new RegExp("\{"+i+"\}","g")
+								new_word = new_word.replace(re, word_arg[i])
+							}
+
+							var the_container = $(self).parent().children('*:first')[0];
+
+							try {$(the_container).val(new_word);} catch (e) {}
+							try {$(the_container).html(new_word);} catch (e) {}
+
+						}
+						else {
+							alert(data.error_message);
+						}
+
+					}
+					catch (e) {
+						alert(e);
+					}
+
+				},
+				error: function(req, status, e){
+					$(self).loading_button(false);
+                    if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+	}
+
+</script>

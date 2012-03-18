@@ -1,0 +1,17 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50 margin-top-1 margin-bottom-1">
+	<span class="span-49 margin-left-1 dark_gray">
+		Would you like 2Meet4 to include new features? <br/>
+		Please place your request below. Thanks for using 2Meet4!
+	</span>
+	<span class="span-49 margin-left-1 margin-top-1 margin-bottom-1">
+		<span id="request_feature" style="margin-left:50px;">
+			<fb:comments xid="request_feature_2Meet4" numposts="10" width="400" publish_feed="true"></fb:comments>
+		</span>
+	</span>
+</span>
+<script language="javascript">
+	FB.XFBML.parse($('#request_feature')[0]);
+</script>

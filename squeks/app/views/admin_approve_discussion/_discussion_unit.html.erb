@@ -1,0 +1,36 @@
+<li>
+	<span class="span-2">
+		<input name="" id="chkbox_discussion_<%=discussion.id%>" class="margin-top-1" type="checkbox" value="<%=discussion.id%>" />
+	</span>
+	<span class="span-8">
+		<%=semantic_time(discussion.created_date)%>
+	</span>
+	<span class="span-24" style="overflow:auto;height:180px">
+		<a href="/discussion/view/<%=discussion.id%>" target="_discussion_<%=discussion.id%>">
+			<%=discussion.title%>
+		</a>
+	</span>
+	<span class="span-24" style="overflow:auto;height:180px">
+		<%=discussion.description%>
+	</span>
+	<span class="span-18">
+		<%creator = Member.first(:conditions=>{:facebook_id=>discussion.creator_facebook_id})%>
+		
+			<%if creator%>
+				<a href="/profile?user_id=<%=discussion.creator_facebook_id%>" class="dark_blue"><%=creator.name%></a>
+			<%end%>
+		
+	</span>
+	<span class="span-12 last_child">
+		<button class="gray_button" onclick="submit_approve(this,<%=discussion.id%>,'approve');">
+			<img src="../images/check-icons.png"  />
+		</button>
+		<button class="gray_button" onclick="submit_approve(this,<%=discussion.id%>,'disapprove');">
+			<img src="../images/cross-icons.png"  />
+		</button>
+		<span id="result_<%=discussion.id%>">
+		
+		</span>
+	</span>
+</li>
+

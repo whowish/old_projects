@@ -1,0 +1,54 @@
+<%
+	unsettle_count = 0
+	unsettle_count = Event.count(:conditions=>{:facebook_id=>$facebook.facebook_id,:status=>Event::STATUS_ACTIVE})
+%>
+
+<%= javascript_include_tag "jquery.hover_panel.js"%>
+<script language="javascript">
+	$(function() {
+		$('.flip_panel').hover_panel();
+	});
+</script>
+<span class="span-74 height-22 margin-top-1 clearfix">
+	<span class="span-24 height-22 clearfix">
+		<%=render :partial=>"home/event_soonest"%>
+	</span>
+	<span class="flip_panel span-49 height-22 margin-left-1 clearfix blue_2meet4_bg">
+		<%=render :partial=>"home/event_invited"%>
+	</span>
+</span>
+  
+<span class="span-74 height-18 margin-top-1 clearfix">
+	<span class="flip_panel">
+		<span class="span-18 height-18 clearfix request_box">
+			<span class="span-16 margin-left-1 margin-top-1 font18 black bold_font">
+				<%=word_for(:settled_line1)%>
+			</span>
+			<span class="span-17 margin-left-1 margin-top--8px">
+			<span class="float-right request_count">
+				<%=unsettle_count%>&nbsp;
+			</span>
+			</span>
+			<span class="span-17 margin-left-1 font14 bold_font black">
+				<%
+					
+					plural_word = "s" 
+					plural_word = "" if unsettle_count == 1
+				%>
+				<%=word_for(:settled_line3,:plural=>plural_word)%>
+			</span>
+		</span>
+		<%=render :partial=>"home/event_unsettle"%>
+	</span>
+	<span class="span-55 height-18 margin-left-1 clearfix start_box">
+		<span class="span-18">
+			<a href="/event" class="blue_button" style="margin-top:88px; margin-left:6px;" onclick="$(this).loading_button(true);">
+				Create Meeting
+			</a>
+		</span>
+		<span class="span-19">
+		</span>
+		<span class="span-18">
+		</span>
+	</span>
+</span>

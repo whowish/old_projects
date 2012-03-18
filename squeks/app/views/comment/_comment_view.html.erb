@@ -1,0 +1,123 @@
+<%
+	commentor = Member.first(:conditions=>{:facebook_id=>comment.facebook_id})
+	commentor_name = (comment.is_anonymous) ? "#{commentor.anonymous_name}" : commentor.name
+	commentor_picture_url = (comment.is_anonymous) ? commentor.anonymous_profile_picture_url : commentor.profile_picture_url
+	sub_comments_count = Comment.count(:conditions=>{:parent_id=>comment.id,:status=>Comment::STATUS_ACTIVE})
+%>
+<span class="comment_unit span-68" id="comment_view_<%=comment.id%>">
+    <span class="commentator span-68">
+        <span class="commentator_id" style="background-image:url(<%=commentor_picture_url%>);cursor:pointer;">
+        </span>
+        <span class="span-62 margin-left-1">
+            <span class="float-left commentator_name">
+                <span class="font12 bold_font medium_dark_gray">
+                	<%if comment.is_anonymous%>
+						<%=commentor_name%>
+					<%else%>
+                		<a href="/profile?user_id=<%=comment.facebook_id%>" class="dark_blue"><%=commentor_name%></a>
+					<%end%>
+                </span>
+                <span class="font11 medium_gray">
+                    &middot; <%=semantic_time(comment.created_date)%>
+                </span>
+            </span>
+            <span class="float-right">
+               <%=render :partial=>"comment/comment_status",:locals=>{:comment=>comment}%>
+            </span>
+            <span class="span-62 margin-top-1 font11 dark_gray margin-top-1 margin-bottom-1">
+            	<%=CGI.escapeHTML(comment.comment).gsub("\n","<br/>").gsub(/(https?:\/\/[\S]+)/,'<a href="\1" target="_new_'+rand().to_s+'" style="font-weight:normal;color: #1963BD;">\1</a>')%>
+            </span>
+			<span class="span-62">
+				<%
+					
+					
+					if show_sub_comment
+	                	
+						if sub_comments_count == 0
+            	%>
+							<a href="#" class="float-left font11 medium_gray normal_font" onclick="$('#sub_comment_label_<%=comment.id%>').hide();$('#sub_comment_panel_<%=comment.id%>').show();return false;">
+			            		<%=word_for :sub_comment%>
+			        		</a>
+				<%
+						end
+					else
+				%>
+						<a href="/comment/view/<%=comment.id%>" target="_comment_<%=comment.id%>" class="float-left font11 medium_gray normal_font" >
+							<%if sub_comments_count > 0%>
+		            			<%=word_for :reply,:number=>sub_comments_count%>
+							<%else%>
+								<%=word_for :view_comment%>
+							<%end%>
+		        		</a>
+				<%
+					end
+				%>
+                <% if !$facebook.is_guest%>
+					<a href="#" title="Share on Facebook" class="comment_share_icon-facebook margin-left-1" onclick="$.whowish_box({url:'/comment/share?id=<%=comment.id%>',background_color:'#54a8e3'});return false;">
+					</a>
+				<% end %>
+				<a href="#" title="Tweet" class="comment_share_icon-twitter margin-left-1" onclick="window.open('http://www.twitter.com/share?url=http://<%=DOMAIN_NAME%>/comment/view/<%=comment.id.to_s%>','mywindow','width=600,height=400');return false;">
+				</a>
+				<a href="#" title="Report Abuse" class="comment_share_icon-flag margin-left-1" onclick="$.whowish_box({url:'/flag?comment_id=<%=comment.id%>',background_color:'#54a8e3'});return false;">
+				</a>
+				<%
+                   if sub_comments_count == 0 and (comment.facebook_id == $facebook.facebook_id or $facebook.is_aesir)
+                %>
+					<a href="#" title="Delete" class="comment_share_icon-delete margin-left-1" onclick="$.whowish_box({url:'/comment/confirm_delete?comment_id=<%=comment.id%>',background_color:'#54a8e3'});return false;">
+					</a>
+				<%
+					end
+				%>
+			</span>
+			<span class="span-62 height-1 display_block">
+			</span>
+            <div style="height:0px;clear:left;">&nbsp;</div>
+        </span>
+    </span>
+	<span class="reply-unit span-68 margin-top-1">
+		<%
+			if show_sub_comment
+				sub_comments = Comment.all(:conditions=>{:parent_id=>comment.id,:status=>Comment::STATUS_ACTIVE})
+				if sub_comments.length > 0
+		%>
+				    <span class="span-4">
+				        <span class="replyer_icon">
+				        </span>
+				    </span>
+				<%
+					end
+				%>
+			    <span class="span-64">
+			        <%
+			            sub_comments.each do |sub|
+			        %>
+			        	<%=render :partial=>"comment/sub_comment",:locals=>{:comment=>sub}%>
+		            <%
+		                end
+		            %>
+					<span id="new_sub_comment_anchor_<%=comment.id%>"></span>
+					
+					<%
+						if sub_comments.length > 0
+					%>
+						<span class="span-62 margin-left-1"  id="sub_comment_label_<%=comment.id%>">
+			    			<a href="#" class="medium_gray" onclick="$('#sub_comment_label_<%=comment.id%>').hide();$('#sub_comment_panel_<%=comment.id%>').show();return false;">
+			        			<%=word_for :sub_comment%>
+			    			</a>
+						</span>
+					<%
+		                end
+		            %>
+		    		<%=render :partial=>"comment/sub_comment_add",:locals=>{:comment=>comment}%>
+			    </span>
+		<%
+			else
+		%>
+		
+		<%
+			end
+		%>
+	</span>
+</span>
+
+

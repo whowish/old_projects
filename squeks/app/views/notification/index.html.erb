@@ -1,0 +1,84 @@
+<%
+	max_notification = 20
+	notification_not_read = Notification.all(:conditions=>{:notified_facebook_id=>$facebook.facebook_id,:is_read=>false},:order=>"created_date desc")
+	notification_read = []
+	if notification_not_read.length < max_notification
+		limit = max_notification - notification_not_read.length
+		notification_read = Notification.all(:conditions=>{:notified_facebook_id=>$facebook.facebook_id,:is_read=>true},:order=>"created_date desc",:limit=>limit)
+	end 
+	@all_notification = notification_not_read + notification_read
+
+	@facebook_data_array = []
+	@figure_data_array = []
+	@comment_data_array = []
+	@bid_data_array = []
+
+	@all_notification.each { |entity|
+		@facebook_data_array.push(entity.facebook_id) if entity.facebook_id
+		@figure_data_array.push(entity.figure_id) if entity.figure_id
+		@comment_data_array.push(entity.comment_id) if entity.comment_id
+		@bid_data_array.push(entity.bid_request_id) if entity.bid_request_id
+	}
+
+	@facebook_data = {}
+	@figure_data = {}
+	@comment_data = {}
+	@bid_data = {}
+
+	Member.all(:conditions=>{:facebook_id=>@facebook_data_array}).each { |entity|
+		@facebook_data[entity.facebook_id] = entity
+	}
+
+	Figure.all(:conditions=>{:id=>@figure_data_array}).each { |entity|
+		@figure_data[entity.id] = entity
+	}
+
+	Comment.all(:conditions=>{:id=>@comment_data_array}).each { |entity|
+		@comment_data[entity.id] = entity
+	}
+	BidRequest.all(:conditions=>{:id=>@bid_data_array}).each { |entity|
+		@bid_data[entity.id] = entity
+	}
+%>
+
+<span class="span-98 margin-top-2">
+	<span class="span-68 height20">
+		<span class="float-left height20">
+			<span class="float-left font16 bold_font medium_dark_gray">
+				<%=word_for :notification_header%>
+			</span>
+		</span>
+	</span>
+	<span class="span-68 light_medium_gray_bg margin-top-2 font12 bold_font white">
+		<span class="span-68 height20">
+			<span class=" float-left margin-left-1">
+				<%=word_for :notification_desc%>
+			</span>
+		</span>
+		<span class="span-68 height01 medium_gray_bg">
+		</span>		
+	</span>
+	<%if @all_notification.length > 0 %>
+		<span class="span-68 notification_unit_all white_bg clearfix">
+			<ul>
+				<%
+					@all_notification.each do |@notification|
+						begin
+				%>
+						<%=render :partial=>"/notification/unit"%>
+				<%
+						rescue
+						end
+					end
+				%>
+			</ul>
+		</span>
+	<%else%>
+		<span class="span-68 notification_unit_all white_bg clearfix">
+			<span class="squeks_blue bold_font margin-top-2 margin-bottom-2">
+				<%=word_for :no_notification%>
+			</span>
+			<div style="height:0px;clear:left;">&nbsp;</div>
+		</span>
+	<%end%>
+</span>

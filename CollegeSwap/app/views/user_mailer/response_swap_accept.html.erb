@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html> 
+	<head> 
+		<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" /> 
+	</head> 
+	<body> 
+		<%=@title%>
+		<br/><br/>
+		Please arrange the swap with <%=@responder.name%>. You can contact <%=@responder.name%> in person or 
+		click <a href="<%=@url%>">here</a> to send an Facebook private message.
+		
+		<br/><br/>
+		<%if @request.response_message != "" and @request.response_message != nil%>
+			<%=@responder.name%> says:  <%=@request.response_message%>
+		<br/><br/>
+		<%end%>
+		Best regards,
+		<br/>
+		College Swap Team
+		<br/>
+	</body>
+</html>
+
+

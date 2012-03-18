@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<link rel="P3Pv1" href="/w3c/p3p.xml">
+		<meta http-equiv="P3P" policyref="/w3c/p3p.xml"  content='CP="<%=COMPACT_POLICY%>"'>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>EcoHealth</title>
+		
+		<%=stylesheet_link_tag("reset.css")%>
+		<%=stylesheet_link_tag("ecohealth.css")%>
+		<%=stylesheet_link_tag("button.css")%>
+		
+		
+		<%= javascript_include_tag "jquery-1.5.min.js"%>
+		<%= javascript_include_tag "jquery.relative_offset.1.0.js"%>
+		<%= javascript_include_tag "jquery.error_log.js"%>
+		<%= javascript_include_tag "jquery.loading_button.js"%>
+		<%= javascript_include_tag "jquery.json.js"%>
+		
+		<%= javascript_include_tag "basic.js"%>
+		<%= javascript_include_tag "form_validator_helper.js"%>
+		
+		<%=stylesheet_link_tag("/ruby_box/jquery.ruby_box.css")%>
+		<%= javascript_include_tag "/ruby_box/jquery.ruby_box.js" %>
+		
+		<%=stylesheet_link_tag("/default_text/jquery.default_text.css")%>
+		<%= javascript_include_tag "/default_text/jquery.default_text.js" %>
+	</head>
+	<body>
+		<div id="navigator">
+			<span class="float-left clearfix font14 bold_font margin-left-1">
+				<ul class="medium_dark_gray">
+	            	<li>
+	                	<a class="<%=(['home','activity'].include?(params[:controller]))?'selected':'tab'%> normal_font" href="/home">
+							 <%= word_for :home%>
+	                    </a>
+	                </li>
+	                <li>
+						<a class="<%=(params[:controller] == 'about')?'selected':'tab'%> normal_font medium_dark_gray" href="/about">
+	                    	 <%= word_for :about_us%>
+	                    </a>
+	                </li>
+					<li>
+						<a class="<%=(params[:controller] == 'activity')?'selected':'tab'%> normal_font medium_dark_gray" href="/activity">
+	                    	 <%= word_for :news%>
+	                    </a>
+	                </li>
+	                <!--<li>
+						<a class="<%=(params[:controller] == 'research')?'selected':'tab'%> normal_font medium_dark_gray" href="/research">
+	                    	 <%= word_for :research%>
+	                    </a>
+	                </li>-->
+	                <!--<li>
+						<a class="<%=(params[:controller] == 'trainning')?'selected':'tab'%> normal_font medium_dark_gray" href="/trainning">
+	                    	 <%= word_for :trainning%>
+	                    </a>
+	                </li>-->
+	                <li>
+						<a class="<%=(params[:controller] == 'conference')?'selected':'tab'%> normal_font medium_dark_gray" href="/conference">
+	                    	 <%= word_for :conference%>
+	                    </a>
+	                </li>
+	                <li>
+						<a class="<%=(params[:controller] == 'partnership')?'selected':'tab'%> normal_font medium_dark_gray" href="/partnership">
+	                    	 <%= word_for :partnership%>
+	                    </a>
+	                </li>
+	                <li>
+						<a class="<%=(params[:controller] == 'contact')?'selected':'tab'%> normal_font medium_dark_gray" href="/contact">
+	                    	 <%= word_for :contact_us%>
+	                    </a>
+	                </li>
+	            </ul>
+	        </span> 
+			<%if $member.is_guest%>
+		        <span class="float-left clearfix font12 bold_font margin-left-2 height24 medium_dark_gray_bg round_corner-4 padding_horizontal_6px dropblack_shadow" style="margin-top:13px;">
+					<a href="/member/login_register" class="white normal_font float-left">
+						 <%= word_for :login%>
+					</a>
+		            <span class="dot_between float-left margin-left-4px">
+		            </span>
+					<a href="/member/login_register" class="white normal_font float-left margin-left-4px">
+		                 <%= word_for :register%>
+		            </a>
+		        </span>
+			<%else%>
+				<span class="float-left clearfix font12 bold_font margin-left-2 height24 medium_dark_gray_bg round_corner-4 padding_horizontal_6px dropblack_shadow" style="margin-top:13px;">
+					<span class="float-left white normal_font">
+						<%= word_for :welcome,:name=>$member.name%> 
+					</span>
+					<span class="float-left">
+						|
+					</span>
+					
+					<a href="/member/edit_form" class="white normal_font float-left margin-left-4px">
+		                 <%= word_for :edit_profile%>
+		            </a> 
+					<span class="float-left">
+						|
+					</span>
+					<a href="/member/change_password_form" class="white normal_font float-left margin-left-4px">
+		                 <%= word_for :change_password%>
+		            </a> 
+					<span class="float-left">
+						|
+					</span>
+					<a href="/member/logout?redirect_url=<%=CGI.escape(request.path)%>" class="white normal_font float-left margin-left-4px">
+		                 <%= word_for :logout%>
+		            </a>
+		        </span>
+			<%end%>
+	        <span class="float-right">
+	        	<a href="#" class="logo_eco">
+	            </a>
+	        </span>       	
+	    </div>
+		<div id="container">
+	    	<%=yield%>
+		</div>
+	    <div id="footer">
+	    	<span class="logo">
+	        </span>
+	        <span class="copyright">
+	        </span>
+	    </div>
+	</body>
+</html>
+<script language="javascript">
+	function change_whowish_word(self,word_id,word_arg,event)
+	{
+		if (!event) event = window.event;
+		event.cancelBubble = true;
+		if (event.stopPropagation) event.stopPropagation();
+		
+		$(self).loading_button(true,{word:""});
+
+		var content = ""
+		$.ajax({
+			type: "POST",
+			url: '/whowish_word/get_word',
+			cache: false,
+			async: false,
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"word_id": word_id
+			},
+			success: function(data){
+				content = data.content;
+			}
+		});
+
+		$(self).loading_button(false);
+		var new_word = prompt("Please set "+word_id+":",content);
+
+		if (new_word == null) return
+		
+		$(self).loading_button(true,{word:""});
+
+		$.ajax({
+				type: "POST",
+				url: '/whowish_word/change_word',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"word_id":word_id,
+					"content":new_word
+				},
+				success: function(data){
+					$(self).loading_button(false);
+					try {
+						if (data.ok == true) {
+
+							for (var i in word_arg)
+							{
+								re = new RegExp("\{"+i+"\}","g")
+								new_word = new_word.replace(re, word_arg[i])
+							}
+
+							var the_container = $(self).parent().children('*:first')[0];
+
+							try {$(the_container).val(new_word);} catch (e) {}
+							try {$(the_container).html(new_word);} catch (e) {}
+
+						}
+						else {
+							alert(data.error_message);
+						}
+
+					}
+					catch (e) {
+						alert(e);
+					}
+
+				},
+				error: function(req, status, e){
+					$(self).loading_button(false);
+                    if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+	}
+
+</script>

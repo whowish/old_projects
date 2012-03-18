@@ -1,0 +1,152 @@
+<%
+		pending_discussions = Discussion.all(:conditions=>{:status=>Discussion::STATUS_PENDING})
+%>
+<span class="global_width">
+	<span class="span-98 margin-top-2">
+		<span class="span-98 height26">
+			<span class="float-left font18 bold_font medium_dark_gray">
+				<%=word_for(:approve_page)%>
+			</span>
+			<span class="float-right">
+				<span class="float-left">
+					<span class="margin-left-1">
+						<button class="gray_button" onclick="submit_approve_all(this,'approve');">
+							<%=word_for(:approve)%>
+						</button>
+					</span>
+					<span class="margin-left-1">
+						<button class="gray_button" onclick="submit_approve_all(this,'disapprove');">
+							<%=word_for(:disapprove)%>
+						</button>
+					</span>
+				</span>
+			</span>
+		</span>
+		<span class="span-98 margin-top-2">
+			<span class="span-98 white_bg clearfix">
+				<span class="span-96 margin-left-1 margin-top-1">
+					<span class="admin_table_figure">
+						<ul>
+							<li>
+								<span class="span-2">
+									&nbsp;
+								</span>
+								<span class="span-8">
+									<a href="#" class="squeks_blue">
+										Add Date
+									</a>
+								</span>
+								<span class="span-24">
+									<a href="#" class="squeks_blue">
+										title
+									</a>
+								</span>
+								<span class="span-24">
+									description
+								</span>
+								
+								<span class="span-18">
+									<a href="#" class="squeks_blue">
+										discussion added by
+									</a>
+								</span>
+								<span class="span-12 last_child">
+									&nbsp;
+								</span>
+							</li>
+							<%
+								pending_discussions.each do |discussion|
+							%>
+							<%= render :partial=>"/admin_approve_discussion/discussion_unit", :locals=>{:discussion=>discussion}%>
+						    <%end%>
+						</ul>
+					</span>
+
+					
+				</span>
+				<span class="span-98 height-1 display_block clearfix">
+				</span>
+			</span>
+			<span class="left_shadow">
+			</span>
+			<span class="right_shadow">
+			</span>
+		</span>
+	</span>
+</span>
+
+<script language="javascript">
+	function submit_approve_all(sender,action)
+	{
+		var all_chkboxes = $('input[id^=chkbox_discussion_]');
+		var discussions_id = [];
+		for ( var i=0;i<all_chkboxes.length;i++)
+		{
+			if (all_chkboxes[i].checked == true) 
+			{ 
+				discussions_id.push(all_chkboxes[i].value);
+			}
+		}
+		
+		approve(sender,discussions_id,action);
+		
+	}
+	function submit_approve(sender,discussion_id,action)
+	{
+		var discussions_id = [];
+		discussions_id.push(discussion_id);
+		approve(sender,discussions_id,action);
+	}
+	function approve(sender,discussion_list,action)
+	{
+		try {
+			
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_approve_discussion/'+action,
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"discussion_list": discussion_list.join(',')
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							for (var i in discussion_list) {
+								$('#result_'+discussion_list[i]).html(action + " successfully.");
+							}	
+						}
+						else {
+							$(sender).loading_button(false);
+							for (var i in data.error_message) {
+								try {
+									$('#discussion_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}	
+						}
+						$(sender).loading_button(false);
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			alert(e);
+		}
+	}		
+</script>

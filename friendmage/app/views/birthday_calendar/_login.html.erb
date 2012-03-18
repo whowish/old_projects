@@ -1,0 +1,39 @@
+<span class="span-98 clearfix">
+	<span class="span-38 clearfix" style="height:350px;overflow:hidden;">
+		<img src="../images/friend_calendar.jpg" alt=""  /> 
+	</span>
+	<span class="span-58 clearfix margin-left-2">
+		<%
+			if defined?(error) and error == true
+		%>
+			<span class="span-58 margin-top-1 font28 bold_font friendmage_red whiteShadow clearfix">
+				<%= word_for :oauth_problem%>
+			</span>
+			<span class="span-58 margin-top-1 font12 bold_font medium_dark_gray clearfix">
+				<%= word_for :oauth_problem_instruction%>
+			</span>
+		<%
+			else
+		%>
+		<span class="span-58 margin-top-1 font28 bold_font friendmage_red whiteShadow clearfix">
+			<%= word_for :connect_facebook%>
+		</span>
+		<span class="span-58 margin-top-1 font12 bold_font medium_dark_gray clearfix">
+			<%= word_for :connect_facebook_description%>
+		</span>
+		<%
+			end
+		%>
+		<span class="span-58 margin-top-2 clearfix">
+			<a id="facebook_login_button" href="<%=generate_permission_url(['user_photos','friends_photos','read_friendlists','manage_friendlists','user_birthday','friends_birthday','user_relationships','friends_relationships','offline_access'],'http://'+DOMAIN_NAME+request.path)%>" style="margin-top:10px;cursor:pointer;display:block;">
+                <img src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_medium_short.gif"  alt="Login with Facebook"/>
+            </a>
+		</span>
+		<span class="span-58 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+			<%= word_for :disclaimer%>
+		</span>
+		<span class="span-58 margin-top-1 font12 bold_font medium_dark_gray clearfix">
+			<%= word_for :disclaimer_description%>
+		</span>
+	</span>
+</span>

@@ -1,0 +1,412 @@
+/* ============================================================================================================================
+== CALENDAR
+** ============================================================================================================================ */
+
+.day_and_time_pick{
+	width:740px;
+	height:432px;
+	background-image:url(../images/calendar_box_bg.png);
+}
+a:hover{
+	text-decoration:underline;
+}
+
+.calendar {
+	width:350px;
+	overflow:hidden;
+	display:inline-block;
+	float:left;
+}
+
+.calendar_month_container {
+	width:350px;
+}
+
+.calendar_header {
+	text-align:center;
+	display:inline-block;
+	float:left;
+}
+
+.calendar_previous_button {
+	margin-top:10px;
+	content:"";
+	background-image: url(../images/icon.png);
+	background-position: -160px -160px;
+	height: 30px;
+	width: 20px;
+}
+.calendar_previous_button:hover {
+	background-position: -160px -190px;
+}
+
+
+.calendar_next_button {
+	margin-top:10px;
+	content:"";
+	background-image: url(../images/icon.png);
+	background-position: -180px -160px;
+	height: 30px;
+	width: 20px;
+}
+.calendar_next_button:hover {
+	background-position: -180px -190px;
+}
+
+.calendar_month_label {
+	font-size:38px;
+	font-weight:bolder;
+	color:#f7ec25;
+}
+.calendar_year_label {
+	font-size:38px;
+	color:#666666;
+	font-weight:lighter;
+}
+.calendar_unit, .calendar_header_unit {
+	width:50px;
+	height:50px;
+	display:inline-block;
+	text-align:right;
+	float:left;
+	overflow:hidden;
+	font-size: 22px;
+	font-weight: bold;
+}
+
+.calendar_unit:hover {
+	background-color:#EEEEEE;
+	background-image: url(../images/calendar_bg.png);
+	background-repeat: no-repeat;
+	background-position: 0px -100px;
+	color:#000;
+	text-shadow:1px 1px #FFF;
+}
+
+
+.calendar_unit_disabled {
+	width:50px;
+	height:50px;
+	display:inline-block;
+	text-align:right;
+	float:left;
+	overflow:hidden;
+	font-size: 22px;
+	font-weight: bold;
+	color: #444444 !important;
+	text-shadow: 1px 1px #666666 !important;
+	font-weight:bold;
+	background-image: url(../images/calendar_bg.png) !important;
+	background-position: 0px -306px !important;
+}
+
+
+.calendar_day_selected {
+	color: #000 !important;
+	text-shadow: 1px 1px #FFF !important;
+	font-weight:bold;
+	background-image: url(../images/calendar_bg.png) !important;
+	background-position: 0px -150px !important;
+}
+
+.calendar_day_selected:hover {
+	background-image: url(../images/calendar_bg.png) !important;
+	background-position: 0px -100px !important;
+	color: #000 !important;
+	text-shadow: 1px 1px #FFF !important;
+	font-weight:bold;
+}
+
+.calendar_header_day {
+	float:left;
+	width:50px;
+	display:block;
+}
+.calendar_color_day{
+	width:50px;
+	height:4px;
+	padding:0px;
+	margin:0px;
+	float:left;
+}
+.calendar_month_day {
+	color: #FFF;
+	text-shadow: 1px 1px #000;
+}
+.calendar_other_month_day {
+	color: #bbbbbb;
+	text-shadow:2px 2px #000;
+}
+
+.calendar_current_month_day {
+	
+}
+
+.calendar_day_0,.calendar_day_1,.calendar_day_2,.calendar_day_3,.calendar_day_4,.calendar_day_5,.calendar_day_6 {
+	background-image:url(../images/calendar_bg.png);
+	background-position: 0px 0px;
+}
+
+/*.calendar_day_0,.calendar_day_6 {
+	background-image:url(../images/calendar_bg.png);
+	background-position: 0px -50px;
+}*/
+/* ============================================================================================================================
+== TIME LINE
+** ============================================================================================================================ */
+
+.timeline_view {
+	overflow:auto;
+	height:525px;
+	display:block;
+	white-space:nowrap;
+}
+
+.timeline {
+	overflow:auto;
+	width:350px;
+	height:414px;
+	display:block;
+	white-space:nowrap;
+	background-color: #333333;
+	background-image: url(../images/pattern.jpg);
+}
+
+.timeline_unit_deselected {
+	color:#ffffff !important;
+	text-shadow: 1px 1px #000000;
+	background-image: url(../images/calendar_bg.png) !important;
+	background-position: 0px -200px !important;
+}
+
+.timeline_unit_selected {
+	color: #000 !important;
+	background-image: url(../images/calendar_bg.png) !important;
+	background-position: 0px -214px !important;
+	text-shadow: 1px 1px #FFF !important;
+	font-weight:bold;
+}
+
+.timeline_unit_selected:hover {
+	color:#000 !important;
+	text-shadow: 1px 1px #FFF !important;
+	background-image: url(../images/calendar_bg.png) !important;
+	background-position: 0px -228px !important;
+}
+
+.timeline_unit:hover {
+	background-image:url(../images/calendar_bg.png);
+	background-position:0px -242px;
+}
+
+.timeline_unit {
+	width:50px;
+	height:14px;
+	display:block;
+	font-size:10px;
+	text-align:center;
+	color:#FFF;
+	text-shadow:1px 1px #000;
+	font-weight:bold;
+	line-height:14px;
+}
+
+.timeline_column {
+	width:50px;
+	height: 390px;
+	display:inline-block;
+}
+
+.timeline_day_header {
+	width:50px;
+	height: 50px;
+	display:block;
+	font-weight:bold;
+	text-align:center;
+}
+.timeline_day_header .month{
+	font-size:20px;
+}
+.time_viewer{
+	height:530px;
+	width:55px;
+	float:left;
+	white-space:nowrap;
+}
+.time_unit_no_hover{
+	float:left;
+	height:20px;
+	width:55px;
+	display:block;
+	line-height:20px;
+	color:#a3a3a3;
+	text-shadow:1px 1px #000;
+	text-indent: 5px;
+}
+.time_unit{
+	float:left;
+	height:20px;
+	width:55px;
+	display:block;
+	line-height:20px;
+	color:#a3a3a3;
+	text-shadow:1px 1px #000;
+	text-indent: 5px;
+}
+.time_unit:hover{
+	color:#FFF;
+	text-shadow:1px 1px #000;
+	background-color: #ccc;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -260px;
+}
+.time_unit_selected {
+	float:left;
+	height:20px;
+	width:55px;
+	display:block;
+	text-indent: 5px;
+	line-height:20px;
+	color: #000 !important;
+	background-image: url(../images/timeline_bg.png) !important;
+	background-position: 0px -240px !important;
+	text-shadow: 1px 1px #FFF !important;
+	font-weight:bold;
+}
+
+
+/*==================================================================================================================================
+====  Day Color 
+==================================================================================================================================*/
+.calendar_header_day_0{background-color:#fdbac6;}
+.calendar_header_day_1{background-color:#f1efb4;}
+.calendar_header_day_2{background-color:#f2bde1;}
+.calendar_header_day_3{background-color:#9fe6da;}
+.calendar_header_day_4{background-color:#e2d5ad;}
+.calendar_header_day_5{background-color:#7ad2eb;}
+.calendar_header_day_6{background-color:#c9a8e2;}
+
+.timeline_day_0{background-color:#fdbac6;}
+.timeline_day_1{background-color:#f1efb4;}
+.timeline_day_2{background-color:#f2bde1;}
+.timeline_day_3{background-color:#9fe6da;}
+.timeline_day_4{background-color:#e2d5ad;}
+.timeline_day_5{background-color:#7ad2eb;}
+.timeline_day_6{background-color:#c9a8e2;}
+
+
+.am_time_view {
+	background-image:url(../images/timeline_bg.png);
+	background-position: 0px -20px;
+	height: 20px;
+	width: 55px;
+	
+}
+.pm_time_view {
+	background-image:url(../images/timeline_bg.png);
+	background-position: 0px 0px;
+	height: 20px;
+	width: 55px;
+}
+.level_1{
+	font-weight:bold;
+	background-color:#5bedd0;
+	color:#000 !important;
+	text-shadow:1px 1px #FFF !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -40px;
+}
+.level_2{
+	font-weight:bold;
+	background-color:#5aedd0;
+	color:#000 !important;
+	text-shadow:1px 1px #FFF !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -60px;
+}
+.level_3{
+	font-weight:bold;
+	background-color:#57e2cc;
+	color:#000 !important;
+	text-shadow:1px 1px #FFF !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -80px;
+}
+.level_4{
+	font-weight:bold;
+	background-color:#54d2c8;
+	color:#000 !important;
+	text-shadow:1px 1px #FFF !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -100px;
+}
+.level_5{
+	font-weight:bold;
+	background-color:#4fc0c1;
+	color:#000 !important;
+	text-shadow:1px 1px #FFF !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -120px;
+}
+.level_6{
+	font-weight:bold;
+	background-color:#4aacbb;
+	color:#000 !important;
+	text-shadow:1px 1px #FFF !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -140px;
+}
+.level_7{
+	font-weight:bold;
+	background-color:#4699b5;
+	color:#000 !important;
+	text-shadow:1px 1px #fff !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -160px;
+}
+.level_8{
+	font-weight:bold;
+	background-color:#4186af;
+	color:#000 !important;
+	text-shadow:1px 1px #FFF !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -180px;
+}
+.level_9{
+	font-weight:bold;
+	background-color:#3d77aa;
+	color:#000 !important;
+	text-shadow:1px 1px #FFF !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -200px;
+}
+.level_10{
+	font-weight:bold;
+	background-color:#3b6ca6;
+	color:#000 !important;
+	text-shadow:1px 1px #FFF !important;
+	background-image: url(../images/timeline_bg.png);
+	background-position: 0px -220px;
+}
+
+.depth-day-0{
+	background-color:#d47686;
+}
+.depth-day-1{
+	background-color:#c7c54f;
+}
+.depth-day-2{
+	background-color:#d341a2;
+}
+.depth-day-3{
+	background-color:#3a9e8a;
+}
+.depth-day-4{
+	background-color:#ea9316;
+}
+.depth-day-5{
+	background-color:#1a7fad;
+}
+.depth-day-6{
+	background-color:#703393;
+}

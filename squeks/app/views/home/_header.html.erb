@@ -1,0 +1,164 @@
+<div id="navigator" class="clearfix">
+    <span class="global_width height-4" style="position:relative;">
+
+        <a href="/home/landing">
+            <span class="logo_squeks float-left clearfix">
+            </span>
+        </a>
+		<%
+			if !$facebook.is_guest
+		%>
+            <span class="anonymous_mode clearfix">
+                <span id="anonymous_switch" class="anonymous_slide_bg" onmousedown="$(this).toggle_switch_button(share_option_changed_callback);">
+                    <span class="anonymous_slider" style="<%='margin-left:50px;' if $facebook.is_anonymous == true%>">
+                    </span>
+                </span>
+            </span>
+			<%=render :partial=>"notification/hover_panel"%>
+		<%
+			end
+		%>
+        <span class="span-27 margin-left-2 clearfix">
+            <div style="height:0px;clear:left;">&nbsp;</div>
+            <span class="span-27 height26 squeks_light_gray_blue_bg" style="margin-top:7px;">
+                <input type="text" id="search_keyword" class="search_input span-23" value="<%=params[:q]%>" style="line-height:26px;" onkeypress="if(event.keyCode==13)search_item();" />
+                <a href="#" class="search_button" onclick="search_item();return false;"></a>
+            </span>
+        </span>
+		<span class="span-2 margin-left-1">
+			<a href="/figure?add_title=" title="Add new figure">
+				<span class="add_figure_button">
+				</span>
+			</a>
+		</span>
+		
+        <span class="float-right clearfix font14 bold_font">
+            <ul class="float-left medium_dark_gray line_height26px">
+                <li>
+                    <a class="<%=(params[:controller] == 'profile')?'tab':'selected'%>" href="/home/landing">
+                        <%=word_for :home%>
+                    </a>
+                </li>
+                <li>
+                    <a class="<%=(params[:controller] == 'profile')?'selected':'tab'%>" href="/profile">
+                        <%=word_for :profile%>
+                    </a>
+                </li>
+            </ul>
+            <span class="float-left height-4 margin-left-1">
+                <%
+                    if $member.is_guest
+						
+						facebook_redirect_url = "http://"+DOMAIN_NAME+request.path
+
+						if params[:controller] == "home" and @figure
+							facebook_redirect_url = "http://"+DOMAIN_NAME + @figure.get_url(false)
+						end
+						
+	
+                %>
+                    <a id="facebook_login_button" href="https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape(facebook_redirect_url)%>" style="margin-top:10px;cursor:pointer;display:block;">
+                        <img src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_medium_short.gif"  alt="Login with Facebook"/>
+                    </a>
+                    <span class="ballon" id="must_login_balloon" style="display:none;margin-left:-300px;margin-top:5px;">
+                        <span class="ballon_arrow" style="margin-left:350px;">
+                        </span>
+                        <span class="ballon_content" style="margin-left:70px;">
+                            <%=word_for :login_first%><br />
+                            <p><%=word_for :login_instrcution%> </p>
+                        </span>
+                    </span>
+                <%
+                    else
+                %>
+                    <span class="facebook_id_pic_nav float-left" style="background-image:url(<%=$facebook.profile_picture_url%>);">
+                        <img src="<%=$facebook.profile_picture_url%>" width="40" height="40"/>
+                    </span>
+                    <span class="float-left height-4 margin-left-5px">
+                        <span class="height-2 display_block font10 bold_font" title="Your Squeks dollars" style="white-space:nowrap;overflow:hidden;line-height:20px;">
+                            <a href="#" onclick="$.whowish_box({url:'/misc/help_credit',background_color:'#54a8e3'});return false;">
+								<span class="float-left" id="squeks_credit_unit">
+                                	<span class="float-left squeks_coin">
+									</span>
+									<span class="float-left font11 bold_font dark_gray" id="squeks_credit_label">
+										<%=number_with_delimiter($facebook.credits)%>
+									</span>
+								</span>
+							</a>
+                        </span>
+                        <span class="height-2  font10 bold_font" style="line-height:20px;">
+                            <a href="/logout?redirect_url=<%=CGI.escape("http://"+DOMAIN_NAME+request.path)%>" class="medium_dark_gray" onclick="">
+                              <img src="http://static.ak.fbcdn.net/images/fbconnect/logout-buttons/logout_small.gif" alt="Logout"/>
+                            </a>
+                        </span>
+						
+                    </span>
+                <%
+                    end
+                %>
+            </span>
+        </span>
+
+    </span>
+</div>
+<script language="javascript">
+	
+	$('#search_keyword').autocomplete('/search/suggest', {
+		width:298,
+		scroll: false,
+		minChars: 2,
+		marginLeft: -5,
+		parse: function(data)
+		{
+			if (data.ok == false) return [];
+			
+			var parsed = [];
+			for (var i=0; i < data.figures.length; i++) {
+				parsed.push({
+					data: data.figures[i],
+					value: data.figures[i].id+"",
+					result: function(data) {
+						location.href='/home/'+data.figure.title;
+						return data.figure.title;
+					}
+				});
+			}
+			return parsed;
+		},
+		formatItem: function(data, i, n, value) {
+			return "<span class='round_corner-4' style='background-image:url("+data.figure.thumbnail_url+");float:left;width:50px;height:50px;display:inline-block;'>" +
+					"</span>" +
+					"<span style='float:left;line-height:50px;width:230px;margin-left:5px;display:inline-block;overflow:hidden;white-space:nowrap;'>" +
+					data.figure.title +
+					"</span>";
+		},
+		formatResult: function()
+		{
+			console.info(arguments);
+		}
+		
+	});
+	
+	function search_item(options) {
+		
+		var o = {
+			q:$('#search_keyword').val(),
+			offset:0,
+			limit:20,
+			sort:"name",
+			view:"thumbnail"
+		}
+		
+		if (options != undefined)
+		{
+			$.extend(o,options);
+		}
+		
+		location.href = '/search?q='+encodeURI(o.q)		
+						+'&offset='+o.offset
+						+'&limit='+o.limit
+						+'&sort='+o.sort
+						+'&view='+o.view
+	}
+
+</script>

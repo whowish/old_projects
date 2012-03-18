@@ -1,0 +1,110 @@
+<div id="global-container">
+	<span class="span-72 margin-left-2" style="overflow: auto;height:400px;">
+		<span class="span-70 height20">
+			<span class="span-12 light_gray_bg bold_font fontsize12 medium_dark_gray">
+				<span class="margin-left-1">
+					&nbsp;
+				</span>
+			</span>
+			<span class="span-30">
+				<span class="span-30 light_blue_bg medium_dark_gray fontsize12 bold_font">
+					<span class="dark_blue_bg verticle_line float-left height20">
+					</span>
+					<span class="margin-left-1">
+						What I want...
+					</span>
+				</span>
+			</span>
+			<span class="span-28">
+				<span class="span-28 light_green_bg medium_dark_gray fontsize12 bold_font">
+					<span class="whowish_green_bg verticle_line float-left height20">
+					</span>
+					<span class="margin-left-1">
+						What I have...
+					</span>
+				</span>
+			</span>
+		</span>
+		<div id="search_result_container">
+			<%
+				friend_sql = ""
+				college_sql = ""
+				
+				if type == "friend"
+					friend_sql = " AND facebook_id in ('"+$facebook.all_friends["data"].map{ |i| i["id"] }.join("','")+"')"
+				end
+			
+				if college_name != ""
+					college = College.first(:conditions=>{:name=>college_name})
+			
+					if college
+						college_sql = " AND college_id = '"+college.college_id.to_s+"'"
+					else
+						college_sql = " AND 0"
+					end
+				end
+			
+				item_wish_sql = "item_type ='WISH'"
+				item_wish_sql += " AND title LIKE '%%"+wish+"%%'" if defined?(wish)
+
+				if defined?(wish_category_id)
+					ids = [wish_category_id]
+					cats = Category.all(:conditions=>{:parent_id=>wish_category_id})
+					cats.each { |c|
+						ids.push(c.id);
+					}
+					
+					item_wish_sql += " AND category_id in ('"+ids.join("','")+"')"
+				end
+
+				item_wish_sql = "(" + item_wish_sql+")"
+			
+				item_junk_sql = "item_type ='JUNK'"
+				item_junk_sql += " AND title LIKE '%%"+junk+"%%'" if defined?(junk)
+
+				if defined?(junk_category_id)
+					ids = [junk_category_id]
+					cats = Category.all(:conditions=>{:parent_id=>junk_category_id})
+					cats.each { |c|
+						ids.push(c.id);
+					}
+					
+					item_junk_sql += " AND category_id in ('"+ids.join("','")+"')"
+				end
+
+				item_junk_sql = "(" + item_junk_sql+")"
+			
+				connection = ActiveRecord::Base.connection();
+				records = connection.execute("SELECT DISTINCT facebook_id FROM items WHERE ("+item_wish_sql+" OR " + item_junk_sql + ")")
+			
+				facebook_ids = []    
+			
+				while true
+					obj = records.fetch_row()
+			
+					break if !obj
+			
+					facebook_ids.push(obj[0])
+				end
+			
+				facebook_id_sql = ""
+			
+				if facebook_ids.length > 0
+					facebook_id_sql = " AND facebook_id in ('"+facebook_ids.join("','")+"')"
+				end 
+			
+				members = Member.all(:conditions=>["1 " + friend_sql + " " + college_sql + " " + facebook_id_sql +" AND NOT(facebook_id='"+$facebook.facebook_id+"')" ])
+			
+				if members.length == 0
+			%>
+				<span class="span-70">No match</span>
+			<%
+				else
+					members.each do |member|
+			%>
+						<%=render :partial=>"user_block",:locals=>{:facebook_id=>member.facebook_id,:q_wish=>wish,:wish_category_id=>wish_category_id,:q_junk=>junk,:junk_category_id=>junk_category_id}%>
+			<% 		end
+				end%>
+		</div>
+	</span>
+</div>

@@ -1,0 +1,93 @@
+<span class="firstChild span-68 white_bg" id="discussion_unit_<%=discussion.id%>">
+	<%
+		discussion_love = DiscussionLove.first(:conditions=>{:discussion_id=>discussion.id,:facebook_id=>$facebook.facebook_id})
+		if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_LOVE
+	%>
+    	<a href="#" class="love_button youlove_this" >
+    	</a>
+	<%else%>
+		<a href="#" class="love_button" onclick="submit_discussion_love(this,'<%=DiscussionLove::TYPE_LOVE%>',<%=discussion.id%>,false,'unit');return false;">
+    	</a>
+	<%end%>
+	<a href="#" class="love_button loading" style="display:none;" id="love_button_loading_discussion_unit_<%=discussion.id%>">
+		<img src="/images/button_loader.gif" style="margin-left:42%;margin-top:42%;">
+    </a> 
+	<span class="span-55 margin-left-1">
+		<span class="span-55 font14 bold_font" style="white-space:nowrap;overflow:hidden;">
+			<a href="/discussion/view/<%=discussion.id%>" target="_discussion_<%=discussion.id%>" class="dark_gray">
+				<%=discussion.title%>
+			</a>
+		</span>
+		<span class="span-54 small-meter">
+		<!--==== (width(550) - pinkMargin(2) = 548 =================================================-->
+			<%
+              love_width, hate_width = calculate_love_hate_width(discussion.loves,discussion.hates,538)
+			  total_love_hate = discussion.loves+discussion.hates
+			  percent_love = 0
+			  percent_love = (((discussion.loves*100)/total_love_hate)) if total_love_hate > 0
+			  percent_hate = 100 - percent_love
+            %>
+			<span class="pink-meter-small" style="width:<%=love_width%>px;">
+			</span>
+			<span class="gray-meter-small" style="width:<%=hate_width%>px;">
+			</span>
+		</span>
+		<span class="span-54 font10 medium_dark_gray">
+			<span class="float-left font10 medium_dark_gray">
+				<%
+					if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_LOVE
+				%>
+					You and
+				<%
+					end
+				%>
+				<%= word_for :love,:number=>discussion.loves%>
+			</span>
+			<span class="float-right font10 medium_dark_gray ">
+				<%
+					if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_HATE
+				%>
+					You and
+				<%
+					end
+				%>
+				<%= word_for :hate,:number=>discussion.hates%>
+			</span>
+			
+		</span>	
+		<span class="span-54" style="margin-top:2px;">
+			<span class="float-left font10 light_font medium_gray">
+				<%=semantic_time(discussion.created_date)%>
+			</span>
+			<span class="float-right">
+				<a href="#" title="Share on Facebook" class="comment_share_icon-facebook margin-left-1" onclick="$.whowish_box({url:'/discussion/discussion_share?id=<%=discussion.id%>',background_color:'#54a8e3'});return false;">
+				</a>
+				<a href="#" title="Tweet" class="comment_share_icon-twitter margin-left-1" onclick="window.open('http://www.twitter.com/share?url=http://<%=DOMAIN_NAME%>/discussion/view/<%=discussion.id.to_s%>','mywindow','width=600,height=400');return false;">
+				</a>
+				<%
+					if $facebook.is_aesir
+				%>
+					<a href="#" class="comment_share_icon-delete margin-left-1" title="Delete" onclick="$.whowish_box({url:'/discussion/confirm_delete?discussion_id=<%=discussion.id%>'});return false;"></a>
+				<%	
+					end
+				%>
+			</span>
+		</span>										
+	</span>
+	<%
+		if discussion_love and discussion_love.love_type == DiscussionLove::TYPE_HATE
+	%>
+		<a href="#" class="hate_button youhate_this" >
+        </a>
+	<%
+		else
+	%>
+        <a href="#" class="hate_button" onclick="submit_discussion_love(this,'<%=DiscussionLove::TYPE_HATE%>',<%=discussion.id%>,false,'unit');return false;">
+        </a>
+	<%
+		end
+	%>
+	<a href="#" class="hate_button loading" style="display:none;" id="hate_button_loading_discussion_unit_<%=discussion.id%>">
+		<img src="/images/button_loader.gif" style="margin-left:42%;margin-top:42%;">
+    </a> 
+</span>

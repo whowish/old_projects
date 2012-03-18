@@ -1,0 +1,76 @@
+<span class="row" id="partner_unit_<%=partner.id%>" style="margin-top:10px;border-bottom:1px solid #999999;">
+	<span class="toolbox_container">
+		<a href="#" class="blue_button_small" id="partner_submit_button_<%=partner.id%>" onclick="edit_partner(this,<%=partner.id%>);return false;"><%= word_for :edit%></a>
+		<a href="#" class="orange_button_small" id="partner_delete_button_<%=partner.id%>" onclick="delete_partner(this,<%=partner.id%>);return false;"><%= word_for :delete%></a>
+	</span>
+	<span class="name_container" style="width:300px;">
+		Name:<br/>
+		<input id="partner_name_<%=partner.id%>" type="text" class="span-30" value="<%=partner.name%>" /><br/>
+		URL:<br/>
+		<input id="partner_url_<%=partner.id%>" type="text" class="span-30" value="<%=partner.url%>" /><br/>
+		Country:<br/>
+		<input id="partner_country_<%=partner.id%>" type="text" class="span-30" value="<%=partner.country%>" /><br/>
+		Ordered Number:<br/>
+		<input id="partner_ordered_number_<%=partner.id%>" value="<%=partner.ordered_number%>" type="text" class="span-30" /><br/>
+		Description:<br/>
+		<textarea id="partner_description_<%=partner.id%>" class="span-30" style="height:110px;" name="<%=rand()%>"><%=partner.description%></textarea>
+	</span>
+	<span class="partner_image_container" style="width:290px;overflow:visible;margin-left:10px">
+		<a href="#" class="gray_button_small" id="partner_upload_image_button_<%=partner.id%>">Upload Image</a>
+		<span id="partner_image_panel_<%=partner.id%>" style="display:block;width:300px;float:left;margin-top:5px;">
+			<%
+				if partner.original_image_path != "" and partner.original_image_path != nil
+			%>
+				<img src="/uploads/<%=partner.original_image_path%>"/>
+			<%
+				end
+			%>
+		</span>
+	</span>
+</span>
+<script language="javascript">
+	new AjaxUpload('partner_upload_image_button_<%=partner.id%>', {
+			action: '/admin_partner/upload_image',
+			name: 'Filedata',
+			responseType: "json",
+			data:{
+				authenticity_token: "<%=form_authenticity_token%>",
+				partner_id:"<%=partner.id%>"
+			},
+			onSubmit: function(file, extension) {			
+				if (extension && /^(jpg|png|jpeg|gif)$/.test(extension.toLowerCase())) {
+					$('#partner_upload_image_button_<%=partner.id%>').loading_button(true);
+				}
+				else
+				{
+					alert("Only JPEG, GIF, and PNG are allowed.");
+					return false;
+				}
+			},
+			onComplete : function(file,response){
+				
+				$('#partner_upload_image_button_<%=partner.id%>').loading_button(false);
+				
+				try {
+					if (response.ok == true) {
+						
+						$('#partner_image_panel_<%=partner.id%>').html(" \
+							<img src='"+response.filename+"'/> \
+							");
+					}
+					else {
+						alert(response.error_message);
+					}
+					
+				} catch (e)
+				{
+					
+				}
+			},
+			onError: function (errorObj)
+			{
+				alert(errorObj);
+				$('#partner_upload_image_button_<%=partner.id%>').loading_button(false);
+			}
+		});	
+</script>

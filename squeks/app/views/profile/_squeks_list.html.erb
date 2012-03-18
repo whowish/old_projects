@@ -1,0 +1,229 @@
+<%
+	params[:limit] ||= 10
+	params[:offset] ||= 0
+	params[:limit] = params[:limit].to_i
+	params[:offset] = params[:offset].to_i
+	
+	params[:sort] ||= "most_recent"
+	order_by = "created_date DESC"
+	order_by = "is_anonymous ASC, created_date DESC" if params[:sort] == 'public'
+	order_by = "is_anonymous DESC, created_date DESC" if params[:sort] == 'anonymous'	
+	
+	love_count = 0
+	hate_count = 0
+	loves = []
+	hates = []
+
+	if params[:user_id].to_i == $facebook.facebook_id
+		love_count = FigureLove.count(:conditions=>{:facebook_id=>params[:user_id],:love_type=>FigureLove::TYPE_LOVE})
+		hate_count = FigureLove.count(:conditions=>{:facebook_id=>params[:user_id],:love_type=>FigureLove::TYPE_HATE})
+		
+		loves = FigureLove.all(:conditions=>{:facebook_id=>params[:user_id],:love_type=>FigureLove::TYPE_LOVE},:order=>order_by,:offset=>params[:offset],:limit=>params[:limit])
+		hates = FigureLove.all(:conditions=>{:facebook_id=>params[:user_id],:love_type=>FigureLove::TYPE_HATE},:order=>order_by,:offset=>params[:offset],:limit=>params[:limit])
+
+	else
+		love_count = FigureLove.count(:conditions=>{:facebook_id=>params[:user_id],:love_type=>FigureLove::TYPE_LOVE,:is_anonymous=>false})
+		hate_count = FigureLove.count(:conditions=>{:facebook_id=>params[:user_id],:love_type=>FigureLove::TYPE_HATE,:is_anonymous=>false})
+		
+		loves = FigureLove.all(:conditions=>{:facebook_id=>params[:user_id],:love_type=>FigureLove::TYPE_LOVE,:is_anonymous=>false},:order=>"created_date DESC",:offset=>params[:offset],:limit=>params[:limit])
+		hates = FigureLove.all(:conditions=>{:facebook_id=>params[:user_id],:love_type=>FigureLove::TYPE_HATE,:is_anonymous=>false},:order=>"created_date DESC",:offset=>params[:offset],:limit=>params[:limit])
+	end
+	
+%>
+<script language="javascript">
+
+    function anonymity_callback(figure_love_id)
+    {
+        change_love_anonymity(figure_love_id,$('#anonymous_'+figure_love_id+'_switch_button').get_switch_button_value())
+    }
+
+	function change_love_anonymity(figure_love_id,is_anonymous)
+	{
+		//$(sender).loading_button(true,{text:""});
+			var data = {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"figure_love_id": figure_love_id,
+				"is_anonymous": is_anonymous
+			};
+			$.ajax({
+				type: "POST",
+				url: '/figure/change_love_anonymity',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						//$('#figure_love_unit_'+figure_love_id).replaceWith(response.html)
+					}
+					//$(sender).loading_button(false);
+				},
+				error: function(req,status,e){
+					//$(sender).loading_button(false);
+                    if (req.status == 0) return;
+				}
+			});
+
+	}
+
+</script>
+<span class="span-34 margin-left-1 clearfix">
+	<span class="float-left height20 margin-top-1">
+		<span class="float-left font11 bold_font medium_dark_gray">
+			<%=word_for(:sort_by)%>
+		</span>
+			
+		<span class="comment_filter font12 margin-left-1">
+			<ul class="medium_dark_gray">
+				<li>
+					<a class="<%=(params[:sort] == 'most_recent')?'selected':'tab'%>" href="/profile?user_id=<%=params[:user_id]%>&sort=most_recent&view=squeks">
+						<span>
+							<%=word_for(:sort_most_recent)%>
+						</span>
+					</a>
+				</li>
+                <%
+                    if params[:user_id].to_i == $facebook.facebook_id
+                %>
+				<li>
+					<a class="<%=(params[:sort] == 'public')?'selected':'tab'%>" href="/profile?user_id=<%=params[:user_id]%>&sort=public&view=squeks">
+						<span>
+							<%=word_for(:sort_public)%>
+						</span>
+					</a>
+				</li>
+				<li>
+					<a class="<%=(params[:sort] == 'anonymous')?'selected':'tab'%>" href="/profile?user_id=<%=params[:user_id]%>&sort=anonymous&view=squeks">
+						<span>
+							<%=word_for(:sort_anonymous)%>
+						</span>
+					</a>
+				</li>
+                <%
+                    end
+                %>
+			</ul>
+		</span>
+	</span>
+	<span class="love_hate_unit span-34 margin-top-1">
+			<ul>
+				<li class="span-34 huneysuckle_pink_shadow_bg">
+					<span class="huneysuckle_pink_bg font14 white figure_header">
+                        <%=word_for :love_list%>
+                    </span>
+				</li>
+				<%
+					if love_count == 0
+				%>
+						<span class="span-24  fontsize14 bold_font medium_dark_gray">
+							<%=word_for(:no_love_list)%>
+						</span>
+				<%	
+					elsif love_count > 0 and loves.length == 0
+				%>
+			
+				<%
+					else
+						loves.each do |love|
+				%>
+					<%=render :partial=>"profile/figure_unit",:locals=>{:figure_love=>love}%>
+				<% 		end
+				 	end
+				%>
+				
+			</ul>
+		</span>
+</span>
+<span class="span-34 margin-left-1 clearfix">
+	<span class="float-left height20 margin-top-1">
+		&nbsp;
+	</span>
+	<span class="love_hate_unit span-34 margin-top-1">
+			<ul>
+				<li class="span-34 dark_gray_bg">
+					<span class="medium_dark_gray_bg font14 white figure_header">
+                      <%=word_for :hate_list%>
+                    </span>
+				</li>
+				<%
+					if hate_count == 0
+				%>
+						<span class="span-24  fontsize14 bold_font medium_dark_gray">
+							<%=word_for(:no_hate_list)%>
+						</span>
+				<%	
+					elsif hate_count > 0 and hates.length == 0
+				%>
+			
+				<%
+					else
+						hates.each do |hate|
+				%>
+					<%=render :partial=>"profile/figure_unit",:locals=>{:figure_love=>hate}%>
+				<% 		end
+				 	end
+				%>
+				
+			</ul>
+		</span>
+		
+</span>
+<%
+	count = (love_count < hate_count) ? hate_count : love_count;
+
+	if count > 0
+		number_of_pages = (count.to_f/params[:limit].to_f).ceil
+%>
+	<span class="span-68 margin-left-1 margin-top-1">
+		<span class="total_page squeks_blue_bg">
+			<%=word_for :paging, :current_page=>((params[:offset]+1).to_f/params[:limit].to_f).ceil, :total_page=>number_of_pages%>
+		</span>
+		<span class="page_number">
+			<ul>
+				<%
+					pages = []
+
+					current_page = (params[:offset] / params[:limit])+1
+
+					number_of_pages = (count.to_f/params[:limit].to_f).ceil
+					if number_of_pages > 10
+						pages = [current_page]
+
+						
+						# span on current page
+						(1..5).each { |i|
+							pages.unshift(current_page-i) if (current_page-i) >= 1
+							pages.push(current_page+i)  if (current_page+i) <= number_of_pages
+						}
+
+
+						# add head and tail
+						[3,2,1].each { |i|
+							logger.debug { "#{i} #{pages.first}" }
+							pages = pages.unshift(i) if i < pages.first
+							pages = pages.push(number_of_pages - i + 1) if (number_of_pages - i + 1) > pages.last
+						}
+						
+					else
+						pages = (1..number_of_pages)
+					end
+
+					last = 0
+					pages.each do |i|
+					
+						if i > (last+1)
+				%>
+							<li>...</li>
+				<%
+						end
+				%>
+						<li><a href="/profile?user_id=<%=params[:user_id]%>&offset=<%=params[:limit]*(i-1)%>&limit=<%=params[:limit]%>&view=squeks&sort=<%=params[:sort]%>" <%='class="active"' if i == current_page%>><%=i%></a></li>
+				<%
+						last = i
+					end
+				%>
+			</ul>
+		</span>
+	</span>
+<%
+	end
+%>

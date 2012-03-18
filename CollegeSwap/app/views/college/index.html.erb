@@ -1,0 +1,110 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span id="item_flow_content" class="span-50 margin-bottom-1">
+	<span class="span-48 margin-left-1 margin-top-1">
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-15" ><%=word_for :country%>:</span> 
+			<span class="span-31 ">
+				<select id="college_country">
+					<%
+						Country.all(:order=>"name ASC").each do |country|
+					%>
+						<option value="<%=country.code%>" <%='selected' if country.code == $facebook.country_code%>><%=country.name%></option>
+					<%
+						end
+					%>
+				</select>
+			</span>
+		</span>
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-15" ><%=word_for :college%>:</span> 
+			<span class="span-31 ">
+				<input class="dark_gray span-31 postbox_input" id="college_name" value="<%=@college_name%>" type="text" />
+			</span>
+		</span>
+		<!--<span class="form_unit span-48 medium_dark_gray " >
+			<span class="span-15" >&nbsp;</span> 
+			<span class="span-31 fontsize11 light_dark_gray">
+				*The currency of your items will change to that of the country where the college islocated.
+			</span>
+		</span>-->
+		<span class="span-48 margin-bottom-1">
+			<span class="span-15" >&nbsp;</span> 
+			<span class="span-31">
+				<a href="#" class="facebook_button" onclick="submit_college(this);return false;">
+					<%=word_for :save_button%>
+				</a>
+			</span>
+		</span>
+	</span>
+</span>
+<div style="height:0px;clear:left;">&nbsp;</div>
+<script language="javascript">
+	function submit_college(button)
+	{
+		$(button).loading_button(true);
+		
+		$.ajax({
+				type: "POST",
+				url: '/college/save',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token:"<%=form_authenticity_token%>",
+					college_name: $('#college_name').val(),
+					country_code: $('#college_country').val()
+				},
+				success: function(response){
+					try {
+						if (response.ok == true) {
+							location.href = '/';
+							return;
+						} else {
+							$('#college_name').ruby_box(true,response.error_message)
+						}
+					} 
+					catch (e) {
+						alert(e);
+						$.error_log('submit_college', e);
+					}
+					
+					$(button).loading_button(false);
+					
+				},
+				error: function(req, status, e){
+					$(button).loading_button(false);
+				}
+			});
+	}
+	
+	$(function() {
+		$("#college_name").autocomplete('/college/list',{
+			extraParams: {
+				country_code: function(){
+					return $('#college_country').val();	
+				}
+			},
+			parse : function(data) {
+				//data = $.parseJSON(data);
+				
+				var parsed = [];
+				var rows = data.result;
+				for (var i=0; i < rows.length; i++) {
+					var row = $.trim(rows[i]);
+					if (row) {
+						parsed[parsed.length] = {
+							data: [row],
+							value: row,
+							result: row
+						};
+					}
+				}
+				return parsed;
+			},
+			matchContains: true
+		});
+	})
+	
+	$('#college_name').default_text("<%=word_for :college_name_default_text%>",true);
+</script>

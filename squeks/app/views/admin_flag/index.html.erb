@@ -1,0 +1,115 @@
+<%
+	params[:type] ||= "figure"
+	flags = Flag.all(:conditions=>{:flag_type=>params[:type]},:order=>"created_date asc")
+	
+	@facebook_data_array = []
+	@figure_data_array = []
+	@comment_data_array = []
+	
+	flags.each { |entity|
+		@facebook_data_array.push(entity.facebook_id) if entity.facebook_id
+		@figure_data_array.push(entity.figure_id) if entity.figure_id
+		@comment_data_array.push(entity.comment_id) if entity.comment_id
+	}
+
+	@facebook_data = {}
+	@figure_data = {}
+	@comment_data = {}
+	
+	Member.all(:conditions=>{:facebook_id=>@facebook_data_array}).each { |entity|
+		@facebook_data[entity.facebook_id] = entity
+	}
+	Figure.all(:conditions=>{:id=>@figure_data_array}).each { |entity|
+		@figure_data[entity.id] = entity
+	}
+	Comment.all(:conditions=>{:id=>@comment_data_array}).each { |entity|
+		@comment_data[entity.id] = entity
+	}
+%>
+<span class="span-34 margin-left-1 clearfix">
+	<span class="float-left height20 margin-top-1">
+		<span class="float-left font11 bold_font medium_dark_gray">
+			<%=word_for(:type)%>
+		</span>
+			
+		<span class="comment_filter font12 margin-left-1">
+			<ul class="medium_dark_gray">
+				<li>
+					<a class="<%=(params[:type] == 'figure')?'selected':'tab'%>" href="/admin_flag?type=figure">
+						<span>
+							<%=word_for(:figure)%>
+						</span>
+					</a>
+				</li>
+				<li>
+					<a class="<%=(params[:type] == 'public')?'selected':'tab'%>" href="/admin_flag?type=comment">
+						<span>
+							<%=word_for(:comment)%>
+						</span>
+					</a>
+				</li>
+			</ul>
+		</span>
+	</span>
+	<span class="float-left height20 margin-top-1">
+		&nbsp;
+	</span>
+	<span class="span-34 margin-top-1">
+		<ul>
+			<%if params[:type] == "figure"%>
+				<%flags.each do |flag|%>
+					<%=render :partial=>"admin_flag/flag_figure_unit",:locals=>{:entity=>flag}%>
+				<%end%>
+			<%else%>
+				<%
+					$facebook.is_aesir = true
+					flags.each do |flag|
+				%>
+					<%=render :partial=>"admin_flag/flag_comment_unit",:locals=>{:entity=>flag}%>
+				<%
+					end
+				%>
+			<%end%>
+		</ul>
+	</span>
+</span>
+
+<script language="javascript">
+	
+	function delete_flag(flag_id,sender)
+	{
+		if (confirm('Are you sure you want to delete this flag?'))
+		{
+			$(sender).loading_icon(true);
+			var data = {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"flag_id": flag_id
+			};
+			
+			
+			$.ajax({
+				type: "POST",
+				url: '/flag/delete',
+				cache: false,
+				headers: {
+					"Connection": "close"
+				},
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						$('#flag_' + flag_id).fadeOut(function(){
+							$('#flag_' + flag_id).remove();
+						})
+					}
+					$(sender).loading_icon(false);
+					
+				},
+				error: function(req, status, e){
+					if (req.status == 0) 
+						return;
+					alert('Cannot connect to the server. Please try again.')
+				}
+			});
+		}
+	}
+</script>

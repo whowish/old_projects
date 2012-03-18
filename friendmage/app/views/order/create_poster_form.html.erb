@@ -1,0 +1,64 @@
+<%
+	$facebook.get_friend_lists.each do |list|
+%>
+		<%=list["name"]%> (<%=list["flid"]%>)</br>	
+<%
+	end
+
+	$facebook.get_albums.each  do |album|
+%>
+		<%=album["name"]%> (<%=album["cover_pid"]%>)</br>	
+<%
+	end
+%>
+<a href="#" class="pink_button_verybig" id="create_poster_button" onclick="submit_create_poster();return false;">
+    <%= word_for :create_poster_button%>
+</a>
+<script language="javascript">
+
+        function submit_create_poster()
+        {
+            try {
+                $('#create_poster_button').loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/order/create_poster',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>"
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+                            }
+                            else {
+                                $('#create_poster_button').ruby_box(true,data.error_message);
+                            }
+							$('#create_poster_button').loading_button(false);
+                        }
+                        catch (e) {
+                            $('#create_poster_button').loading_button(false);
+                            $.error_log('create_poster', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#create_poster_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#create_poster_button').loading_button(false);
+                $.error_log('create_poster',e);
+                alert(e);
+            }
+        }
+    </script>

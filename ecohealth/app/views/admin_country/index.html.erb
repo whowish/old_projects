@@ -1,0 +1,107 @@
+<%
+	countries = Country.all()
+%>
+<%=stylesheet_link_tag("admin_activity.css")%>
+<script language="javascript">
+	function edit_description(sender,id)
+	{
+		try {
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_country/edit',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"id": id,
+					"name": $('#country_name_'+id).val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+						}
+						else {
+							$(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('country', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('country',e);
+			alert(e);
+		}
+	}
+	function delete_description(sender,id)
+	{
+		$(sender).loading_button(true);
+		if (!confirm('Are you sure you want to delete it?')) return;
+		try {
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_country/delete',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"id": id
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+							$('#country_unit_'+id).fadeOut(
+							function (){$('#country_unit_'+id).remove();})
+						}
+						else {
+							$(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('country', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('country',e);
+			alert(e);
+		}
+	}
+</script>
+<span class="span-68">
+	<span class="row header">
+		<span class="toolbox_container header">&nbsp;</span>
+		<span class="name_container header">Country</span>
+	</span>
+	<%countries.each do |country|%>
+		<%=render :partial=>"/admin_country/country_unit",:locals=>{:country=>country}%>
+	<%end%>
+	<span id="new_country"></span>
+	<%=render :partial=>"/admin_country/add_country"%>
+</span>

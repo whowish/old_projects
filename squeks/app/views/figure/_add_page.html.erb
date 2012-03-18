@@ -1,0 +1,355 @@
+<%
+	figure = Figure.new()
+
+	is_new = true
+	action = "add"
+	if params[:add_title]
+		figure["title_"+$facebook.country_code.downcase] = params[:add_title]
+	end
+
+	if params[:id]
+		is_new = false
+		action = "edit"
+		figure = Figure.first(:conditions=>{:id=>params[:id]})
+
+	end
+
+	languages = Language.all()
+   unique_id = rand(100000).to_s
+%>
+<span class="span-98 margin-top-2" id="add_page_container" style="white-space:normal;display:inline-block;float:none;vertical-align:top;">
+    <script language="javascript">
+        location.hash = "#!/figure"
+
+        if ($('#facebook_login_button').length > 0)
+            $('#facebook_login_button')[0].href = "https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://#{DOMAIN_NAME}/figure")%>";
+
+        function submit_figure()
+        {
+            if (is_uploading())
+            {
+                 $('#figure_submit_button').ruby_box(true,"Please wait until the image is uploaded.");
+                return;
+            }
+
+            try {
+
+                $('#figure_submit_button').loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/figure/<%=action%>',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        "figure_id":"<%=params[:id] if params[:id]%>",
+						<%languages.each do |language|%>
+                        "title_<%=language.code.downcase%>": $('#figure_title_<%=language.code.downcase%>').val(),
+						<%end%>
+                        "description": $('#figure_description').val(),
+                        "images": $('#figure_image').val(),
+						"is_anonymous":get_anonymous_value(),
+                        "tags": $('#figure_tag').val(),
+						"is_manager":(($('#figure_is_manager')[0].checked == true)?"yes":"no")
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+								update_squeks_credit(data.credits,data.previous_credits);
+								
+                                if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+
+                                try
+                                {
+                                    page_stack.push(data.figure_id);
+                                    page_index = page_stack.length-1;
+                                    stop_page_sliding();
+
+                                    $('#add_page_container').replaceWith(data.html);
+                                    $('#page_'+data.figure_id).hide();
+                                    $('#page_'+data.figure_id).fadeIn();
+
+
+                                } catch(e) {
+                                    location.href = data.figure_url;
+                                }
+								
+								
+                            }
+                            else {
+								if (data.error_message == "<%=MUST_LOGIN_ERROR%>") {
+									$('#must_login_balloon').hide();
+									$('#must_login_balloon').fadeIn();
+								}
+								else {
+									$('#figure_submit_button').loading_button(false);
+									$('#figure_submit_button').ruby_box(true, data.error_message);
+								}
+                            }
+
+                        }
+                        catch (e) {
+                            $('#figure_submit_button').loading_button(false);
+                            $.error_log('submit_figure', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#figure_submit_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#figure_submit_button').loading_button(false);
+                $.error_log('submit_figure',e);
+                alert(e);
+            }
+        }
+    </script>
+    <span class="span-68 margin-top-1 white_bg clearfix">
+        <%
+            if !params[:add_title]
+        %>
+        <span class="span-67 margin-all-5px font12 squeks_blue bold_font">
+           <%= word_for :you_have_watched_every_figure%>
+        </span>
+        <%
+            end
+        %>
+        <span class="span-67 margin-all-5px">
+        	<span class="span-67 margin-top-1">
+                <span class="font12 squeks_blue bold_font">
+                    <%= word_for :title,:language=>"English"%>
+                </span>
+                <span class="span-67 margin-top-5px">
+                    <input id="figure_title_us" type="text" class="text_input span-66" value="<%=figure['title_us']%>" onkeyup="find_duplicate();"/>
+                </span>
+            </span>
+        	<%
+				languages.each do |language|
+					if language.code == $facebook.country_code and language.code != "US"
+			%>
+	            	<span class="span-67 margin-top-1">
+		                <span class="font12 squeks_blue bold_font">
+		                    <%= word_for :title,:language=>language.name%>
+		                </span>
+		                <span class="span-67 margin-top-5px">
+		                    <input id="figure_title_<%=language.code.downcase%>" type="text" class="text_input span-66" value="<%=figure['title_'+language.code.downcase]%>" onkeyup="find_duplicate();" />
+		                </span>
+		            </span>
+			<%
+					end
+				end
+			%>
+			<span class="span-67 margin-top-1">
+                <span class="font12 squeks_blue bold_font">
+                    <%= word_for :category%>
+                </span>
+                <span class="span-67 margin-top-5px">
+                    <input id="figure_tag" type="text" class="text_input span-66" />
+                </span>
+            </span>
+            <span class="span-67 margin-top-1">
+                <span class="span-66">
+                  <img src="" id="figure_uploaded_image" width="660" style="display:none;"/>
+                </span>
+                <input type="hidden" id="figure_image" />
+            </span>
+            <span class="span-67 margin-top-1">
+                <span id="upload_image_button_<%=unique_id%>" class="font12 squeks_blue bold_font upload_pic_button round_corner-4" style="cursor: pointer;">
+                        Upload Images
+                </span>
+            </span>
+            <span class="span-67 margin-top-1">
+                <span class="font12 squeks_blue bold_font">
+                    <%=word_for :description%>
+                </span>
+                <span class="span-67 margin-top-5px">
+                    <textarea id="figure_description" class="textarea_input span-66"></textarea>
+                </span>
+            </span>
+			 <span class="span-67 margin-top-1 font11 medium_dark_gray light_font">
+                <input type="checkbox"  <%='checked' if !$facebook.is_anonymous%>  id="figure_is_manager"> <%=word_for :is_manager%>
+            </span>
+            <span class="span-67 margin-top-1">
+                <a href="#" class="pink_button_verybig" id="figure_submit_button" onclick="submit_figure();return false;">
+                    <%= word_for :add_button%>
+                </a>
+            </span>
+        </span>
+    </span>
+	<span class="span-28 margin-left-2 margin-top-1 clearfix">
+		<span class="span-28">
+			<span class="margin-top-1 margin-left-1">
+				<span class="figure-unit">
+					<ul>
+						<li class="span-28 huneysuckle_pink_shadow_bg">
+							<span class="huneysuckle_pink_bg font14 white figure_header">
+								<%=word_for :possible_duplicate%>
+							</span>
+						</li>
+					</ul>
+				</span>
+				<span id="possible_duplicate_loading" style="float:left;display:none;height:30px;width:280px;background-color:#FFFFFF;">
+					<img src="/images/button_loader.gif" style="margin-left:130px;margin-top:10px;"/>
+				</span>
+				<span id="possible_duplicate_empty" style="float:left;display:block;height:30px;width:280px;background-color:#FFFFFF;text-align:center;line-height:30px;">
+					<%=word_for :no_duplicate%>
+				</span>
+				<span class="possible_duplicate" id="possible_duplicate_body" style="display:none;">
+					<ul>
+					</ul>
+				</span>
+			</span>
+		</span>
+	</span>
+</span>
+<script language="javascript">
+	
+	var finding_ticket_number = 0;
+	var xhr_find_duplicate = null;
+	function find_duplicate()
+	{
+		finding_ticket_number++;
+		var this_number = finding_ticket_number;
+		
+		$('#possible_duplicate_body').hide();
+		$('#possible_duplicate_empty').hide();
+		$('#possible_duplicate_loading').show();
+		
+		try{
+			if (xhr_find_duplicate != null) xhr_find_duplicate.abort();
+		} catch (e)
+		{
+			
+		}
+		
+		qs = [];
+		<%languages.each do |language|%>
+        	qs.push($('#figure_title_<%=language.code.downcase%>').val());
+		<%end%>
+		
+		xhr_find_duplicate = $.ajax({
+					                    type: "POST",
+					                    url: '/search/find_duplicate',
+					                    cache: false,
+					                    data: {
+					                        authenticity_token: "<%=form_authenticity_token%>",
+											q:qs.join(',,,')
+					                    },
+					                    success: function(data){
+											if (this_number != finding_ticket_number) return;
+					                        try {
+					                            if (data.ok == true && data.figures.length > 0) {
+													
+													var html = "";
+													for (var i=0;i<data.figures.length;i++)
+													{
+														html += data.figures[i];
+													}
+													
+													$('#possible_duplicate_empty').hide();
+													$('#possible_duplicate_loading').hide();
+													$('#possible_duplicate_body').html(html);
+													$('#possible_duplicate_body').show();
+					                            }
+					                            else {
+					                                $('#possible_duplicate_empty').show();
+													$('#possible_duplicate_loading').hide();
+					                            }
+					
+					                        }
+					                        catch (e) {
+					                            $('#possible_duplicate_empty').show();
+												$('#possible_duplicate_loading').hide();
+					                        }
+					
+					                    },
+					                    error: function(req, status, e){
+											if (this_number != finding_ticket_number) return;
+					                        $('#possible_duplicate_empty').show();
+											$('#possible_duplicate_loading').hide();
+					                    }
+					                });
+		
+	}
+
+    var uploading_anchor = false;
+    function is_uploading() {
+        return uploading_anchor;
+    }
+
+    function start_uploading() {
+        uploading_anchor = true;
+        $('#upload_image_button_<%=unique_id%>').loading_button(true);
+    }
+
+    function stop_uploading() {
+        uploading_anchor = false;
+        $('#upload_image_button_<%=unique_id%>').loading_button(false);
+    }
+
+    new AjaxUpload('upload_image_button_<%=unique_id%>', {
+        action: '/temporary_image',
+        name: 'Filedata',
+        responseType: "json",
+        data:{
+                authenticity_token: "<%=form_authenticity_token%>"
+        },
+        onSubmit: function(file, extension) {
+            if (is_uploading()) return;
+
+            if (extension && /^(jpg|png|jpeg|gif)$/.test(extension.toLowerCase())) {
+                start_uploading();
+            }
+            else
+            {
+                alert("Only JPEG, GIF, and PNG are allowed.");
+                return false;
+            }
+        },
+        onComplete : function(file,response){
+            try {
+                if (response.ok == true) {
+                    <%
+                      if ENV['S3_ENABLED']
+                    %>
+                        $('#figure_uploaded_image')[0].src = "http://s3.amazonaws.com/<%=AWS_S3_BUCKET_NAME%>" + response.filename
+                    <%
+                      else
+                    %>
+                        $('#figure_uploaded_image')[0].src = response.filename
+                    <%
+                      end
+                    %>
+
+                    $('#figure_image').val(response.filename);
+                    $('#figure_uploaded_image').show();
+
+                    setTimeout("$('#upload_image_button').loading_button(false);",3000);
+                }
+                else {
+                    alert(response.error_message);
+                    $.error_log('ajaxupload(response.ok=false)', response.error_message);
+                }
+            } catch (e)
+            {
+                $.error_log('ajaxupload.onComplete', e);
+            }
+
+            stop_uploading();
+        },
+        onError: function (errorObj)
+        {
+            alert(errorObj);
+            $.error_log('ajaxupload.onError',errorObj);
+            stop_uploading();
+        }
+    });
+</script>

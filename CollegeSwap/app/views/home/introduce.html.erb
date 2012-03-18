@@ -1,0 +1,27 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50">
+	<span class="span-25 whowish_green_bg height-18">
+		<span class="span-23 margin-top-1 margin-left-1">
+			<span class="span-23 fontsize18 white bold_font">
+				Add Stuff You Want
+			</span>
+			<span class="span-23 fontsize12 white normal_font margin-top-1 height-4 margin-bottom-2">
+				Need anything? Add the product or service here. This will show up in your swap list.
+			</span>
+			<a href="#" class="green_button_verybig" onclick="$.whowish_box({title:'Stuff I Want: Product or Service',url:'/item?item_type=WISH'});return false;">Add Stuff</a>
+		</span>
+	</span>
+	<span class="span-25 dark_blue_bg height-18">
+		<span class="span-23 margin-top-1 margin-left-1">
+			<span class="span-23 fontsize18 white bold_font">
+				Add Stuff You Can Trade
+			</span>
+			<span class="span-23 fontsize12 white normal_font margin-top-1 height-4 margin-bottom-2">
+				Got things to swap? Add the product or service here. This also will show up in your swap list.
+			</span>
+			<a href="#" class="blue_button_verybig" onclick="$.whowish_box({title:'Stuff I Can Trade: Product or Service',url:'/item?item_type=JUNK',background_color:'#1963BD'});return false;">Add Stuff</a>
+		</span>
+	</span>
+</span>

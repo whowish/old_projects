@@ -1,0 +1,9 @@
+<img src="../images/coures_thumb/pic1.jpg" alt="" />
+<h1>
+	<a href="/course/view?id=<%=entity.id%>">
+		<%=entity.title%>
+	</a>
+</h1>
+<p>
+	<%=Time.at(entity.created_date.to_i).strftime("%d %b %Y")%>
+</p>

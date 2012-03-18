@@ -1,0 +1,111 @@
+<span id="reply_like_container_<%=entity.id%>" >
+	<%if !you_like%>
+		<a href="#" id="like_feedback_reply_<%=entity.id%>" class="normal_font" onclick="feedback_reply_like_<%=entity.id%>();return false;">love</a>
+	<%else%>
+		<a href="#" id="unlike_feedback_reply_<%=entity.id%>" class="normal_font" onclick="feedback_reply_unlike_<%=entity.id%>();return false;">unlove</a>
+	<%end%>
+	<span class="margin-left-1 normal_font" id="like_feedback_reply_<%=entity.id%>">
+		<%if entity.like > 0 and !you_like%>
+			&hearts; <%= word_for :other_love_comment,:like_count=>entity.like%>
+		<%elsif entity.like == 1 and you_like%>
+			&hearts; <%= word_for :you_love_comment%>
+		<%elsif entity.like > 1 and you_like %>
+			&hearts; <%= word_for :both_love_comment,:like_count=>(entity.like-1)%>
+		<%end%>
+	</span>
+</span>
+	
+<script language="javascript">
+<%if !you_like%>
+	function feedback_reply_like_<%=entity.id%>()
+	{
+		try {
+			$('#like_feedback_reply_<%=entity.id%>').loading_button(true,{word:""});
+			
+			$.ajax({
+				type: "POST",
+				url: '/comment/comment_like',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request:"<%=params[:signed_request]%>",
+					"comment_id": "<%=entity.id%>"
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$('#reply_like_container_<%=entity.id%>').replaceWith(data.reply_like_button);
+						}
+						else {
+							$('#like_feedback_reply_<%=entity.id%>').loading_button(false);
+							
+						}
+						
+					} 
+					catch (e) {
+						$('#like_feedback_reply_<%=entity.id%>').loading_button(false);
+						$.error_log('comment_like', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#like_feedback_reply_<%=entity.id%>').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#like_feedback_reply_<%=entity.id%>').loading_button(false);
+			$.error_log('comment_like',e);
+			alert(e);
+		}
+	}	
+<%else%>
+	function feedback_reply_unlike_<%=entity.id%>()
+	{
+		try {
+			$('#unlike_feedback_reply_<%=entity.id%>').loading_button(true,{word:""});
+			
+			$.ajax({
+				type: "POST",
+				url: '/comment/comment_unlike',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request:"<%=params[:signed_request]%>",
+					"comment_id": "<%=entity.id%>"
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$('#reply_like_container_<%=entity.id%>').replaceWith(data.reply_like_button);
+						}
+						else {
+							$('#unlike_feedback_reply_<%=entity.id%>').loading_button(false);
+							
+						}
+						
+					} 
+					catch (e) {
+						$('#unlike_feedback_reply_<%=entity.id%>').loading_button(false);
+						$.error_log('comment_unlike', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#unlike_feedback_reply_<%=entity.id%>').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#unlike_feedback_reply_<%=entity.id%>').loading_button(false);
+			$.error_log('comment_unlike',e);
+			alert(e);
+		}
+	}	
+<%end%>
+</script>
+

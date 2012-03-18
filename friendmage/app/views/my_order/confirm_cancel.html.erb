@@ -1,0 +1,73 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50">
+	<span class="span-50 light_green_bg dark_gray fontsize12 bold_font height20">
+		 <%= word_for :confirm_cancel%>
+	</span>
+	<span class="span-50 font12 dark_gray bold_font margin-top-1 margin-left-1">
+		<span class="span-50 height26">
+			  <%= word_for :reason%>
+		</span>
+		<span class="span-50 height26">
+			<input id="cancel_reason" type="text" class="input_type span-45"/>
+		</span>
+	</span>
+	<span class="span-50 font12 dark_gray bold_font margin-top-1 margin-left-1">
+		<span class="span-50 height26">
+			  <%= word_for :cus_account_detail%>
+		</span>
+		<span class="span-50">
+			<textarea class="span-45 input_type_area_red" id="cancel_cus_account_number" type="text"></textarea>
+		</span>
+	</span>
+	<span class="span-50 margin-top-1 margin-bottom-1">
+		<span class="red_button_small margin-left-1" id="delete_button_<%=params[:order_id]%>"  onclick="del_item_<%=params[:order_id]%>();">
+			<%= word_for :cancel_order%>
+		</span>
+		<span class="gray_button_small margin-left-1" id="cancel_button_<%=params[:order_id]%>"  onclick="cancel_del();">
+			<%= word_for :cancel%>
+		</span>
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>
+
+<script language="javascript">
+	
+	function del_item_<%=params[:order_id]%>()
+	{
+		
+			var data = {
+				authenticity_token: "<%=form_authenticity_token%>",
+				order_id: "<%=params[:order_id]%>",
+				reason:$('#cancel_reason').val(),
+				cus_account_number:$('#cancel_cus_account_number').val()
+			};
+			
+			
+			$.ajax({
+				type: "POST",
+				url: '/order/customer_cancel',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						$('#order_unit_<%=params[:order_id]%>').replaceWith(response.html)
+					}
+					$(document).trigger('close.whowish_box');
+				},
+				error: function(){
+					
+				}
+			});
+		
+	}
+	
+	function cancel_del()
+	{
+		$(document).trigger('close.whowish_box');
+	}
+
+</script>
+

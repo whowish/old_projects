@@ -1,0 +1,78 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+	
+</script>
+<span class="span-50 margin-bottom-1">
+	<span class="span-50 light_green_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		&nbsp;&nbsp; Are you sure?
+	</span>
+	<span class="span-49" style="overflow:hidden;">
+	<%
+		event = Event.first(:conditions=>{:id=>params[:event_id]})
+		if event.status == Event::STATUS_SETTLED
+	%>
+			<%=render :partial=>"profile/day" ,:locals=>{:events_in_day=>[event]}%>
+	<%
+		else
+	%>
+			<%=render :partial=>"profile/day_unsettled" ,:locals=>{:event=>event,:facebook_id=>$facebook.facebook_id,:is_show_button=>false}%>
+	<%
+		end
+	%>
+	</span>
+	<span class="margin-top-1 dark_gray margin-left-1 span-50">
+		<input id="notify_friend_checkbox" checked type="checkbox" > <%= word_for :notify_friend%>
+	</span>
+	<span class="span-50 margin-top-1 margin-bottom-1">
+		
+		<span class="red_button margin-left-1" id="delete_button_<%=params[:event_id]%>"  onclick="del_event_<%=params[:event_id]%>(this);">
+			<%= word_for :delete%>
+		</span>
+		<span class="green_button margin-left-1" id="cancel_button_<%=params[:event_id]%>"  onclick="cancel_del();">
+			<%= word_for :cancel%>
+		</span>
+	</span>
+</span>
+<div style="height:0px;clear:left;">&nbsp;</div>
+<script language="javascript">
+	
+	function del_event_<%=params[:event_id]%>(sender)
+	{
+		$(sender).loading_button(true);
+		
+			var data = {
+				signed_request: "<%=params[:signed_request]%>",
+				authenticity_token: "<%=form_authenticity_token%>",
+				"event_id": "<%=params[:event_id]%>",
+				"share_on_facebook":(($('#notify_friend_checkbox')[0].checked == true)?"yes":"no")
+			};
+			
+			
+			$.ajax({
+				type: "POST",
+				url: '/event/delete',
+				cache: false,
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						if (response.redirect_url != undefined) {
+							top.location.href = response.redirect_url;
+							return;
+						}
+						location.href = "/profile";
+					}
+					//$(document).trigger('close.whowish_box');
+				},
+				error: function(){
+					
+				}
+			});
+		
+	}
+	
+	function cancel_del()
+	{
+		$(document).trigger('close.whowish_box');
+	}
+
+</script>

@@ -1,0 +1,31 @@
+<%
+	member = @facebook_data[@bid_request.facebook_id]
+	image_url = @figure_data[@bid_request.figure_id].get_thumbnail_image_url
+%>
+<span class="span-69 white_bg margin-top-1">
+	<span class="span-5 margin-all-5px">
+		<a href="<%=@figure_data[@bid_request.figure_id].get_url%>">
+			<img src="<%=image_url%>" />
+		</a>
+	</span>	
+	<span class="span-62 margin-left-1 margin-top-5px">
+		<span class="span-62 font14">
+			<a href="<%=@figure_data[@bid_request.figure_id].get_url%>" class="squeks_blue float-left">
+				<%=@figure_data[@bid_request.figure_id].title%>
+			</a>
+			<span class="float-right margin-right-1">
+				<span class="buy_figure_button margin-left-2" title="Bid to become manager of this Squeks page." onclick="$.whowish_box({url:'/bid?figure_id=<%=@bid_request.figure_id%>',background_color:'#54a8e3'});">
+					<%=word_for(:bid)%>
+				</span>
+			</span>
+		</span>
+		<span class="span-62 font12 dark_gray light_font">
+			<span class="float-left">
+				<%=word_for(:got_offer,:number=>@bid_request.value)%>
+			</span>
+			<a href="/profile?user_id=<%=@bid_request.facebook_id%>" class="float-left margin-left-5px font12 huneysuckle_pink">
+				<%=member.name%>
+			</a>
+		</span>
+	</span>
+</span>

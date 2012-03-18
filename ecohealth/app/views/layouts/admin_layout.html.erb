@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<link rel="P3Pv1" href="/w3c/p3p.xml">
+		<meta http-equiv="P3P" policyref="/w3c/p3p.xml"  content='CP="<%=COMPACT_POLICY%>"'>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>EcoHealth Administrator System</title>
+		
+		<%=stylesheet_link_tag("reset.css")%>
+		<%=stylesheet_link_tag("button.css")%>
+		<%=stylesheet_link_tag("ecohealth.css")%>
+
+		<%= javascript_include_tag "jquery-1.5.min.js"%>
+		<%= javascript_include_tag "jquery.relative_offset.1.0.js"%>
+		<%= javascript_include_tag "jquery.error_log.js"%>
+		<%= javascript_include_tag "jquery.loading_button.js"%>
+		<%= javascript_include_tag "jquery.json.js"%>
+		
+		<%= javascript_include_tag "basic.js"%>
+		<%= javascript_include_tag "form_validator_helper.js"%>
+		
+		<%=stylesheet_link_tag("/ruby_box/jquery.ruby_box.css")%>
+		<%= javascript_include_tag "/ruby_box/jquery.ruby_box.js" %>
+		
+		<%=stylesheet_link_tag("/default_text/jquery.default_text.css")%>
+		<%= javascript_include_tag "/default_text/jquery.default_text.js" %>
+	</head>
+	<body>
+		<span class="admin" style="width:980px;">
+			<span style="width:180px;display:inline-block;">
+				<ul>
+					<li>
+						<a href="/admin_about">About</a>
+					</li>
+					<li>
+						<a href="/admin_activity">News</a>
+					</li>
+					<li>
+						<a href="/admin_conference">Conference</a>
+					</li>
+					<li>
+						<a href="/admin_contact">Contact</a>
+					</li>
+					<li>
+						<a href="/admin_country">Country</a>
+					</li>
+					<li>
+						<a href="/admin_member">Member</a>
+					</li>
+					<li>
+						<a href="/admin_partner">Partner</a>
+					</li>
+					<li>
+						<a href="/admin_research">Research</a>
+					</li>
+				</ul><br/>
+				<a href="/admin/logout">Logout</a>
+			</span>
+			<span style="width:800px;display:inline-block;vertical-align:top;margin-top:10px;">
+				<%=yield%>
+			</span>
+		</span>
+	</body>
+</html>
+<script language="javascript">
+	function change_whowish_word(self,word_id,word_arg,event)
+	{
+		if (!event) event = window.event;
+		event.cancelBubble = true;
+		if (event.stopPropagation) event.stopPropagation();
+		
+		$(self).loading_button(true,{word:""});
+
+		var content = ""
+		$.ajax({
+			type: "POST",
+			url: '/whowish_word/get_word',
+			cache: false,
+			async: false,
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"word_id": word_id
+			},
+			success: function(data){
+				content = data.content;
+			}
+		});
+
+		$(self).loading_button(false);
+		var new_word = prompt("Please set "+word_id+":",content);
+
+		if (new_word == null) return
+		
+		$(self).loading_button(true,{word:""});
+
+		$.ajax({
+				type: "POST",
+				url: '/whowish_word/change_word',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"word_id":word_id,
+					"content":new_word
+				},
+				success: function(data){
+					$(self).loading_button(false);
+					try {
+						if (data.ok == true) {
+
+							for (var i in word_arg)
+							{
+								re = new RegExp("\{"+i+"\}","g")
+								new_word = new_word.replace(re, word_arg[i])
+							}
+
+							var the_container = $(self).parent().children('*:first')[0];
+
+							try {$(the_container).val(new_word);} catch (e) {}
+							try {$(the_container).html(new_word);} catch (e) {}
+
+						}
+						else {
+							alert(data.error_message);
+						}
+
+					}
+					catch (e) {
+						alert(e);
+					}
+
+				},
+				error: function(req, status, e){
+					$(self).loading_button(false);
+                    if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+	}
+
+</script>

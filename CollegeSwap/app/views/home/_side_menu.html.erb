@@ -1,0 +1,106 @@
+<%
+	return "" if $facebook.is_guest
+
+	index = rand(4)
+%>
+
+<span class="span-18 margin-bottom-2">	
+	<%=render :partial=>"home/side_friend"%>
+	<span class="span-18 dark_blue_bg height01">
+	</span>
+	<span class="span-18 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		<span class="span-16 margin-left-1">
+			<%=word_for :swapsquare%>
+		</span>
+	</span>
+	<span class="span-16 margin-left-1 margin-bottom-2 normal_font medium_dark_gray">
+		<span >
+			<span class="span-16">
+				<%=word_for :not_a_college_student%>
+			</span>
+			<span class="span-16">
+				<a href="http://apps.facebook.com/swapsquare/" target="_top" ><%=word_for :try_swapsquare%></a>
+			</span>
+		</span>
+	</span>
+	<span class="span-18 dark_blue_bg height01">
+	</span>
+	<span class="span-18 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		<span class="span-14 margin-left-1">
+			<%=word_for :swap_tips%>
+		</span>
+		<span class="span-3">
+			<a href="javascript:prev_swap_tip();" id="prev_swap_tip_button">&lt;</a>
+			<a href="javascript:next_swap_tip();" id="next_swap_tip_button">&gt;</a>
+		</span>
+	</span>
+	<span class="span-16 margin-left-1 margin-bottom-1 normal_font medium_dark_gray" style="overflow:hidden;position:relative;height:150px;">
+		<span id="swap_tip_panel" class="span-70" style="position:absolute;top:0px;left:<%=-(index)*(16*10)%>px;">
+			<span class="span-16">
+				<%=word_for :tips_1%>
+			</span>
+			<span class="span-16">
+				<%=word_for :tips_2%>
+			</span>
+			<span class="span-16">
+				<%=word_for :tips_3%>
+			</span>
+			<span class="span-16">
+				<%=word_for :tips_4%>
+			</span>
+		</span>
+	</span>
+	
+</span>
+<script language="javascript">
+	function prev_swap_tip()
+	{
+		 $('#swap_tip_panel').animate({
+		    left: '+=160'
+		  }, 100, function() {
+		  	update_prev_next_swap_button();
+		  });
+		
+	}
+	
+	function next_swap_tip()
+	{
+		$('#swap_tip_panel').animate({
+		    left: '-=160'
+		  }, 100, function() {
+		  	update_prev_next_swap_button();
+		  });
+
+	}
+	
+	function update_prev_next_swap_button()
+	{
+		var pos = $('#swap_tip_panel').position();
+		
+		if (pos.left >= (0-10))
+			$('#prev_swap_tip_button').css({'visibility':'hidden'})
+		else
+			$('#prev_swap_tip_button').css({'visibility':'visible'})
+			
+			
+		if (pos.left <= (-(160*4)+160+10))
+			$('#next_swap_tip_button').css({'visibility':'hidden'})
+		else
+			$('#next_swap_tip_button').css({'visibility':'visible'})
+	}
+	
+	update_prev_next_swap_button();
+</script>
+
+<!--<span class="span-16 margin-bottom-2">	
+	<span class="span-16 dark_blue_bg height01">
+	</span>
+	<span class="span-16 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		<span class="span-13 margin-left-1">
+			Trade Matches
+		</span>
+	</span>
+	<span class="my_unit_thumbnail">
+		<span></span><span></span><span></span><span></span><span></span><span></span>
+	</span>
+</span>-->

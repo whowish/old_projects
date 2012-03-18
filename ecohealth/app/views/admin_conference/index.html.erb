@@ -1,0 +1,134 @@
+<%
+	params[:offset] ||= 0
+	params[:limit] ||= 50
+	params[:country_id] ||= "0"
+	params[:country_id] = params[:country_id].strip.to_i
+
+	@country_hash = {}
+	@countries = Country.all(:order=>"name ASC")
+	@countries.each { |c| @country_hash[c.id] = c.name }
+%>
+<%=stylesheet_link_tag("admin_activity.css")%>
+<h1>News</h1>
+View by:
+<select onchange="location.href='/admin_conference?country_id='+$(this).val();" name="<%=rand()%>">
+	<option value="">-- All --</option>
+<%
+	@countries.each do |country|
+%>
+	<option value="<%=country.id%>" <%='selected' if country.id == params[:country_id]%>><%=country.name%></option>
+<%
+	end
+%>
+</select>
+<a href="/admin_conference/add_form">Add new</a>
+<span class="row header">
+	<span class="toolbox_container header">&nbsp;</span>
+	<span class="country_container header">Country</span>
+	<span class="name_container header">Topic</span>
+</span>
+<%
+	conds = {}
+	
+	conds[:country_id] = params[:country_id] if params[:country_id] != 0
+
+	
+	Conference.all(:conditions=>conds,:order=>"id DESC",:offset=>params[:offset],:limit=>params[:limit]).each do |entity|
+%>
+<span class="row" id="item_<%=entity.id%>">
+	<span class="toolbox_container">
+		<a href="/admin_conference/edit_form?id=<%=entity.id%>" class="blue_button_small">Edit</a>
+		<a href="#" class="orange_button_small" onclick="delete_item(this,<%=entity.id%>);">Delete</a>
+	</span>
+	<span class="country_container">
+		<%=@country_hash[entity.country_id]%>
+	</span>
+	<span class="name_container">
+		<%=entity.topic%>  (<%=semantic_time(entity.created_date)%>)
+	</span>
+</span>
+<%
+	end
+
+	count = Conference.count(:conditions=>conds)
+%>
+<span class="span-68 margin-top-1">
+    <span class="margin-left-4px total_page">
+        <%=params[:offset]+1%> - <%=[(params[:offset]+params[:limit]),count].min%> of <%=count%> items
+    </span>
+    <span class="page_number">
+        <ul>
+            <%
+				pages = []
+				number_of_pages = (count.to_f/params[:limit].to_f).ceil
+
+				if number_of_pages > 10
+					pages = [1,2,3, "...", number_of_pages-2,number_of_pages-1,number_of_pages]
+				else
+					pages = (1..number_of_pages)
+				end
+
+				pages.each do |i|
+				
+					if i == "..."
+			%>
+						<li>...</li>
+			<%
+					else
+			%>
+						<li><a href="/admin_conference?country_id=<%=params[:country_id]%>&offset=<%=params[:limit]*(i-1)%>&limit=<%=params[:limit]%>" <%='class="active"' if params[:limit]*(i-1) == params[:offset]%>><%=i%></a></li>
+			<%
+					end
+				end
+			%>
+        </ul>
+    </span>
+</span>
+<script language="javascript">
+	function delete_item(sender,item_id)
+	{
+		$(sender).loading_button(true);
+		if (!confirm('Are you sure you want to delete it?')) return;
+		try {
+
+			
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_conference/delete',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"id":item_id
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$('#item_'+item_id).fadeOut(function() {
+								$(this).remove();
+							});
+						}
+						else {
+							alert(data.error_message);
+							$(sender).loading_button(false);
+						}
+					} 
+					catch (e) {
+						alert(e);
+						$(sender).loading_button(false);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			alert(e);
+		}
+	}
+</script>

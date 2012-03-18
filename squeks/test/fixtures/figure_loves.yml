@@ -1,0 +1,56 @@
+# Auto-generated template
+figure_love1:
+  id: 1
+  figure_id: 1
+  facebook_id: 632591624
+  love_type: <%=FigureLove::TYPE_HATE%>
+  created_date: <%= DateTime.now %>
+  is_anonymous: 0
+
+love12:
+  id: 2
+  figure_id: 1
+  facebook_id: 632818246
+  love_type: <%=FigureLove::TYPE_DONT_CARE%>
+  created_date: <%= DateTime.now %>
+  is_anonymous: 0
+  
+love13:
+  id: 3
+  figure_id: 1
+  facebook_id: 100000201256691
+  love_type: <%=FigureLove::TYPE_DONT_CARE%>
+  created_date: <%= DateTime.now %>
+  is_anonymous: 0
+  
+love21:
+  id: 4
+  figure_id: 2
+  facebook_id: 632591624
+  love_type: <%=FigureLove::TYPE_DONT_CARE%>
+  created_date: <%= DateTime.now %>
+  is_anonymous: 0
+  
+love22:
+  id: 5
+  figure_id: 2
+  facebook_id: 632818246
+  love_type: <%=FigureLove::TYPE_HATE%>
+  created_date: <%= DateTime.now %>
+  is_anonymous: 0
+  
+love23:
+  id: 6
+  figure_id: 2
+  facebook_id: 100002085428291
+  love_type: <%=FigureLove::TYPE_HATE%>
+  created_date: <%= DateTime.now %>
+  is_anonymous: 0
+
+love24:
+  id: 7
+  figure_id: 2
+  facebook_id: 100000201256691
+  love_type: <%=FigureLove::TYPE_DONT_CARE%>
+  created_date: <%= DateTime.now %>
+  is_anonymous: 0

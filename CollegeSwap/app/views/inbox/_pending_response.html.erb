@@ -1,0 +1,136 @@
+<script language="javascript">
+	var swap_response_loading_<%=request.id%> = false
+	function submit_response_<%=request.id%>(status,sender)
+	{
+		if (swap_response_loading_<%=request.id%> == true) return;
+		
+		swap_response_loading_<%=request.id%> = true;
+		try {
+			$(sender).loading_button(true);
+			$.ajax({
+				type: "POST",
+				url: '/inbox/save_response',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"request_id": "<%=request.id%>",
+					"status": status,
+					"response_message": $('#response_message_<%=request.id%>').val(),
+					"share_on_facebook":(($('#response_share_on_facebook_<%=request.id%>')[0].checked == true)?"yes":"no")	
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							
+							$('#response_flow_content_<%=request.id%>').replaceWith(data.html);
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#response_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}
+							
+							$(sender).loading_button(false);
+						}
+					} 
+					catch (e) {
+						$.error_log('submit_response', e);
+						alert(e);
+					}
+					swap_response_loading_<%=request.id%> = false;
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+					swap_response_loading_<%=request.id%> = false;
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('submit_response',e);
+			alert(e);
+			swap_response_loading_<%=request.id%> = false;
+		}
+	}		
+	
+</script>
+<%
+	requestor = get_facebook_info(request.requestor_facebook_id)
+	requestor_item = Item.first(:conditions=>{:id => request.requestor_item_id})
+	responder_item = Item.first(:conditions=>{:id => request.responder_item_id})
+%>
+<div id="response_flow_content_<%=request.id%>">
+	<span class="span-80 height01 medium_gray_bg"></span>
+	<span class="span-80 margin-bottom-2">
+		<span class="span-80">
+			<span class="span-80 height20 light_green_bg">
+				<span class="span-79 bold_font fontsize14 medium_dark_green margin-left-1">
+					<%=word_for :sent_you_a_swap_request,:name=>requestor.get_badge%>
+				</span>
+			</span>
+			<span class="swap-unit  span-35 margin-swap_unit">
+				<%=render :partial=>"item_inbox" ,:locals=>{:item=>responder_item,:possessive_pronoun=>"Yours"}%>
+			</span>
+			<span class="span-8">
+				<span class="status medium_blue_bg span-6"> 
+					<%=word_for :pending%>
+				</span>
+			</span>
+			<span class="swap-unit  span-35 margin-swap_unit">
+				<%=render :partial=>"item_inbox" ,:locals=>{:item=>requestor_item,:possessive_pronoun=>get_possessive_pronoun(request.requestor_facebook_id)}%>
+			</span>
+		</span>		
+		<span class="span-79 margin-swap_unit">
+			<span class="margin-left-2 message-border top comment_unit span-76 light_gray_bg margin-swap_line">
+				<span class="span-6 margin-left-1 margin-top-1">
+					<span class="facebook_pic2 margin-profile_comment_box" style="background-image:url(http://graph.facebook.com/<%=requestor.facebook_id%>/picture?type=square);"></span>
+				</span>
+				<span class="span-69 fontsize12 normal_font margin-top-1">
+					<span class="span-69">
+						<%=requestor.get_badge%>
+					</span>
+					<span class="span-69 dark_gray" style="white-space:normal;overflow:hidden;">
+						<%=wrap_word(request.message,170)%>
+					</span>
+					<span class="span-69 margin-top-1 fontsize11 normal_font margin-comment_foot float-left medium_dark_gray">
+						<%=semantic_time(request.created_date)%>
+					</span>
+				</span>
+			</span>
+		</span>		
+		<span class="span-79 margin-swap_unit light_gray_bg">
+			<span class="span-78">
+				<textarea class=" margin-top-1 margin-bottom-1 span-77 margin-left-1 comment_zone" style="height:60px;" id="response_message_<%=request.id%>"></textarea>
+			</span>
+			<span class="span-78 margin-top-1 margin-bottom-1 margin-left-1">
+				<input type="checkbox" id="response_share_on_facebook_<%=request.id%>"> Share on my wall
+			</span>
+			<span class="span-79 margin-bottom-1">
+				<a href="#" id="accept_submit_button_<%=request.id%>"
+					class="green_button" style="margin-left:10px;"
+					onclick="submit_response_<%=request.id%>('<%=Request::STATUS_ACCEPTED%>',this);return false;"> 
+						<%=word_for :swap_button%>
+				</a>
+				<a href="#" id="reject_submit_button_<%=request.id%>" class="red_button" style="margin-left:10px;"
+					onclick="submit_response_<%=request.id%>('<%=Request::STATUS_REJECTED%>',this);return false;">
+						<%=word_for :reject_button%>
+				</a>
+			</span>
+		</span>
+	</span>			
+</div>
+
+<script language="javascript">
+	$('#response_message_<%=request.id%>').default_text("<%=word_for :response_default%>")
+</script>

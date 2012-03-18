@@ -1,0 +1,110 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<script language="javascript">
+
+	function submit_flag()
+	{
+		var reason = "";
+		var radios = $('input[id^="flag_reason"]');
+		for (var i = 0; i < radios.length; i++) {
+			if (radios[i].checked == true) {
+				reason = radios[i].value;
+				break;
+			}
+		}
+		if (reason == "Other") reason = $('#other_textbox').val();
+		
+		try {
+			$('#flag_submit_button').loading_button(true);
+			$.ajax({
+				type: "POST",
+				url: '/flag/save_flag',
+				cache: false,
+				headers:{"Connection":"close"},
+				dataType: "json",
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					<%if params[:figure_id]%>
+						"figure_id": "<%=params[:figure_id]%>",
+					<%elsif params[:comment_id]%>
+						"comment_id": "<%=params[:comment_id]%>",
+					<%end%>
+					"reason": reason
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(document).trigger('close.whowish_box');
+							
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#flag_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}
+							
+							$('#flag_submit_button').loading_button(false);
+						}
+					} 
+					catch (e) {
+						$.error_log('flag_item', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#flag_submit_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#flag_submit_button').loading_button(false);
+			$.error_log('flag_item',e);
+			alert(e);
+		}
+	}
+	
+	function radio_button_clicked() {
+		if ($('#flag_reason_other')[0].checked == true) {
+			$('#other_textbox').attr('disabled','');
+		} else {
+			$('#other_textbox').attr('disabled','disabled');
+		}
+	}
+</script>
+
+
+
+<span id="flag_flow_content" class="span-50">
+	<span class="span-48 margin-left-1 margin-top-1">
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="font12 squeks_blue bold_font">
+                <%= word_for :reason%>
+            </span>
+			<span class="span-48 margin-top-5px margin-left-1">
+				<input type="radio" value="Illegal" id="flag_reason_illegal" name="flag_reason" onclick="radio_button_clicked();" checked="checked"> Illegal<br/>
+				<input type="radio" value="Spam" id="flag_reason_spam" name="flag_reason" onclick="radio_button_clicked();" > Spam<br/>
+				<input type="radio" value="Sexually Explicitly Content" id="flag_reason_sexually" name="flag_reason" onclick="radio_button_clicked();" > Sexually explicit content<br/>
+				<input type="radio" value="Inappropriate" id="flag_reason_inappropriate" name="flag_reason" onclick="radio_button_clicked();" > Inappropriate<br/>
+				<input type="radio" value="Other" id="flag_reason_other" name="flag_reason" onclick="radio_button_clicked();" > Other
+						<input type="text" name="flag_reason" id="other_textbox" disabled="disabled" ><br/>
+			</span>
+		</span>
+		<span class="span-48 margin-top-2 margin-bottom-1">
+			<span class="span-48">
+				<a href="#" class="squeks_button" id="flag_submit_button"  onclick="submit_flag();return false;">
+					 <%= word_for :submit%>
+				</a>
+			</span>
+		</span>
+	</span>
+</span>
+
+
+

@@ -1,0 +1,82 @@
+class FriendPosterGenerator
+  include ThumbnailismHelper
+  include FacebookHelper
+  
+  COLS = 20
+  GAP = 3
+  
+  attr_accessor :image_urls,:order_key,:width,:border,:oauth_token
+
+  def initialize(image_urls,order_key,width,border,oauth_token)
+    self.image_urls = image_urls
+    self.order_key = order_key
+    self.width = width
+    self.border = border
+    self.oauth_token = oauth_token
+  end
+  
+  def perform
+    require 'mini_magick'
+
+    logger.debug { "FriendPoster.perform()" }
+    logger.debug { "image_url=#{self.image_urls.inspect},order_key=#{self.order_key},width=#{self.width},border=#{self.border}" }
+  
+    begin
+      main_image = MiniMagick::Image.from_file("#{RAILS_ROOT}/public/uploads/blank_image.jpg")
+      
+      dimension = ((self.width - self.border*2 - (COLS-1)*GAP)/COLS).to_i
+      logger.debug { "dimension=#{dimension}"}
+      
+      height = (self.border*2 + (self.image_urls.length.to_f/COLS).ceil * (dimension+GAP)).to_i
+      
+      logger.debug {"background=#{self.width}x#{height}"}
+      
+      
+      main_image.extent "#{self.width}x#{height}", "-background white"
+      main_image.write "#{RAILS_ROOT}/tmp/#{order_key}.jpg"
+ 
+      i = 0
+      self.image_urls.each { |url|
+        
+        image = nil
+        
+        while true
+          begin
+            image = MiniMagick::Image.from_url(url)
+            break
+          rescue
+          end
+        end
+        
+        image = image_obj_resize(image,dimension,dimension)
+        
+        image.write "#{RAILS_ROOT}/tmp/#{order_key}-#{i}.jpg"
+        
+        x = (self.border + (i%COLS)*(dimension+GAP)).to_i
+        y = (self.border + (i/COLS).to_i*(dimension+GAP)).to_i
+        
+        # put it on the position x,y
+        logger.debug {"thumnbnail=#{image.tempfile.path},main=#{main_image.tempfile.path}"}
+        
+        cmd = "composite -geometry +#{x}+#{y} \"#{RAILS_ROOT}/tmp/#{order_key}-#{i}.jpg\" \"#{RAILS_ROOT}/tmp/#{order_key}.jpg\" \"#{RAILS_ROOT}/tmp/#{order_key}.jpg\""
+        logger.debug { cmd }
+        system(cmd)
+
+        i = i + 1
+      }
+      
+      
+      
+    rescue Exception=>e
+      logger.warn {e.to_s_with_trace}
+      raise e
+    end
+  
+    logger.debug { "Exit FriendPoster.perform()" }
+  end
+  
+  private
+  def post
+    
+  end
+end

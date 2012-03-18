@@ -1,0 +1,64 @@
+<%
+	user = @facebook_data[entity.facebook_id]
+	user = Member.get_guest if !user
+	user_name = (entity.is_anonymous) ? "#{user.anonymous_name}" : user.name
+
+	image_url = @discussion_data[entity.discussion_id].get_default_image
+
+	url = "/discussion/view/#{entity.discussion_id}"
+%>
+<span class="stream_content margin-top-5px" >
+	<a href="<%=url%>">
+	<span class="figure_feed round_corner-4" style="background-image:url(<%=image_url%>);cursor:pointer;">
+    </span>
+	</a>
+	<span class="span-37 margin-left-1">
+		<span class="span-37">
+			<%
+				if user.is_guest
+			%>
+					<span style="font-weight:bold;">Guest</span>
+			<%
+				elsif !entity.is_anonymous 
+			%>
+					<a href="/profile?user_id=<%=user.facebook_id%>" class="float-left font12 squeks_blue bold_font">
+						<%=user_name%>
+					</a>
+			<%
+				else
+			%>
+					<span style="font-weight:bold;"><%=user_name%></span>
+			<%
+				end
+			%>
+			<span class="float-left margin-left-5px font10 light_font medium_gray">
+				
+			</span>
+		</span>
+		<span class="span-37">
+			<span class="span-37 font11 dark_gray normal_font">
+				<%		
+						if entity.action == Feed::ACTION_CREATE_DISCUSSION
+				%>
+							<%=word_for :discussion%>
+				<%
+						elsif entity.action == Feed::ACTION_LOVE_DISCUSSION and entity.data == FigureLove::TYPE_LOVE
+				%>
+							<%=word_for :discussion_love%>
+				<%
+						elsif entity.action == Feed::ACTION_LOVE_DISCUSSION and entity.data == FigureLove::TYPE_HATE
+				%>
+							<%=word_for :discussion_hate%>
+				<%
+						end
+				%>
+			</span>
+			<a href="<%=url%>" class="float-left font14 bold_font huneysuckle_pink margin-top-5px">
+				<%=@discussion_data[entity.discussion_id].title%>
+			</a>
+		</span>
+		<span class=" light_medium_gray margin-top-5px">
+			<%=semantic_time(entity.created_date)%>
+		</span>
+	</span>
+</span>

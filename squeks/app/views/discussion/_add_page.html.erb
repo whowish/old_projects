@@ -1,0 +1,245 @@
+<%
+	discussion = Discussion.new()
+
+	is_new = true
+	action = "add"
+
+	if params[:id]
+		is_new = false
+		action = "edit"
+		discussion = Discussion.first(:conditions=>{:id=>params[:id]})
+
+	end
+%>
+<span class="span-98 margin-top-2" id="discussion_add_page_container" style="white-space:normal;display:inline-block;float:none;vertical-align:top;">
+    <script language="javascript">
+        //location.hash = "#!/discussion"
+
+        if ($('#facebook_login_button').length > 0)
+            $('#facebook_login_button')[0].href = "https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://#{DOMAIN_NAME}/discussion")%>";
+
+        function submit_discussion(sender)
+        {
+            try {
+				
+				var all_figures = $('span[id^=related_figure_]');
+				
+				figure_figure_ids = []
+				
+				for (var i=0;i<all_figures.length;i++) {
+					figure_figure_ids.push(all_figures[i].id.substring("related_figure_".length));
+				}
+                $(sender).loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/discussion/<%=action%>',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        "discussion_id":"<%=params[:id] if params[:id]%>",
+						"is_anonymous":(($('#discussion_hide_identity')[0].checked)?"yes":"no"),
+                        "title": $('#discussion_title').val(),
+                        "description": $('#discussion_description').val(),
+						"figure_list_id": figure_figure_ids.join(",")
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+                                if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+
+                                try
+                                {
+                                    location.href = data.discussion_url;
+
+
+                                } catch(e) {
+                                    location.href = data.discussion_url;
+                                }
+								
+								
+                            }
+                            else {
+								if (data.error_message == "<%=MUST_LOGIN_ERROR%>") {
+									$('#must_login_balloon').hide();
+									$('#must_login_balloon').fadeIn();
+								}
+								else {
+									$(sender).loading_button(false);
+									$(sender).ruby_box(true, data.error_message);
+								}
+                            }
+
+                        }
+                        catch (e) {
+                            $(sender).loading_button(false);
+                            $.error_log('submit_discussion', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $(sender).loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $(sender).loading_button(false);
+                $.error_log('submit_discussion',e);
+                alert(e);
+            }
+        }
+    </script>
+    <span class="span-68 margin-top-1 white_bg clearfix">
+        <span class="span-67 margin-all-5px">
+        	<span class="span-67 margin-top-1">
+                <span class="font12 squeks_blue bold_font">
+                    <%= word_for :title%>
+                </span>
+                <span class="span-67 margin-top-5px">
+                    <input id="discussion_title" type="text" class="text_input span-66" value="<%=discussion.title%>" />
+                </span>
+            </span>
+            <span class="span-67 margin-top-1">
+                <span class="font12 squeks_blue bold_font">
+                    <%=word_for :description%>
+                </span>
+                <span class="span-67 margin-top-5px">
+                    <textarea id="discussion_description" class="textarea_input span-66"><%=discussion.description%></textarea>
+                </span>
+            </span>
+			<span class="span-67 margin-top-1">
+				<span class="span-33 right_border clearfix">
+					<span class="span-33 margin-top-1">
+						<span class="font12 squeks_blue bold_font">
+							<span class="related_love_figure round_corner-4">
+								<span class="plus_icon">
+								</span>
+								<%= word_for :related_love_figure%>
+							</span>
+						</span>
+					</span>
+					<span class="span-33 margin-top-1">
+						<input id="discussion_figure_search" type="text" class="text_input span-30" />
+					</span>
+					<span class="span-33 margin-top-1" id="panel_related_figure">
+					</span>
+				</span>
+			</span>
+			<span class="span-67 margin-top-5px">
+                <input id="discussion_hide_identity" type="checkbox"/> <%=word_for :hide_identity%>
+            </span>
+            <span class="span-67 margin-top-1">
+                <a href="#" class="pink_button_verybig" id="discussion_submit_button" onclick="submit_discussion(this);return false;">
+                    <%= word_for :add_button%>
+                </a>
+            </span>
+        </span>
+    </span>
+</span>
+<%
+	if action == "add"
+		if params[:figure_id]
+			figure = Figure.first(:conditions=>{:id=>params[:figure_id]})
+	
+			if figure
+%>
+				<script language="javascript">
+				
+					$(function() {
+						add_related_figure({id:<%=figure.id%>,thumbnail_url:'<%=figure.get_thumbnail_image_url%>',title:"<%=figure.title%>"});
+					})
+				
+				</script>
+<%
+			end
+		end
+	else
+%>
+				<script language="javascript">
+				
+					$(function() {
+<%
+						edit_related_figure_ids = []
+						DiscussionFigure.all(:conditions=>{:discussion_id=>discussion.id}).each { |d|
+							edit_related_figure_ids.push(d.figure_id)
+						}
+						
+						Figure.all(:conditions=>{:id=>edit_related_figure_ids}).each do |f|
+%>						
+							add_related_figure({id:<%=f.id%>,thumbnail_url:'<%=f.get_thumbnail_image_url%>',title:"<%=f.title%>"});
+<%
+						end
+%>
+					})
+				
+				</script>
+<%
+	end
+%>	
+<script language="javascript">
+	function add_related_figure(figure) {
+		
+		if ($('#related_figure_' + figure.id).length > 0) {
+			$('#related_figure_' + figure.id).hide();
+			$('#related_figure_' + figure.id).fadeIn();
+		}
+		else {
+		
+			$('#panel_related_figure').append('<span class="float-left clearfix" id="related_figure_' + figure.id + '" style="display:none;"> \
+														<span class="figure_thumb"> \
+															<img src="' +figure.thumbnail_url +'" alt="" /> \
+														</span> \
+														<span class="span-26"> \
+															<span class="title span-26 font12 margin-top-5px light_font squeks_blue">'+figure.title+'</span> \
+															<span class="span-26 margin-top-1"> \
+																<a href="#" title="Delete" class="comment_share_icon-delete" style="margin-left:0px;" onclick="$(\'#related_figure_' + figure.id + '\').fadeOut(function() { $(this).remove() } );return false;"> \
+																</a> \
+															</span> \
+														</span> \
+													</span>');
+			$('#related_figure_' + figure.id).fadeIn();
+		}
+	}
+	
+	$('#discussion_figure_search').autocomplete('/search/suggest', {
+		width:298,
+		scroll: false,
+		minChars: 1,
+		marginLeft: 1,
+		parse: function(data)
+		{
+			if (data.ok == false) return [];
+			
+			var parsed = [];
+			for (var i=0; i < data.figures.length; i++) {
+				parsed.push({
+					data: data.figures[i],
+					value: data.figures[i].id+"",
+					result: function(data) {
+						add_related_figure(data.figure);
+						return "";
+					}
+				});
+			}
+			return parsed;
+		},
+		formatItem: function(data, i, n, value) {
+			return "<span class='round_corner-4' style='background-image:url("+data.figure.thumbnail_url+");float:left;width:50px;height:50px;display:inline-block;'>" +
+					"</span>" +
+					"<span style='float:left;line-height:50px;width:230px;margin-left:5px;display:inline-block;overflow:hidden;white-space:nowrap;'>" +
+					data.figure.title +
+					"</span>";
+		},
+		formatResult: function()
+		{
+		
+		}
+		
+	});
+</script>

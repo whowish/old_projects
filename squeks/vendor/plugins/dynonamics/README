@@ -1,0 +1,42 @@
+Dynonamics
+===========
+Dynonamics prevents your app from crashing and save cost by adaptively adjusting your dynos.
+
+Installation
+-----------
+1.You will need to manually install dynonamics plugin, which can be downloaded here.
+  You must put it under /vendor/plugins/dynonamics folder. Your folder should be structured as below:
+
+	RAILS_ROOT
+	 |
+	 |-- app
+	 |-- config
+	 |-- db
+	 |--
+	 |--
+	 |-- vendor
+	      |
+	      |-- plugins
+	           |-- dynonamics
+	                |
+	                |-- lib
+	                |    |
+	                |    |-- dynohook.rb
+	                |    |-- dynonamics_client.rb
+	              	|    |-- workerhook.rb
+	                |    
+	                |-- init.rb
+	                |-- ABOUT_DYNONAMICS
+	                |-- README 
+                
+2. You will need to install Dynonamics as Heroku's plugin by this command line:
+
+    $ heroku addons:add dynonamics
+
+3. Login to Heroku, Go to your app, and go to Dynonamics plugin. You may set your maximum dynos and average waiting time for users here.
+   Please note that your maximum dynos should be more than 2 because the minimum dynos is 2.
+   And we suggest that the average waiting time should be 100 ms.
+   
+Please see http://dynonamics.heroku.com/help for more information, or send me an email tanin47(at)gmail.com
+
+

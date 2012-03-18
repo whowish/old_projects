@@ -1,0 +1,13 @@
+<span class="span-68 margin-top-2" id="forbidden_word_unit_<%=word.id%>">
+    <span style="float:left;" >
+        <input id="forbidden_word_<%=word.id%>" type="text" class="span-30" class="mergin-top-2" value="<%=word.word%>"/>
+    </span>
+    <span style="float:left;" class="margin-left-1">
+        <button id="edit_button_<%=word.id%>" class="gray_button" onclick="edit_word(this,<%=word.id%>);">
+			<%= word_for :edit%>
+		</button>
+		<button id="delete_button_<%=word.id%>" class="gray_button" onclick="delete_word(this,<%=word.id%>);">
+			<%= word_for :delete%>
+		</button>
+    </span>
+</span>

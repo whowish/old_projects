@@ -1,0 +1,75 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<script language="javascript">
+	function submit_share()
+	{
+		try {
+			$('#share_submit_button').loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/discussion/share_discussion_comment',
+				cache: false,
+				headers:{"Connection":"close"},
+				dataType: "json",
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"comment_id": "<%=params[:id]%>",
+					"message": $('#share_message').val()
+				},
+				success: function(data){
+					try {
+						if (data.redirect_url != undefined) {
+							top.location.href = data.redirect_url;
+							return;
+						}
+						
+						if (data.ok == true) {
+							$(document).trigger('close.whowish_box');
+						}
+						else {
+							$('#share_submit_button').loading_button(false);
+						}
+					} 
+					catch (e) {
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#share_submit_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#share_submit_button').loading_button(false);
+			alert(e);
+		}
+	}		
+</script>
+
+<span id="flag_flow_content" class="span-50">
+	<span class="span-48 margin-left-1 margin-top-1">
+		<span class="form_unit span-48 medium_dark_gray " >
+			<span class="font12 squeks_blue bold_font">
+                <%= word_for :message%>
+            </span>
+			<span class="span-48 margin-top-5px">
+				<textarea class="span-48 textarea_input" id="share_message" type="text"></textarea>
+			</span>
+		</span>
+		<span class="span-48 margin-top-2 margin-bottom-1">
+			<span class="span-48">
+				<a href="#" class="squeks_button" id="share_submit_button"  onclick="submit_share();return false;">
+					 <%= word_for :submit%>
+				</a>
+			</span>
+		</span>
+	</span>
+</span>
+
+<script language="javascript">
+	$('#share_message').default_text('<%=word_for :share_message_default%>');
+</script>

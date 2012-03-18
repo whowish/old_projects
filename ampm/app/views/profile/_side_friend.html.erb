@@ -1,0 +1,32 @@
+<%
+	user = $facebook
+	user = get_facebook_info(params[:user_id]) if params[:user_id]
+
+	friend_show = 9
+	all_friends = user.all_friends
+	sql_friend = all_friends.join("','") 
+	sql = "facebook_id in ('" + sql_friend + "')"
+	all_friend = FacebookCache.count(:conditions=>[sql])
+	friends_side = FacebookCache.all(:conditions=>[sql],:order => "rand()", :limit => friend_show)
+%>
+<%if all_friend > 0%>
+<span class="span-15 margin-bottom-1 clearfix">
+	<span class="span-15 dark_blue_bg height01"></span>
+	<span class="span-15 light_blue_bg dark_gray fontsize12 bold_font height20">
+		<span class="span-13 margin-left-1">
+			<a href="/friend/view_all"><%= word_for :friend_topic,:all_friend=>all_friend%></a> 
+		</span>
+	</span>
+	<span class="span-15 margin-top-1">
+		<%
+			friends_side.each do |friend|
+			
+		%>
+		<a title="<%=friend.name%>" href="/profile?user_id=<%=friend.facebook_id%>">
+			<span class="facebook_pic" style="background-image:url(http://graph.facebook.com/<%=friend.facebook_id%>/picture?type=square);width:48px;height:48px;margin:1px;">
+			</span>
+		</a>
+	    <%end%>
+	</span>
+</span>
+<%end%>

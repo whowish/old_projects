@@ -1,0 +1,114 @@
+<%
+	user = @facebook_data[entity.facebook_id]
+	user = Member.get_guest if !user
+	user_name = (entity.is_anonymous) ? "#{user.anonymous_name}" : user.name
+
+	image_url = @figure_data[entity.figure_id].get_thumbnail_image_url
+
+	if entity.action == Feed::ACTION_CREATE_FIGURE_IMAGE
+		image_url = get_thumbnail_url(@figure_image_data[entity.figure_image_id].original_image_path,50,50)
+	elsif entity.action == Feed::ACTION_LIKE_IMAGE
+		image_url = get_thumbnail_url(@figure_image_data[entity.figure_image_id].original_image_path,50,50)
+	end
+
+	url = @figure_data[entity.figure_id].get_url
+	if @comment_data[entity.comment_id] != nil 
+		url = "/comment/view/#{@comment_data[entity.comment_id].id}"
+		url = "/comment/view/#{@comment_data[entity.comment_id].parent_id}" if @comment_data[entity.comment_id].parent_id > 0
+	end
+%>
+<span class="stream_content margin-top-5px" >
+	<a href="<%=url%>">
+	<span class="figure_feed round_corner-4" style="background-image:url(<%=image_url%>);cursor:pointer;">
+    </span>
+	</a>
+	<span class="span-37 margin-left-1">
+		<span class="span-37">
+			<%
+				if user.is_guest
+			%>
+					<span style="font-weight:bold;">Guest</span>
+			<%
+				elsif !entity.is_anonymous 
+			%>
+					<a href="/profile?user_id=<%=user.facebook_id%>" class="float-left font12 squeks_blue bold_font">
+						<%=user_name%>
+					</a>
+			<%
+				else
+			%>
+					<span style="font-weight:bold;"><%=user_name%></span>
+			<%
+				end
+			%>
+			<span class="float-left margin-left-5px font10 light_font medium_gray">
+				
+			</span>
+		</span>
+		<span class="span-37">
+			<span class="span-37 font11 dark_gray normal_font">
+				<%		
+						if entity.action == Feed::ACTION_LOVE_FIGURE and entity.data == FigureLove::TYPE_LOVE
+				%>
+							<%=word_for :figure_love%>
+				<%
+						elsif entity.action == Feed::ACTION_LOVE_FIGURE and entity.data == FigureLove::TYPE_HATE
+				%>
+							<%=word_for :figure_hate%>
+				<%
+						elsif entity.action == Feed::ACTION_LOVE_FIGURE and entity.data == FigureLove::TYPE_UNLOVE
+				%>
+							<%=word_for :figure_unlove%>
+				<%
+						elsif entity.action == Feed::ACTION_LOVE_FIGURE and entity.data == FigureLove::TYPE_UNHATE
+				%>
+							<%=word_for :figure_unhate%>
+				<%
+						elsif entity.action == Feed::ACTION_CREATE_FIGURE
+				%>
+							<%=word_for :create_figure%>
+				<%
+						elsif entity.action == Feed::ACTION_CREATE_FIGURE_IMAGE
+				%>
+							<%=word_for :create_figure_image%>
+				<%
+						elsif entity.action == Feed::ACTION_COMMENT
+				%>
+							<%=word_for :comment,:comment_data=>CGI.escapeHTML(truncate_bytes(@comment_data[entity.comment_id].comment,150)+"...")%>
+				<%
+						elsif entity.action == Feed::ACTION_AGREE_COMMENT and entity.data == CommentAgree::TYPE_AGREE
+				%>
+							<%=word_for :agree_comment,:comment_data=>CGI.escapeHTML(truncate_bytes(@comment_data[entity.comment_id].comment,150)+"...")%>
+				<%
+						elsif entity.action == Feed::ACTION_AGREE_COMMENT and entity.data == CommentAgree::TYPE_DISAGREE
+				%>
+							<%=word_for :disagree_comment,:comment_data=>CGI.escapeHTML(truncate_bytes(@comment_data[entity.comment_id].comment,150)+"...")%>
+				<%
+						elsif entity.action == Feed::ACTION_LIKE_IMAGE and entity.data == FigureImageLike::TYPE_LIKE
+				%>
+							<%=word_for :like_image%>
+				<%
+						elsif entity.action == Feed::ACTION_LIKE_IMAGE and entity.data == FigureImageLike::TYPE_DISLIKE
+				%>
+							<%=word_for :dislike_image%>
+				<%
+						elsif entity.action == Feed::ACTION_BID
+				%>
+							<%=word_for :bid,:number=>number_with_delimiter(@bid_request_data[entity.bid_request_id].value)%>
+				<%
+						elsif entity.action == Feed::ACTION_WIN_BID
+				%>
+							<%=word_for :win_bid,:number=>number_with_delimiter(@bid_request_data[entity.bid_request_id].value)%>
+				<%
+						end
+				%>
+			</span>
+			<a href="<%=url%>" class="float-left font14 bold_font huneysuckle_pink margin-top-5px">
+				<%=@figure_data[entity.figure_id].title%>
+			</a>
+		</span>
+		<span class=" light_medium_gray margin-top-5px">
+			<%=semantic_time(entity.created_date)%>
+		</span>
+	</span>
+</span>

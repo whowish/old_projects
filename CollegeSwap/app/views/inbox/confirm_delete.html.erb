@@ -1,0 +1,54 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50 margin-bottom-1">
+	<span class="span-50 light_green_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		&nbsp;&nbsp; <%=word_for :are_you_sure%>
+	</span>
+	<span class="span-50 margin-top-1 margin-bottom-1">
+		<span class="red_button margin-left-1" id="request_yes_button"  onclick="delete_request();">
+			<%=word_for :yes_button%>
+		</span>
+		<span class="green_button margin-left-1" id="request_no_button"  onclick="cancel_delete();">
+			<%=word_for :no_button%>
+		</span>
+	</span>
+</span>
+
+<script language="javascript">
+	
+	function delete_request()
+	{
+			$('#request_yes_button').loading_button(true);
+		
+			var data = {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"request_id": "<%=params[:request_id]%>"
+			};
+			
+			$.ajax({
+				type: "POST",
+				url: '/inbox/delete',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						$('#response_flow_content_<%=params[:request_id]%>').fadeOut(
+						function (){$('#response_flow_content_<%=params[:request_id]%>').remove();})
+					}
+					$(document).trigger('close.whowish_box');
+				},
+				error: function(){
+					
+				}
+			});
+		
+	}
+	
+	function cancel_delete()
+	{
+		$(document).trigger('close.whowish_box');
+	}
+
+</script>

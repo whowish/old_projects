@@ -1,0 +1,2 @@
+module SuggestFigureHelper
+end

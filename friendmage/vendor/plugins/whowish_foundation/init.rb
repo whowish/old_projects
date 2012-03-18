@@ -1,0 +1,8 @@
+require 'mini_magick_init'
+require 'thumbnailism_init'
+require 'whowish_word_init'
+require 'facebook_addicted_init'
+require 'exception_init'
+require 'trace_viewer_init'
+require 'lock'
+require 'uri'

@@ -1,0 +1,51 @@
+Wiky Editor - a Javascript library that turns a textarea into a Wiki markup editor
+=======================
+
+Introduction
+-------------------
+Wiky Editor - a Javascript library that turns a textarea into a Wiki markup editor.
+There are 2 libraries:
+
+1. wiky_base_editor.js
+    an editor that supports an undo/redo mechanism, which is better than a default undo/redo mechanism of a browser. 
+    My undo/redo mechanism saves a history record when:
+      - Ctrl+V = Pasting is performed
+      - Ctrl+* = Other action, e.g. make bold or italic
+      - New-line is performed.
+      
+    An undo/redo from a browser only saves a history record when the textarea is unfocused, in which case, it is not enough in my opinion.
+
+2. wiky_editor.js
+   An editor that inherits wiky_base_editor and further supports shortcut for Wiki markup feature. Below are what it supports:
+     - Ctrl+B = toggle bold
+     - Ctrl+I = toggle italic
+     - Ctrl+h = toggle heading
+     - You can have toolbar for adding links, videos and images
+
+How to use it
+-------------------
+Wiky editor requires jQuery library.
+
+To use wiky_base_editor, you shall do this: $('#textarea').wiky_base_editor();
+To use wiky_editor, you shall do this: $('#textarea').wiky_editor();
+
+Supported Syntax
+-------------------
+== Heading ==
+=== Subheading ===
+[http://www.url.com Name of URLs]
+[[File:http://www.url.com/image.png Alternative Text]]
+[[Video:http://www.youtube.com/watch?v=qwe23rgWEw]]
+ -------------------- (Horizontal line)
+: (Indentation)
+# Ordered bullet point
+* Unordered bullet point
+
+License
+------------------
+You can do whatever you want with it. Just give me some credit. (Apache License)
+
+
+Contributors
+-------------------
+Tanin Na Nakorn

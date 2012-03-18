@@ -1,0 +1,199 @@
+<%
+	params[:feed_id] ||= 0
+	params[:feed_id] = params[:feed_id].to_i
+
+	params[:feed_filter] ||= cookies[:feed_filter]
+	params[:feed_filter] ||= "all"
+
+	cookies[:feed_filter] = params[:feed_filter]
+	
+	sql_params = {:id=>params[:feed_id]}
+	sql = "id > :id"
+	if params[:feed_filter] == "friend"
+		sql = "facebook_id IN (:friend_id)"
+		sql_params.merge!({:friend_id=>$member.all_friends.push($member.facebook_id)})
+	end
+
+	@feeds = Feed.all(:order=>"created_date DESC",:conditions=>[sql,sql_params],:limit=>25);
+	
+	@facebook_data_array = []
+	@figure_data_array = []
+	@figure_image_data_array = []
+	@comment_data_array = []
+	@bid_request_data_array = []
+	@discussion_data_array = []
+
+	@feeds.each { |entity|
+		@facebook_data_array.push(entity.facebook_id) if entity.facebook_id
+		@figure_data_array.push(entity.figure_id) if entity.figure_id
+		@figure_image_data_array.push(entity.figure_image_id) if entity.figure_image_id
+		@comment_data_array.push(entity.comment_id) if entity.comment_id
+		@bid_request_data_array.push(entity.bid_request_id) if entity.bid_request_id
+		@discussion_data_array.push(entity.discussion_id) if entity.discussion_id
+	}
+
+	@facebook_data = {}
+	@figure_data = {}
+	@figure_image_data = {}
+	@comment_data = {}
+	@bid_request_data ={}
+	@discussion_data ={}
+
+	Discussion.all(:conditions=>{:id=>@discussion_data_array}).each { |entity|
+		@discussion_data[entity.id] = entity
+	}
+
+	Member.all(:conditions=>{:facebook_id=>@facebook_data_array}).each { |entity|
+		@facebook_data[entity.facebook_id] = entity
+	}
+
+	Figure.all(:conditions=>{:id=>@figure_data_array}).each { |entity|
+		@figure_data[entity.id] = entity
+	}
+
+	FigureImage.all(:conditions=>{:id=>@figure_image_data_array}).each { |entity|
+		@figure_image_data[entity.id] = entity
+	}
+
+	Comment.all(:conditions=>{:id=>@comment_data_array}).each { |entity|
+		@comment_data[entity.id] = entity
+	}
+
+	BidRequest.all(:conditions=>{:id=>@bid_request_data_array}).each { |entity|
+		@bid_request_data[entity.id] = entity
+	}
+%>
+<span class="span-46 right_border">
+	<span class="span-44 margin-left-1">
+		<span class="span-44 height26">
+			<a href="?feed_filter=all" class="feed_tab <%='focustab' if params[:feed_filter] != 'friend'%>">
+				<span class="earth_icon">
+				</span>
+				<span class="float-left margin-left-5px ">
+					Live Action
+				</span>
+			</a>
+			<%
+				if !$facebook.is_guest
+			%>
+				<a href="?feed_filter=friend" class="feed_tab <%='focustab' if params[:feed_filter] == 'friend'%>">
+					<span class="friend_icon">
+					</span>
+					<span class="float-left margin-left-5px">
+						Friends Action
+					</span>
+				</a>
+			<%
+				end
+			%>
+			<a href="<%=request.path+'?country_code=jp'%>" class="float-right language margin-left-5px light_medium_gray_bg height20 round_corner-4">
+				<span class="float-left">
+					<img src="/images/flag/flag_japan copy.png" alt=""  />
+				</span>
+				<span class="float-left margin-left-5px">
+					JP
+				</span>
+			</a>
+			<a href="<%=request.path+'?country_code=us'%>" class="float-right language margin-left-5px light_medium_gray_bg height20 round_corner-4">
+				<span class="float-left">
+					<img src="/images/flag/flag_usa copy.png" alt=""  />
+				</span>
+				<span class="float-left margin-left-5px">
+					US
+				</span>
+			</a>
+		</span>
+		<span class="span-44 height01 margin-top-5px light_gray_bg">
+		</span>
+		<span class="span-44" id="feed_container">
+			<%
+				@feeds.each do |entity|
+					begin
+						if entity.action == Feed::ACTION_CREATE_DISCUSSION or entity.action == Feed::ACTION_LOVE_DISCUSSION
+			%>
+							<%=render :partial=>"/feed/discussion_feed_unit",:locals=>{:entity=>entity}%>
+			<%
+						else
+			%>
+							<%=render :partial=>"/feed/feed_unit",:locals=>{:entity=>entity}%>
+			<%
+						end
+					rescue Exception=>e
+
+					end
+				end	
+			%>
+		</span>
+	</span>
+</span>
+<span class="span-38 left_border">
+</span>
+<%
+	last_feed_id = 0
+	last_feed_id = @feeds.first.id if @feeds.length > 0
+%>
+<script language="javascript">
+	var feed_id = "<%=last_feed_id%>";
+	var WAIT_TIME = 120000;
+	var result_global_id = 0;
+	
+	$(function(){ 
+		setTimeout("update_feed();",WAIT_TIME);
+	});
+	
+	function update_feed()
+	{
+		try {
+			$.ajax({
+				type: "POST",
+				url: '/feed/load_more',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"feed_id": feed_id,
+					"feed_filter": "<%=params[:feed_filter]%>"
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							if (data.results.length > 0) {
+
+								var str = "<span id='result_subpanel_" + result_global_id+"' style='display:none;'>";
+									for (var i=0;i<data.results.length;i++)
+									{
+										str += data.results[i];
+									}
+								str += "</span>";
+								
+								$('#feed_container').prepend(str);
+								
+								$("#result_subpanel_" + result_global_id).slideDown( 'slow', function() {
+									setTimeout("update_feed();",WAIT_TIME);
+								});
+								
+								result_global_id++;
+								feed_id = data.feed_id;
+							}
+							else
+							{
+								setTimeout("update_feed();",WAIT_TIME);
+							}
+						}
+					} 
+					catch (e) {
+						setTimeout("update_feed();",WAIT_TIME);
+					}
+
+				},
+				error: function(req, status, e){
+					setTimeout("update_feed();",WAIT_TIME);
+				}
+			});
+		} catch (e)
+		{
+			setTimeout("update_feed();",WAIT_TIME);
+		}
+
+	}
+</script>

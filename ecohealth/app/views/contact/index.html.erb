@@ -1,0 +1,16 @@
+<%
+	contact = Contact.first()
+%>
+
+<span class="span-100 clearfix">
+    <span class="span-92 clearfix margin-left-4 margin-bottom-2">
+		<span class="contactUs">
+			<span class="contactus_contentbox">
+				<%if contact%>
+					<%=contact.description%>
+				<%end%>
+			</span>
+		</span>  
+    </span>
+</span>
+

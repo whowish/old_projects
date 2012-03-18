@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html> 
+	<head> 
+		<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" /> 
+	</head> 
+	<body> 
+		Please add stuff you can trade.
+		<br/><br/>
+		
+		<%=@requestor.name%> have something you want (<%=@item_title%>) but <%=@pronoun.downcase%> can't swap with you because nothing is in your Trade List.
+		You can click <a href="<%=@url_add_junk%>">here</a> to add stuff to your Trade List, so you can make a swap.
+		<%if @message != ""%>
+		<br/><br/>
+		<%=@requestor.name%> says:  <%=@message%>
+		<%end%>
+		
+		<br/><br/>
+		Best regards,
+		<br/>
+		College Swap Team
+		<br/>
+	</body>
+</html>

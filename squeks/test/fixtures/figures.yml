@@ -1,0 +1,48 @@
+# Auto-generated template
+figure1:
+  id: 1
+  title_us: "Mario"
+  description: "is an actor"
+  default_pic: ""
+  created_date: <%= DateTime.now %>
+  status: <%=Figure::STATUS_ACTIVE%>
+  loves: 0
+  hates: 1
+  dont_cares: 2
+  views: 5
+  creator_facebook_id: 100002085428291
+  country_code: "TH"
+  title_th: ""
+  title_jp: ""
+  title_kr: ""
+  title_cn: ""
+  tags: "tag1"
+  value: 50
+  manager_facebook_id: 100002085428291
+  bid_start_time: ""
+  bid_status: <%=Figure::BID_STATUS_SETTLED%>
+  zip_file_path: ""
+
+figure2:
+  id: 2
+  title_us: "Mario"
+  description: "is an actor"
+  default_pic: ""
+  created_date: <%= DateTime.now %>
+  status: <%=Figure::STATUS_ACTIVE%>
+  loves: 0
+  hates: 2
+  dont_cares: 2
+  views: 4
+  creator_facebook_id: 100002085428291
+  country_code: "TH"
+  title_th: ""
+  title_jp: ""
+  title_kr: ""
+  title_cn: ""
+  tags: "tag2"
+  value: 30
+  manager_facebook_id: 100002085428291
+  bid_start_time: ""
+  bid_status: <%=Figure::BID_STATUS_SETTLED%>
+  zip_file_path: ""

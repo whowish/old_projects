@@ -1,0 +1,20 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<% if @redirect_url %>
+	<script language="javascript">
+		top.location.href = '<%=@redirect_url%>'
+	</script>
+<% end %>
+<span class="span-50 margin-bottom-1">
+	<span class="span-50 light_green_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		<% if @error_message %>
+			&nbsp;&nbsp; <span style="color:red;"><%=@error_message%></span>
+		<% else %>
+			&nbsp;&nbsp; <%=word_for :you_just_shared%>
+		<% end %>
+	</span>
+	<span class="span-49" style="overflow:hidden;">
+		<%=render :partial=>"home/search_result_unit",:locals=>{:item=>Item.first(:conditions=>{:id=>params[:item_id]})}%>
+	</span>
+</span>

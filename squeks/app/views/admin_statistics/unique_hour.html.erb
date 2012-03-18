@@ -1,0 +1,8 @@
+<span class="span-99 margin-top-1">
+	<%=render :partial=>"admin_statistics/menu"%>
+	<%
+		date = Time.now.utc
+		date = Time.parse(params[:date]) if params[:date] 
+	%>
+	<%=render :partial=>"web_metrics/unique_hour",:locals=>{:date=>date}%>
+</span>

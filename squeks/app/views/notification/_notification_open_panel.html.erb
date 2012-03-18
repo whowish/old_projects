@@ -1,0 +1,26 @@
+<span class="span-30 notification_unit" id="notification_open_panel">
+	<%
+		if @notifications.length == 0
+	%>
+		<%=render :partial=>"notification/hover_panel_empty"%>
+	<%
+		else
+	%>
+		<ul>
+			<%
+				@notifications.each do |entity|
+					begin
+			%>
+						<li>
+							<%=render :partial=>"notification/hover_unit",:locals=>{:entity=>entity}%>
+						</li>
+			<%
+					rescue
+					end
+				end
+			%>
+		</ul>
+	<%
+		end
+	%>
+</span>

@@ -1,0 +1,106 @@
+@charset "UTF-8";
+.whowish_box {
+	position: absolute;
+	z-index: 61000;
+	background-image: url(whowish_popup_bg.png);
+	background-repeat: repeat;
+	border: 1px solid #8a8a8a;
+	
+	
+}
+
+.whowish_box_container {
+	border: 1px solid #406623;
+	background-color: #FFF;
+	margin:10px 10px 10px 10px;
+	display: block;
+}
+.whowish_box_headline{
+	display: block;
+	height: 26px;
+}
+.whowish_box_name {
+	font-size: 18px;
+	font-weight: bold;
+	color: #FFF;
+	text-decoration: none;
+	line-height: 26px;
+	height: 26px;
+	padding-right: 6px;
+	padding-left: 6px;
+	float: left;
+}
+.whowish_box_close_button {
+	height: 26px;
+	width: 26px;
+	float: right;
+	background-image: url(whowish_popup_close_button.png);
+	background-repeat: no-repeat;
+	background-position: 8px 8px;
+	cursor:pointer;
+}
+
+.whowish_box_close_button:hover {
+	cursor:pointer;
+	background-color: #666666;
+}
+
+.whowish_box_back_button {
+	height: 26px;
+	width: 70px;
+	float: right;
+	cursor:pointer;
+}
+
+.whowish_box_back_icon {
+	height: 26px;
+	width: 26px;
+	float: left;
+	background-image: url(whowish_popup_back_button.png);
+	background-repeat: no-repeat;
+	cursor:pointer;
+}
+
+.whowish_box_back_text {
+	height: 26px;
+	width: 44px;
+	float: left;
+	line-height:26px;
+	cursor:pointer;
+	color:white;
+	font-weight:bold;
+	font-size: 14px;
+}
+
+.whowish_box_back_button:hover {
+	cursor:pointer;
+	background-color: #666666;
+}
+
+
+.whowish_box_content{
+	background-color: #FFF;
+	display: inline-block;
+}
+
+#whowish_box_overlay {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height:99%;
+  width:99%;
+}
+
+.whowish_box_overlay_hide {
+    display:none;
+}
+
+.whowish_box_overlay_show {
+  	background-color: #000;
+  	z-index: 60009 !important;
+  	filter:alpha(opacity=10);
+	-moz-opacity:0.1;
+	-khtml-opacity: 0.1;
+	opacity: 0.1;
+	display:block;
+}

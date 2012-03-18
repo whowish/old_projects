@@ -1,0 +1,36 @@
+<%
+	member = @facebook_data[@notification.facebook_id]
+	member_name = (@notification.is_anonymous) ? "#{member.anonymous_name}" : member.name
+	image_url = @figure_data[@notification.figure_id].get_thumbnail_image_url
+%>
+<span class="span-66 margin-left-1 margin-top-1">
+	<span class="span-5 height-5">
+		<img src="<%=image_url%>" />
+	</span>
+	<span class="span-60 margin-left-5px">
+		<%if @notification.is_anonymous%>
+			<span class="span-60 font11 dark_gray bold_font">
+				<%=member_name%>
+			</span>
+		<%else%>
+            <a class="span-60 font11 squeks_blue bold_font" href="/profile?user_id=<%=@notification.facebook_id%>"><%=member_name%></a>
+		<%end%>
+		<span class="span-60 font10 normal_font dark_gray">
+			<%if @notification.action == Notification::ACTION_BID%>
+				<%=word_for :action_bid,:number=>(@bid_data[@notification.bid_request_id].value)%>
+			<%elsif @notification.action == Notification::ACTION_WIN_BID%>
+				<%=word_for :action_win_bid,:number=>(@bid_data[@notification.bid_request_id].value)%>
+			<%end%>
+		</span>
+		<a href="<%=@figure_data[@notification.figure_id].get_url%>" class="span-60 font11 huneysuckle_pink bold_font">
+			<%=@figure_data[@notification.figure_id].title%>
+		</a>
+	</span>
+	<span class="span-60  margin-left-5px">
+		<span class="squeks_coin_value">
+		</span>
+		<span class="margin-left-5px font10 normal_font medium_gray">
+			<%=semantic_time(@notification.created_date)%>
+		</span>
+	</span>
+</span>

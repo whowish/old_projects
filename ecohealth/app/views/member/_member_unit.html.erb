@@ -1,0 +1,19 @@
+<span class="row" id="member_unit_<%=member.id%>">
+	<span class="date_container">
+		<%=member.email%>
+	</span>
+	<span class="date_container">
+		<%=member.name%>
+	</span>
+	<span class="date_container">
+		<select id="member_type_<%=member.id%>" class="height-2 span-14">
+			<%Member::MEMBER_TYPES.each do |member_type|%>
+				<option value="<%=member_type%>" <%='selected' if member.member_type == member_type%>><%=member_type.capitalize%></option>
+			<%end%>
+	    </select>
+	</span>
+	<span class="toolbox_container">
+		<a href="#" class="blue_button_small" id="edit_submit_button" onclick="edit_member(this,'<%=member.id%>');return false;">Save</a>
+		<a href="#" class="orange_button_small" id="delete_submit_button" onclick="submit_delete(this,'<%=member.id%>');return false;">Delete</a>
+	</span>
+</span>

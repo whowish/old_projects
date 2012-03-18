@@ -1,0 +1,7 @@
+<span class="span-70"id="user_block_<%=facebook_id%>">
+	<%=render :partial=>"user_profile",:locals=>{:facebook_id=>facebook_id}%>
+	<%=render :partial=>"junk_list",:locals=>{:facebook_id=>facebook_id,:q=>q_junk,:category_id=>junk_category_id}%>
+	<%=render :partial=>"wish_list",:locals=>{:facebook_id=>facebook_id,:q=>q_wish,:category_id=>wish_category_id}%>
+	<span class="span-70 height01 medium_gray_bg">
+	</span>
+</span>

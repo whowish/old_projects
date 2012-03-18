@@ -1,0 +1,11 @@
+<%
+	friend = get_facebook_info( event_friend.facebook_id)
+%>
+<span class="span-63 margin-top-5px" id="pending_approved_<%=event_friend.id%>_panel">
+	<a href="/profile?user_id=<%=event_friend.facebook_id%>" class="white"><%=friend.name%></a>
+	<span class="margin-left-4">
+		<a href="#" onclick="approve_friend(this,'accept_friend',<%=event_friend.id%>);" id="accept_button_<%=event_friend.id%>" class="light_gray"><%= word_for :accept%></a>
+		|
+		<a href="#" onclick="approve_friend(this,'reject_friend',<%=event_friend.id%>);" id="reject_button_<%=event_friend.id%>" class="light_gray"><%= word_for :reject%></a>
+	</span>
+</span>

@@ -1,0 +1,57 @@
+<%
+	figure_manager = Figure.all(:conditions=>{:manager_facebook_id=>params[:user_id],:status=>Figure::STATUS_ACTIVE})
+	@figure_bidding_array = []
+
+	figure_manager.each { |entity|
+		@figure_bidding_array.push(entity.id) if entity.bid_status == Figure::BID_STATUS_BIDDING
+	}
+	
+	sql = "figure_id IN (:figure_id) and status = :status and facebook_id not in (:facebook_id)"
+	sql_params = {:figure_id=>@figure_bidding_array,:status=>BidRequest::STATUS_SUCCESSFUL,:facebook_id=>params[:user_id]}
+	@all_bid_request = BidRequest.all(:conditions=>[sql,sql_params])
+	
+	@facebook_data_array = []
+	@figure_data_array = []
+
+	@all_bid_request.each { |entity|
+		@facebook_data_array.push(entity.facebook_id) if entity.facebook_id
+		@figure_data_array.push(entity.figure_id) if entity.figure_id
+	}
+	
+	@facebook_data = {}
+	@figure_data = {}
+
+	Member.all(:conditions=>{:facebook_id=>@facebook_data_array}).each { |entity|
+		@facebook_data[entity.facebook_id] = entity
+	}
+
+	Figure.all(:conditions=>{:id=>@figure_data_array}).each { |entity|
+		@figure_data[entity.id] = entity
+	}
+
+%>
+<%if @all_bid_request.length > 0%>
+<span class="span-69 margin-left-1 margin-top-1">
+	<span class="span-69">
+		<span class="font-18 dark-gray">
+			<%=word_for(:bidding_desc)%>
+		</span>
+		<%@all_bid_request.each do |@bid_request|%>
+			<%=render :partial=>"profile/manager_bid_unit"%>
+		<%end%>
+		<span class="span-69 height01 margin-top-1 medium_gray_bg">
+		</span>
+	</span>
+</span>
+<%end%>
+
+<%if figure_manager.length > 0%>
+<span class="span-69 margin-left-1 margin-top-2">
+	<span class="float-left span-69 font-18 dark-gray">
+		<%=word_for(:not_bid_desc)%>
+	</span>
+	<%figure_manager.each do |figure|%>
+		<%=render :partial=>"profile/manager_unit",:locals=>{:figure=>figure}%>
+	<%end%>
+</span>
+<%end%>

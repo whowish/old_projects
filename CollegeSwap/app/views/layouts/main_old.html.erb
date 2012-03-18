@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<link rel="P3Pv1" href="/w3c/p3p.xml">
+		<meta http-equiv="P3P" policyref="/w3c/p3p.xml"  content='CP="<%=COMPACT_POLICY%>"'>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="robots" content="index,follow" />
+		<title>CollegeSwap | Online Swap Meet | Buy, Sell, Barter, Trade</title>
+		<meta name="College students swap for the stuff you need with CollegeSwap! Buy, sell, & trade for everything from futons & textbooks to math tutors & rides!" />
+		<meta name="keywords" content="college swap, swap meet, barter, trade, online auction" />
+		<%=stylesheet_link_tag("reset.css")%>
+		<%=stylesheet_link_tag("swap.css")%>
+		<%=stylesheet_link_tag("jquery.autocomplete.css")%>
+		
+		<%= javascript_include_tag "jquery-1.5.min.js"%>
+		<%= javascript_include_tag "jquery.relative_offset.1.0.js"%>
+		<%= javascript_include_tag "jquery.autocomplete.js"%>
+		<%= javascript_include_tag "jquery.error_log.js"%>
+		<%= javascript_include_tag "jquery.escape_html.js"%>
+		<%= javascript_include_tag "jquery.loading_button.js"%>
+		<%= javascript_include_tag "jquery.json.js"%>
+		
+		<%= javascript_include_tag "basic.js"%>
+		<%= javascript_include_tag "form_validator_helper.js"%>
+		
+		<%=stylesheet_link_tag("/whowish_box/jquery.whowish_box.css")%>
+		<%= javascript_include_tag "/whowish_box/jquery.whowish_box.js"%>
+		
+		<%=stylesheet_link_tag("/default_text/jquery.default_text.css")%>
+		<%= javascript_include_tag "/default_text/jquery.default_text.js" %>
+		
+		<%=stylesheet_link_tag("/ruby_box/jquery.ruby_box.css")%>
+		<%= javascript_include_tag "/ruby_box/jquery.ruby_box.js" %>
+		
+		<%=stylesheet_link_tag("jquery.ui.core.css")%>
+		<%=stylesheet_link_tag("jquery.ui.theme.css")%>
+		<%=stylesheet_link_tag("jquery.ui.datepicker.css")%>
+		<%= javascript_include_tag "jquery.ui.core.js"%>
+		<%= javascript_include_tag "jquery.ui.datepicker.js"%>
+		
+		<%= javascript_include_tag "/whowish_foundation_asset/swfupload/jquery.escape.js" %>
+		<%= javascript_include_tag "/whowish_foundation_asset/swfupload/swfupload.js" %>
+		<%= javascript_include_tag "/whowish_foundation_asset/swfupload/swfupload.queue.js" %>
+		<%= javascript_include_tag "/whowish_foundation_asset/swfupload/swfupload.handler.js" %>
+		<%=stylesheet_link_tag("/whowish_foundation_asset/swfupload/swfupload.css")%>
+		<%= javascript_include_tag "/whowish_foundation_asset/swfupload/ajaxupload.js" %>
+		
+
+		
+
+		<script src="http://connect.facebook.net/en_US/all.js"></script>
+		<link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico"/>
+		<link rel="icon" type="image/png" href="/images/favicon.png" />
+		<link rel="icon" type="image/gif" href="/images/favicon.png" />
+	</head>
+	<body>
+	<%
+		preload_button_images = ["blueBtn.png",
+								"blueBtnSmall.png",
+								"buttonCorner.png",
+								"facebookBtn.png",
+								"facebookBtnSmall.png",
+								"grayBtn.png",
+								"grayBtnSmall.png",
+								"greenBtn.png",
+								"greenBtnSmall.png",
+								"orangeBtn.png",
+								"orangeBtnSmall.png",
+								"redBtn.png",
+								"redBtnSmall.png"];
+	
+		preload_button_images.each do |b|
+	%>		
+			<img src="/images/button/<%=b%>" style="display:none;">
+	<%
+		end
+	%>
+		<div style=" width:760px; margin-left:auto; margin-right:auto;">
+			<img src="/whowish_box/loading.gif" style="display:none;">
+			<div class="body">
+				<!-- =============================================================================================
+				==== NAVIGATOR START HERE  ======================================================================
+				=================================================================================================-->
+				<%=render :partial=>"home/header"%>
+				
+				<!-- =============================================================================================
+				==== SEARCH START HERE  ======================================================================
+				=================================================================================================-->
+				<div id="search-tool" class="span-74">
+					<span class="span-2 left-search_corner height-5">
+					</span>
+					<span class="span-70">
+						<%=render :partial=>"home/search_bar"%>
+						
+				<!-- =============================================================================================
+				==== CONTETN START HERE  ======================================================================
+				=================================================================================================-->
+						<span class="span-70 margin-bottom-2 global-container">
+				<!-- =============================================================================================
+				==== USER START HERE  ======================================================================
+				=================================================================================================-->
+						<%
+							if params[:controller] == "search"
+						%>
+							<%=yield%>
+						<%
+							else
+						%>
+							<span class="span-16" style="border-right:1px solid #CCCCCC;">
+								<%= render :partial=>"home/side_profile" %>
+							
+								<%= yield(:menu) or render :partial=>"home/side_menu" %>
+							</span>
+							
+				<!-- =============================================================================================
+				==== LEFT CONTENT START HERE  ======================================================================
+				=================================================================================================-->
+							<span class="full_column_span" id="main_content">
+								<%=yield%>
+							</span>
+						<%
+							end
+						%>
+						</span>
+					</span>
+					<span class="span-2 right-search_corner height-5">
+					</span>
+				</div>
+				
+				<!-- =============================================================================================
+				==== FOOTER START HERE  ======================================================================
+				=================================================================================================-->
+				
+				<%=render :partial=>"home/footer"%>
+		</div>
+		
+		<div style="height:1px;font-size:1px;padding:0;clear:left;">&nbsp;</div>
+		</div>
+	<div id="fb-root">
+	</div>
+</body>
+</html>
+
+
+<script language="javascript">
+
+	 $(function() {
+
+		
+	 	FB.init({
+		    appId  : '<%=APP_ID%>',
+		    status : true, // check login status
+		    cookie : true, // enable cookies to allow the server to access the session
+		    xfbml  : false  // parse XFBML
+		  });
+		
+	
+		try {
+			FB.Canvas.setAutoResize();
+		} catch (e) {}
+		
+
+	});
+
+	$(function() {
+		$("#search_college_name").autocomplete('/college/list',{
+			width:250,
+			parse : function(data) {
+				//data = $.parseJSON(data);
+				
+				var parsed = [];
+				var rows = data.result;
+				for (var i=0; i < rows.length; i++) {
+					var row = $.trim(rows[i]);
+					if (row) {
+						parsed[parsed.length] = {
+							data: [row],
+							value: row,
+							result: row
+						};
+					}
+				}
+				return parsed;
+			},
+			matchContains: true
+		});
+	})
+	
+	 
+
+</script>
+<% if $is_first_time and ($facebook.is_guest or $facebook.is_new) and params[:controller] == "home"%>
+	<!--<div id="tutorial_1" style="display:block;position:absolute;left:190px;top:200px;z-index:100000;" onclick="$(this).fadeOut();$('#tutorial_2').fadeIn();">
+		<img src="/images/tutorial/step01.png">
+	</div>-->
+	
+	<div id="tutorial_2" style="display:block;position:absolute;left:180px;top:40px;z-index:1000;" onclick="$(this).fadeOut();$('#tutorial_3').fadeIn();">
+		<img src="/images/tutorial/step02.png">
+	</div>
+	
+	<div id="tutorial_3" style="display:none;position:absolute;left:13px;top:90px;z-index:999;" onclick="$(this).fadeOut();$('#tutorial_4').fadeIn();">
+		<img src="/images/tutorial/step03.png">
+	</div>
+	
+	<div id="tutorial_4" style="display:none;position:absolute;left:40px;top:0px;z-index:998;" onclick="$(this).fadeOut();">
+		<img src="/images/tutorial/step04.png">
+	</div>
+<% end%>
+

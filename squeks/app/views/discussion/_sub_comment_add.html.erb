@@ -1,0 +1,13 @@
+<span class="comment span-94 margin-top-1" >
+    <span class="span-92 margin-left-1" id="discussion_sub_comment_panel_<%=comment.id%>" style="display:none;">
+        <span style="float:left;">
+            <textarea id="discussion_sub_comment_<%=comment.id%>" class="comment_input2 span-87" style="width:800px;height:20px;"></textarea>
+        </span>
+        <span style="float:left;">
+          <a href="#" class="comment_button" id="discussion_sub_comment_button_<%=comment.id%>" style="height:22px;line-height:20px;width:80px;" onclick="submit_discussion_sub_comment(<%=comment.id%>);return false;"><%=word_for :sub_comment_button %></a>
+        </span>
+		<span class="span-62">
+			&nbsp;
+		</span>
+    </span>
+</span>

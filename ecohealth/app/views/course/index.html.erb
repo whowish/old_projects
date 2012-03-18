@@ -1,0 +1,60 @@
+<%
+	entity = Course.new()
+	is_new = true
+	action = "add"
+
+	if params[:id]
+		is_new = false
+		action = "edit"
+		entity = Course[params[:id]]
+	end
+	
+%>
+
+Title: <input type="text" id="title" value="<%=entity.title%>"/>
+Description: <input type="text" id="description" value="<%=entity.description%>"/>
+main image path: <input type="text" id="main_image_path" value="<%=entity.main_image_path%>"/>
+
+<span onclick="submit(this);">Save</span>
+
+<script language="javascript">
+	
+	function submit(sender) {
+
+		$(sender).loading_button(true);
+		$.ajax({
+			type: "POST",
+			url: '/course/<%=action%>' ,
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"id":"<%=params[:id] if params[:id]%>",
+				"title": $('#title').val(),
+				"description": $('#description').val(),
+				"image": $('#main_image_path').val()
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					alert(data.ok);
+					$(sender).loading_button(false);
+					if (data.url != undefined) {
+						top.location.href = data.url;
+						return;
+					}
+				}
+				else
+				{
+					$(sender).loading_button(false);
+					alert(data.error_message);
+				}
+				
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+</script>

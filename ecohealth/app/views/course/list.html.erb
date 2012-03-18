@@ -1,0 +1,48 @@
+<%
+
+	Course.all.each do |entity|
+%>
+		<a href="/course/view?id=<%=entity.id%>"><%=entity.title%></a>
+		<a href="/course?id=<%=entity.id%>">edit</a>
+		<span onclick="submit_delete(this,<%=entity.id%>);">delete</span>
+		<br/>
+<%
+	end
+%>
+<br/>
+<a href="/course">add</a>
+
+<script language="javascript">
+	
+	function submit_delete(sender,id) {
+
+		$(sender).loading_button(true);
+		$.ajax({
+			type: "POST",
+			url: '/course/delete',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"id": id
+			},
+			success: function(data){
+				if (data.ok == true)
+				{
+					alert(data.ok);
+					$(sender).loading_button(false);
+				}
+				else
+				{
+					$(sender).loading_button(false);
+					alert(data.error_message);
+				}
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+</script>
+

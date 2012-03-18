@@ -1,0 +1,19 @@
+<%if $facebook.is_aesir%>
+<span class="span-18 height20 squeks_blue_bg" >
+	<a href="http://www.facebook.com/profile.php?id=<%=user.facebook_id%>" style="margin-top:2px;">
+		<%=word_for :go_to_facebook%>
+	</a>
+</span>
+<span class="span-18 height20 white_bg" id="side_ban_user">
+    <span class="span-15 margin-left-5px font12 bold_font medium_gray">
+    	<%if user.status == Member::STATUS_ACTIVE%>
+       <a href="#" onclick="$.whowish_box({url:'/profile/confirm_ban?facebook_id=<%=user.facebook_id%>',background_color:'#999999'});return false;" class="float-right" style="margin-top:2px;">
+			<%=word_for :ban_this_people%>
+	   </a>
+	   <%else%>
+	  		<%=word_for :banned%>
+	   <%end%>
+    </span>
+	
+</span>
+<%end%>

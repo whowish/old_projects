@@ -1,0 +1,10 @@
+ <%if user.facebook_id.to_s == $facebook.facebook_id.to_s or $facebook.is_aesir%>
+<span class="span-18 height20 white_bg" id="side_name_container">
+    <span class="span-15 margin-left-5px font12 bold_font medium_gray">
+        <%=user.anonymous_name%>
+    </span>
+	<a href="#" onclick="$.whowish_box({url:'/profile/change_anonymous_name',background_color:'#999999'});return false;" class="float-right" style="margin-top:2px;">
+		Edit
+	</a>
+</span>
+<%end%>

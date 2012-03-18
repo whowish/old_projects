@@ -1,0 +1,66 @@
+<%
+	params[:user_id] = $facebook.facebook_id if !params[:user_id]
+	user = get_facebook_info(params[:user_id])
+	user_profile = Member.first(:conditions=>{:facebook_id=>params[:user_id]})
+%>
+
+<span class="span-18 clearfix" >
+	<span class="span-18">
+		<span class="span-18 height26 squeks_shadow_bg">
+            <span class="span-18 height20 squeks_blue_bg">
+                <span class="span-15 margin-left-5px">
+                    <a href="/profile?user_id=<%=user_profile.facebook_id%>" class="font12 bold_font white">
+                        <%=user_profile.name%>
+                    </a>
+                </span>
+            </span>
+		</span>
+        <%=render :partial=>"profile/side_anonymous_name",:locals=>{:user=>user_profile}%>
+		<%=render :partial=>"profile/side_ban_user",:locals=>{:user=>user_profile}%>
+		<span class="span-18 light_medium_gray_bg">
+			<span class="span-18 white_bg margin-bottom-5px">
+				<img src="<%=user.profile_picture_url('large')%>" alt=""  width="180"/>
+			</span>
+		</span>
+	</span>
+	<span class="span-18">
+		<span class="span-18 height26 medium_dark_gray_bg">
+			<span class="span-18 height20 medium_gray_bg">
+				<span class="span-15 margin-left-5px">
+					<span class="font12 bold_font white">
+						<%=word_for :friends_in_app%>
+					</span>
+				</span>
+			</span>
+		</span>
+		<span class="span-18 light_medium_gray_bg">
+			<span class="span-18 white_bg margin-bottom-5px">
+                <%
+                    sql_friend = user.all_friends.join("','")
+                    sql = "facebook_id in ('" + sql_friend + "')"
+                    friend_in_app_count = Member.count(:conditions=>[sql])
+                    friends_side = Member.all(:conditions=>[sql],:order => "id DESC")
+
+                   friends_side.each do |friend|
+                %>
+                    <span class="friend_in_app_pic">
+                        <a href="/profile?user_id=<%=friend.facebook_id%>">
+                            <img src="http://graph.facebook.com/<%=friend.facebook_id%>/picture?type=square" width="50" height="50" alt=""  />
+                        </a>
+                    </span>
+                <%
+                    end
+                %>
+			</span>
+			<%
+				if user.facebook_id == $facebook.facebook_id
+			%>
+				<span class="span-18 white_bg margin-bottom-5px">
+					<a href="/profile/invite_friend"><%=word_for :invite_friend%></a>
+				</span>
+			<%
+				end
+			%>
+		</span>
+	</span>
+</span>

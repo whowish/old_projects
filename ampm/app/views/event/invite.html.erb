@@ -1,0 +1,94 @@
+ <%
+ 	selected_friends = EventFriend.all(:conditions=>{:event_id=>params[:event_id]})
+	event = Event.first(:conditions=>{:id=>params[:event_id]})
+	friends_data = FacebookFriendRecord.all(:conditions=>{:facebook_id=>$facebook.facebook_id},:order=>"rand()",:limit=>30)
+%>
+ 
+ <script language="javascript">
+	function submit_friend()
+	{
+		try {
+			var friends = $("#jfmfs-container").data('jfmfs').getSelectedIdsAndNames();     
+			
+			if (friends.length == 0)
+			{
+				$('#invite_friend_button').ruby_box(true,'Please select at least one friend');
+				return;
+			}
+			
+			for (var i=0;i<friends.length;i++)
+			{
+				friends[i] = friends[i].id + ":" + friends[i].name;
+			}
+			
+			$('#invite_friend_button').loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/event/invite_more_friend',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request:"<%=params[:signed_request]%>",
+					"event_id":"<%=params[:event_id]%>",
+					"friends": friends.join(','),
+					"share_on_facebook":(($('#notify_friend_checkbox')[0].checked == true)?"yes":"no")
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							location.href = "/event/view?event_id="+ data.event_id;
+						}
+						else {
+							$('#invite_friend_button').loading_button(false);
+						}
+						
+					} 
+					catch (e) {
+						$('#invite_friend_button').loading_button(false);
+						$.error_log('submit_friend', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#invite_friend_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#invite_friend_button').loading_button(false);
+			$.error_log('submit_friend',e);
+			alert(e);
+		}
+	}	
+
+	$(function () {
+		$("#jfmfs-container").jfmfs({
+		  	exclude_friends: [<%=(selected_friends.map { |d| d.facebook_id }.push(event.facebook_id)).join(',')%>],
+			data:[<%=friends_data.map{|d| '{id:"'+d.friend_id+'",name:"'+d.name+'"}'}.join(',')%>],
+			width:480
+		
+		});
+	})
+	
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>")
+</script>
+ <span class="span-50 margin-top-1 margin-bottom-1 clearfix">
+    <span class="span-48 margin-left-1 margin-top-4px white_bg clearfix" style="height:360px">
+    	<span  id="jfmfs-container"></span>
+    </span>
+	<span class="span-48 margin-left-1 margin-top-1 dark_gray">
+		<input id="notify_friend_checkbox" type="checkbox" checked> <%= word_for :notify_friend%>
+	</span>
+	<a href="javascript:submit_friend();" id="invite_friend_button" class="facebook_button margin-top-1 margin-left-1 event_submit_button">
+		<%= word_for :invite_button%>	
+	</a>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>
+<div style="height:0px;clear:left;">&nbsp;</div>

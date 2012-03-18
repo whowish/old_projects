@@ -1,0 +1,60 @@
+<span class="row" id="add_country_unit" style="margin-bottom:20px;">
+	<span class="toolbox_container">
+		<a href="#" class="blue_button_small" id="add_button" onclick="submit_description(this);return false;"><%= word_for :add%></a>
+	</span>
+	<span class="name_container">
+		<input id="country_name" type="text" class="span-66" />
+	</span>
+</span>
+<script language="javascript">
+	UNIQUE_COUNTRY_ID = 0;
+	function submit_description(sender)
+	{
+		try {
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_country/add',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"name": $('#country_name').val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+							$('#new_country').before('<span id="new_country_'+UNIQUE_COUNTRY_ID+'" style="display:none;">'+data.country_view+'</span>');
+							
+							$('#new_country_'+UNIQUE_COUNTRY_ID).fadeIn();
+							
+							$('#country_name').val('');
+							UNIQUE_COUNTRY_ID++;
+						}
+						else {
+							$(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('country', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('country',e);
+			alert(e);
+		}
+	}
+</script>

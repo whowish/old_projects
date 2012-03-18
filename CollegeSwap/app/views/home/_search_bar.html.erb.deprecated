@@ -1,0 +1,149 @@
+<%
+	params[:college_name] = get_college_name($facebook.college_id) if !params[:college_name]
+	params[:limit] = 10 if !params[:limit]
+%>
+<span class="span-70 height-3 light_medium_gray_bg">
+	<span class="span-16">
+		<span class="span-14 margin-left-1">
+			<input type="text" class="search_input span-13" style="border-right-color:#a3a3a3;" id="search_college_name" value="<%=params[:college_name]%>" 
+				onkeypress="if (event.keyCode == 13) update_news_feed();"
+				/>
+		</span>
+	</span>
+	<span class="span-26">
+		<span class="column_line"></span>
+		<span class="span-14 margin-left-1">
+			<input type="text" class="search_input span-11" id="search_wish" value="<%=params[:q] if params[:type] == 'WISH'%>"
+				onkeyup="search_bar_enter(event.keyCode,'<%=Item::ITEM_TYPE_WISH%>',$('#search_wish').val(),$('#search_wish_category_id').val(),0,<%=params[:limit]%>,'<%=params[:scope]%>','best');" 
+				/>
+			<span class="search_button span-2" style="margin-top:5px;" 
+				onclick="search_item('<%=Item::ITEM_TYPE_WISH%>',$('#search_wish').val(),$('#search_wish_category_id').val(),0,<%=params[:limit]%>,'<%=params[:scope]%>','best');">
+			</span>
+		</span>
+		<span class=" float-left height-2 span-10" style="margin-top:4px;">
+			<select class="span-10" id="search_wish_category_id">
+				<%=render :partial=>"home/category_option", :locals=>{:selected=>params[:category_id]}%>
+			</select>
+		</span>
+	</span>
+	<span class="span-26">
+		<span class="column_line"></span>
+		<span class="span-14 margin-left-1">
+			<input type="text" class="search_input span-11" id="search_junk"  value="<%=params[:q] if params[:type] == 'JUNK'%>"
+				onkeyup="search_bar_enter(event.keyCode,'<%=Item::ITEM_TYPE_JUNK%>',$('#search_junk').val(),$('#search_junk_category_id').val(),0,<%=params[:limit]%>,'<%=params[:scope]%>','best');" 
+				
+			/>
+			<span class="search_button span-2" style="margin-top:5px;" 
+				onclick="search_item('<%=Item::ITEM_TYPE_JUNK%>',$('#search_junk').val(),$('#search_junk_category_id').val(),0,<%=params[:limit]%>,'<%=params[:scope]%>','best');">
+			</span>
+		</span>
+		<span class=" float-left height-2 span-10" style="margin-top:4px;">
+			<select class="span-10" id="search_wish_category_id">
+				<%=render :partial=>"home/category_option",:locals=>{:selected=>params[:category_id]}%>
+			</select>
+		</span>
+	</span>
+</span>
+<script language="javascript">
+	$('#search_college_name').default_text('Search by college...',true);
+	$('#search_wish').default_text('Stuff I want...',true);
+	$('#search_junk').default_text('Stuff I can trade...',true);
+</script>
+<script language="javascript">
+	
+	function update_news_feed()
+	{
+		if (typeof load_new_items == 'function' && NEWS_FEED_RUNNING) {
+			reload_college = $('#search_college_name').val();
+			anchor = '0';
+			$('#result_panel').html('');
+			$('#home_loading').show();
+			$('#no_feed').hide();
+			load_new_items(false);
+		}
+	}
+	function search_item(type,q,cat_id,offset,limit,scope,order) {
+		
+		NEWS_FEED_RUNNING = false;
+
+		if (type == "WISH") {
+			$('#search_wish').default_text('Stuff I want...');
+		}
+		else {
+			$('#search_junk').default_text('Stuff I can trade...');
+		}
+		$('#main_content').html(' \
+			<span style="margin-left:180px;margin-right:auto;margin-top:20px;display:block;float:left;"> \
+				<img src="/images/home_loading.gif"> \
+			</span> \
+		');
+
+		
+		$.ajax({
+				type: "POST",
+				url: '/home/search',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request: "<%=params[:signed_request]%>",
+					"college_name": $('#search_college_name').val(),
+					"q": q,
+					"category_id": cat_id,
+					"type": type,
+					"scope":  scope,
+					offset: offset,
+					limit: limit,
+					order: order
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$('#main_content').html(data.html);
+						}
+						else {
+							
+						}
+					} 
+					catch (e) {
+						$.error_log('search_result', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+				}
+			});
+	}
+	
+	$(function() {
+		$("#search_college_name").autocomplete('/college/list',{
+			width:250,
+			parse : function(data) {
+				//data = $.parseJSON(data);
+				
+				var parsed = [];
+				var rows = data.result;
+				for (var i=0; i < rows.length; i++) {
+					var row = $.trim(rows[i]);
+					if (row) {
+						parsed[parsed.length] = {
+							data: [row],
+							value: row,
+							result: row
+						};
+					}
+				}
+				return parsed;
+			},
+			matchContains: true
+		});
+	})
+	
+	function search_bar_enter(code,type,q,category_id,offset,limit,scope,order)
+    {
+        if (code == 13)
+        {
+            search_item(type,q,category_id,offset,limit,scope,order);
+        }
+    }
+</script>

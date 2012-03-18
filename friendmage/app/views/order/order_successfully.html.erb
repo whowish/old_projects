@@ -1,0 +1,130 @@
+<%
+	order = Order.first(:conditions=>{:key=>params[:order_key]})
+	app = App.first(:conditions=>{:app_id=>order.app_id})
+%>
+<span class="span-98 clearfix">
+	<%=render :partial=>"/order/instruction",:locals=>{:number=>4,:app_name=>app.name}%>
+	<span class="span-60 margin-left-10 clearfix">
+		<span class="span-60">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%= word_for :thank_you%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			<%if order.buy_print_copy%>
+				<span class="span-60 margin-top-1 font12 bold_font dark_gray clearfix">
+					<%= word_for :complete%>
+				</span>
+				<span class="span-60 margin-top-3 font12 medium_dark_gray clearfix">
+					<%=render :partial=>"/order/order_detail_unit",:locals=>{:order=>order}%>
+				</span>
+			<%else%>
+				<span class="span-60 margin-top-1 font12 bold_font dark_gray clearfix">
+					<%= word_for :complete_digital_only%>
+				</span>
+			<%end%>
+		</span>
+		<span class="span-60 margin-top-2 margin-bottom-2">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%= word_for :how_to_pay%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-60 margin-top-1 font12 bold_font dark_gray clearfix" style="line-height:50px;">
+				<%= word_for :pay_1%> &nbsp;&nbsp;
+				<img src="https://www.paypal.com/en_GB/TH/i/bnr/horizontal_solution_mc_visa.gif" height="50" style="border:1px solid black;" alt="Paypal, Visa, and Mastercard" align="absmiddle">
+			</span>
+			<span class="span-60 margin-top-1">
+				<span class="font12 bold_font dark_gray float-left">
+					<a href="#" class="gray_button30px" id="paypal_submit_button" onclick="submit_paypal(this);return false;">
+						<%= word_for :pay_by_paypal%>
+					</a>
+				</span>
+				<span class="font12 bold_font dark_gray float-left margin-top-1 margin-left-1">
+					<%= word_for :or%>
+				</span>
+				<span class="font12 bold_font dark_gray float-left margin-left-1">
+					<a href="#" class="gray_button30px" id="credit_submit_button" onclick="submit_paypal(this);return false;">
+						<%= word_for :pay_by_credit_card%>
+					</a>
+				</span>
+			</span>
+			<span class="span-60 margin-top-5px">
+				<%= word_for :paypal_acceptable_use_policy%>
+				<a href="https://cms.paypal.com/us/cgi-bin/marketingweb?cmd=_render-content&content_ID=ua/AcceptableUse_full&locale.x=en_US" style="font-weight:normal;" target="_paypal">
+					PayPal Acceptable Use Policy
+				</a>
+			</span>
+			<span class="span-60 margin-top-2 font12 bold_font dark_gray clearfix">
+				<%= word_for :pay_2%>
+			</span>
+			<span class="span-60 margin-top-1 margin-left-2 font12 bold_font dark_gray clearfix">
+				<%= word_for :pay_2_1%>
+			</span>
+			<%
+				banks = Bank.all()
+				banks.each do |b|
+			%>
+			 	<%=render :partial=>"/order/bank_unit",:locals=>{:bank=>b}%>
+			<%end%>
+			<span class="span-60 margin-top-1 margin-left-2 font12 bold_font dark_gray clearfix">
+				<%= word_for :pay_2_2%>
+			</span>
+		</span>
+		<div style="height:0px;clear:left;">&nbsp;</div>
+	</span>
+</span>
+
+
+<script language="javascript">
+    function submit_paypal(sender)
+    {
+        try {
+            $(sender).loading_button(true);
+
+            $.ajax({
+                type: "POST",
+                url: '/order/pay_by_paypal',
+                cache: false,
+                data: {
+                    authenticity_token: "<%=form_authenticity_token%>",
+                    order_key:"<%=params[:order_key]%>"
+                },
+                success: function(data){
+                    try {
+                        if (data.ok == true) {
+                            try
+                            {
+                                top.location.href = data.url;
+
+                            } catch(e) {
+                                
+                            }
+                        }
+                        else {
+                            $(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+                        }
+
+                    }
+                    catch (e) {
+                        $(sender).loading_button(false);
+                        $.error_log('paypal_submit', e);
+                        alert(e);
+                    }
+
+                },
+                error: function(req, status, e){
+                    $(sender).loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+        } catch (e)
+        {
+            $(sender).loading_button(false);
+            $.error_log('paypal_submit',e);
+            alert(e);
+        }
+    }
+</script>

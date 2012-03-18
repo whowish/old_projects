@@ -1,0 +1,54 @@
+<%
+	pending_count = Event.count(:conditions=>{:facebook_id=>facebook_id,:status=>Event::STATUS_ACTIVE})
+	
+	event_friends = EventFriend.all(:conditions=>{:facebook_id => facebook_id,:status=>EventFriend::STATUS_ACCEPTED})
+	sql_event = event_friends.map{|f| f['event_id']}.join("','") 
+
+	sql = "status = '" + Event::STATUS_SETTLED + "'"
+	sql += "and (facebook_id = '"+facebook_id+"' or id in ('" + sql_event + "'))"
+
+	joined_count = Event.count(:conditions=>[sql])
+ 	invited_count = EventFriend.count(:conditions=>{:facebook_id => facebook_id,:status=>EventFriend::STATUS_PENDING})
+%>
+
+<span class="span-15 white_bg clearfix">
+	<span class="span-14 margin-left-1 margin-top-1 margin-bottom-1">
+		<span class="span-1 fontsize12 medium_dark_gray bold_font">
+			<%=pending_count%>
+		</span>
+		<span class="span-13 fontsize12 medium_dark_gray bold_font">
+			 <%
+					pending_plural_word = ""
+					pending_plural_word = "s" if pending_count > 1
+			 %>
+			 <%= word_for :pending_event,:plural=>pending_plural_word%>
+		</span>
+		
+	</span>
+	<span class="span-14 margin-left-1 margin-bottom-1">
+		<span class="span-1 fontsize12 medium_dark_gray bold_font">
+			<%=joined_count%>
+		</span>
+		<span class="span-13 fontsize12 medium_dark_gray bold_font">
+			 <%
+					joined_plural_word = ""
+					joined_plural_word = "s" if joined_count > 1
+			 %>
+			 <%= word_for :joined_event,:plural=>joined_plural_word%>
+		</span>
+	</span>
+	<span class="span-14 margin-left-1 margin-bottom-1">
+		<span class="span-1 fontsize12 medium_dark_gray bold_font">
+			<%=invited_count%>
+		</span>
+		<span class="span-13 fontsize12 medium_dark_gray bold_font">
+			 <%
+					invited_plural_word = ""
+					invited_plural_word = "s" if invited_count > 1
+			 %>
+			 <%= word_for :invited_event,:plural=>invited_plural_word%>
+		</span>
+		<div style="height:0px;clear:left;">&nbsp;</div>
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>

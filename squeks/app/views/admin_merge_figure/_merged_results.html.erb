@@ -1,0 +1,14 @@
+<span class="span-30" id="merged_results">
+	&nbsp;
+	<%figures.each do |figure|%>
+		<span class="span-27">
+			<span class="span-4 font12 medium_dark_gray bold_font align_center" style="margin-top:8px;">
+	        	<input id="chkbox_figure_<%=figure.id%>" type="checkbox" value="<%=figure.id%>" />
+	        </span>
+			<span class="span-4 font12 medium_dark_gray float-left" style="margin-top:8px;">
+	        	<%=semantic_time(figure.created_date)%>
+	        </span>
+	        <%=render :partial=>"home/thumbnail_unit",:locals=>{:figure=>figure}%>
+		</span>
+	<%end%>
+</span>

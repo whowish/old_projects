@@ -1,0 +1,88 @@
+<%
+	params[:item_type] ||= 'all'
+	params[:category_id] ||= '0'
+	params[:q] ||= ''
+	params[:scope] ||= 'all'
+	params[:college_name] ||= ''
+	params[:order] ||= 'best'
+%>
+<%
+	user = $facebook
+	user = get_facebook_info(params[:user_id]) if params[:user_id]
+%>
+<div id="search_bar">
+	<span class="span-100">
+		<span class="user_nav">
+			<span class="span-18 margin-left-1">
+				
+					<%
+						if $facebook.is_guest
+					%>
+						<span class="span-18" style="white-space:nowrap; overflow:hidden;">
+							<a href="<%=generate_permission_url([],'http://'+DOMAIN_NAME);%>" target="_top" style="margin-top:5px;margin-left:30px;height:30px;line-height:30px;display:block;">
+								<img alt="Login with Facebook" style="margin-top:5px;" src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_medium_short.gif">
+							</a>
+						</span>
+					<%
+						else
+					%>
+						<span class="span-18" style="float:left;margin-top:7px;height:30px;line-height:30px;display:block;white-space:nowrap;overflow:hidden;text-align:center;">
+							<a href="<%=user.profile_url%>" target="_blank_<%=user.facebook_id%>" style="float:left;margin-top:10px;margin-right:4px;" class="facebook_profile_link"></a>
+							<a href="<%=user.home_url%>" style="float:left;display:inline-block;"><%=user.name%></a>
+						</span>
+					<%
+						end
+					%>
+				
+			</span>	
+		</span>
+		<span class="search_nav">
+			
+			<select class="search_input span-19 height24 margin-left-3 fontsize12 medium_dark_gray light_font" style="margin-top:11px;" id="search_category_id">
+				<%=render :partial=>"home/category_option", :locals=>{:selected=>params[:category_id]}%>
+			</select>
+				
+			<span class="span-54 roundcorner_6px white_bg height24 margin-left-1" style="margin-top:8px;">
+				<input type="text" class="search_input span-46 margin-left-1" id="search_keyword" value="<%=params[:q]%>"
+					onkeypress="if(event.keyCode==13)search_item();"
+				/>
+				<span class="search_button" onclick="search_item();return false;">
+					<%=word_for :search%>
+				</span>
+			</span>
+		</span>
+	</span>
+</div>
+<script language="javascript">
+	$('#search_keyword').default_text("<%=word_for :search_default%>",true);
+</script>
+<script language="javascript">
+	function search_item(options) {
+		
+		var o = {
+			q:$('#search_keyword').val(),
+			category_id:$('#search_category_id').val(),
+			offset:0,
+			limit:10,
+			item_type:'<%=params[:item_type]%>',
+			scope:'<%=params[:scope]%>',
+			order:'<%=params[:order]%>',
+			college_name:'<%=CGI.escape(params[:college_name])%>'
+		}
+		
+		if (options != undefined)
+		{
+			$.extend(o,options);
+		}
+		
+		location.href = '/search?q='+encodeURI(o.q)
+						+'&category_id='+o.category_id
+						+'&offset='+o.offset
+						+'&limit='+o.limit
+						+'&item_type='+o.item_type
+						+'&scope='+o.scope
+						+'&order='+o.order
+						+'&college_name='+o.college_name
+	}
+
+</script>

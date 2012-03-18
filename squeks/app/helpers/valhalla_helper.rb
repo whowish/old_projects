@@ -1,0 +1,2 @@
+module ValhallaHelper
+end

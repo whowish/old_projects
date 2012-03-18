@@ -1,0 +1,129 @@
+<%
+	user = $facebook 
+	user = get_facebook_info(params[:user_id]) if params[:user_id]
+
+%>
+<span class="span-18">
+	<%
+		if $facebook.is_guest
+	%>
+		<a href="<%=generate_permission_url([],'http://apps.facebook.com/'+FACEBOOK_APP_NAME+'/');%>" target="_top">
+			<img class="roundcorner_8px" src="<%=user.profile_picture_url('large')%>" width="180" />
+		</a>
+		<%= render :partial=>"/home/side_instruction_not_login"%>
+	<%
+		else
+	%>
+		<img class="roundcorner_8px" src="<%=user.profile_picture_url('large')%>" width="180" />
+		<span class="span-18" style="text-align:center;">
+			<a href="/logout"><%=word_for :logout%></a>
+		</span>
+	<%
+		end
+	%>
+</span>
+
+<%
+	if !$facebook.is_guest
+%>
+	<span class="span-18 margin-top-1">	
+		<span class="span-18 dark_blue_bg height01">
+		</span>
+		<span class="span-18 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+			<span class="span-14 margin-left-1">
+				<%=word_for :my_college,:pronoun=>get_possessive_adj(user,false).capitalize%>
+			</span>
+			<% if user.facebook_id == $facebook.facebook_id and !user.is_guest%>
+				<a href="#" class="edit_icon float-right" onclick="$.whowish_box({title:'Change College',url:'/college',background_color:'#6D84B4'});return false;">
+				</a>
+			<% end %>
+		</span>
+		<span class="span-16 margin-left-1 margin-bottom-1">
+			<span class="span-16 fontsize11 medium_dark_gray normal_font">
+				<%
+					college_name = get_college_name_of(user.facebook_id)
+					place = get_place_of(user.facebook_id)
+					if user.is_guest
+					
+				%>
+					<a href="<%=generate_permission_url([],'http://'+DOMAIN_NAME+'/?show_zip_code_box=yes');%>" target="_top" ><%=word_for :add_college%></a>
+				<%
+					else 
+						if college_name == ""
+				%>
+							<a href="#" onclick="$.whowish_box({title:'Add College',url:'/college',background_color:'#6D84B4'});return false;"><%=word_for :add_college%></a>
+				<%
+						else
+				%>
+							<span class="span-16 fontsize11 medium_dark_gray normal_font">
+								<a href="/home?college_name=<%=CGI.escape(college_name)%>"><%= college_name%></a>
+							</span>
+							<%
+								if place == nil
+							%>
+									<span class="span-16 fontsize12 margin-top-2 dark_gray bold_font">
+										<%=word_for :no_meeting_place%>
+									</span>
+							<%
+								else	
+							%>
+								<span class="span-16 fontsize12 margin-top-2 dark_gray bold_font">
+									<%=word_for :official_meeting_place%>
+								</span>
+								<span class="span-16 height01 light_medium_gray_bg display_block" style="margin-top:4px; margin-bottom:4px;">
+								</span>
+								<span class="span-16 fontsize11 medium_dark_gray normal_font">
+									<%=place[:name]%>
+								</span>
+								<span class="span-16 fontsize11 medium_dark_gray normal_font">
+									<%=place[:address]%>
+								</span>
+								<span class="span-16 height-1 display_block">
+								</span>
+							<%
+								end
+							%>
+				<%
+						end
+					end
+				%>
+			</span>
+		</span>
+	</span>
+	
+	<span class="span-18 margin-top-1">	
+		<span class="span-18 dark_blue_bg height01">
+		</span>
+		<span class="span-18 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+			<span class="span-14 margin-left-1">
+				<%=word_for :my_profile,:pronoun=>get_possessive_adj(user,false).capitalize%>
+			</span>
+			<% if user.facebook_id == $facebook.facebook_id and !user.is_guest%>
+				<a href="#" class="edit_icon float-right" onclick="$.whowish_box({title:'Edit Profile',url:'/profile',background_color:'#6D84B4'});return false;">
+				</a>
+			<% end %>
+		</span>
+		<span class="span-16 margin-left-1 margin-bottom-1">
+			<span class="span-16 fontsize11 medium_dark_gray normal_font" id="profile_text_box_<%=user.facebook_id%>">
+				<%
+					member = Member.first(:conditions=>{:facebook_id=>user.facebook_id})
+					if !member or !member.profile_text or member.profile_text.strip == ""
+						if user.facebook_id == $facebook.facebook_id and !user.is_guest
+				%>
+							<a href="#" onclick="$.whowish_box({title:'Edit Profile',url:'/profile',background_color:'#6D84B4'});return false;">
+								<%=word_for :set_profile%>
+							</a>
+				<%
+						end
+					else
+				%>
+					<%=CGI.escapeHTML(member.profile_text)%>
+				<%
+					end
+				%>
+			</span>
+		</span>
+	</span>
+<%
+	end
+%>

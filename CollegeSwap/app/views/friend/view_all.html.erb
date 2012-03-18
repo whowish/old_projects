@@ -1,0 +1,46 @@
+<%
+	user = $facebook
+	user = get_facebook_info(params[:user_id]) if params[:user_id]
+
+	all_friends = user.all_friends
+	friends = Member.all(:conditions=>["facebook_id in (?)",all_friends.map{|f| f['id']}],:order => "college_id ASC")
+%>
+
+<span class="span-80">
+	<span class="span-78 margin-top-1 margin-left-1 fontsize18 bold_font ">
+			<%=user.name%> <span class="profileArrow"></span><%=word_for :friends_in_app,:number=>friends.length%>
+	</span>
+	<!--<span class="span-48 light_gray_bg dark_gray fontsize12 bold_font margin-bottom-1 margin-top-1 margin-left-2">
+		<span class="span-48 height01 medium_dark_gray_bg">
+		</span>
+		<span class="span-46 margin-left-1 margin-bottom-1 margin-top-1">
+			<input id="search_friend" type="text" class="search_input span-42" />
+			<span class="search_button span-2" style="margin-top:5px;">
+			</span>
+		</span>
+	</span>-->
+	<span class="span-78 height01 medium_dark_gray_bg margin-bottom-1 margin-top-1 margin-left-1">
+	</span>
+	<span class="span-78 margin-top-1">
+		<span class="friend_list_view span-78 margin-left-1">
+			<ul>
+				<%friends.each do |friend|%>
+				<li>
+					<%friend_user = get_facebook_info(friend.facebook_id)%>
+					<a href="/myswappage?user_id=<%=friend.facebook_id%>">
+						<span class="facebook_pic2" style="background-image:url(http://graph.facebook.com/<%=friend.facebook_id%>/picture?type=square);">
+						</span>
+					</a>
+					<span class="span-8 margin-left-1" style="overflow:hidden;height:50px">
+    					<%=friend_user.get_badge%>
+					</span>
+				</li>
+				<%end%>
+			</ul>
+		</span>					
+	</span>
+</span>
+
+<script language="javascript">
+	$('#search_friend').default_text('<%=word_for :search_friend_default%>',true);
+</script>

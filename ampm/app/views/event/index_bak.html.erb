@@ -1,0 +1,358 @@
+<%
+	event = Event.new
+	available_dates = []
+	selected_friends = []
+	is_new = true
+
+	if params[:id]
+		is_new = false
+		event = Event.first(:conditions=>{:id=>params[:id]})
+		available_dates = EventAvailableDate.all(:conditions=>{:facebook_id=>$facebook.facebook_id,:event_id=>event.id})
+		selected_friends = EventFriend.all(:conditions=>{:event_id=>event.id})
+	end
+
+	friends_data = (ActiveSupport::JSON.decode($facebook.get_data("friends"))["data"] rescue [])
+%>
+<%=stylesheet_link_tag("/calendar/calendar.css")%>
+<%= javascript_include_tag "/calendar/jquery.calendar.js"%>
+<%= javascript_include_tag "/calendar/jquery.time_selector.js"%>
+<%=stylesheet_link_tag("/facebook-multi-friend-selector/jquery.facebook.multifriend.select.css")%>
+<%=javascript_include_tag("/facebook-multi-friend-selector/jquery.facebook.multifriend.select.js")%>
+<script language="javascript">
+	event_form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("event_form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"event_title" : function (input_obj) {
+				return validate_input_obj(input_obj,get_string_errors);
+			}
+		
+		}
+	}
+
+	function submit_event()
+	{
+		if (!event_form_validator.validate_form()) return;
+		try {
+			$('#event_submit_button').loading_button(true);
+			
+			var selected_time = $('#timeline').time_selector_get_selected_time($('#calendar')[0]);
+			var friendSelector = $("#jfmfs-container").data('jfmfs');         
+			
+			$.ajax({
+				type: "POST",
+				url: '/event/add',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request:"<%=params[:signed_request]%>",
+					"title": $('#event_title').val(),
+					"location": $('#event_location').val(),
+					"location_url": $('#event_location_url').val(),
+					"category_id": $('#event_category_id').val(),
+					"description": $('#event_description').val(),
+					"friends": friendSelector.getSelectedIds().join(','),
+					"available_dates": selected_time.join(','),
+					"images": "",//get_swfupload_uploaded_files().join(','),
+					"share_on_facebook":(($('#item_share_on_facebook')[0].checked == true)?"yes":"no")
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							location.href = "/event/view?event_id="+ data.event_id;
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#event_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}	
+						}
+						$('#event_submit_button').loading_button(false);
+					} 
+					catch (e) {
+						$('#event_submit_button').loading_button(false);
+						$.error_log('submit_event', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#event_submit_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#event_submit_button').loading_button(false);
+			$.error_log('submit_event',e);
+			alert(e);
+		}
+	}		
+	
+	function submit_edit_event()
+	{
+		if (!event_form_validator.validate_form()) return;
+		try {
+			$('#event_edit_submit_button').loading_button(true);
+			
+			var selected_time = $('#timeline').time_selector_get_selected_time($('#calendar')[0]);
+			var friendSelector = $("#jfmfs-container").data('jfmfs');         
+			
+			$.ajax({
+				type: "POST",
+				url: '/event/edit',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request:"<%=params[:signed_request]%>",
+					"event_id":"<%=params[:id]%>",
+					"title": $('#event_title').val(),
+					"location": $('#event_location').val(),
+					"location_url": $('#event_location_url').val(),
+					"category_id": $('#event_category_id').val(),
+					"description": $('#event_description').val(),
+					"friends": friendSelector.getSelectedIds().join(','),
+					"available_dates": selected_time.join(','),
+					"images": "",//get_swfupload_uploaded_files().join(','),
+					"share_on_facebook":(($('#item_share_on_facebook')[0].checked == true)?"yes":"no")
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							location.href = "/event/view?event_id="+ data.event_id;
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#event_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}	
+						}
+						$('#event_edit_submit_button').loading_button(false);
+					} 
+					catch (e) {
+						$('#event_edit_submit_button').loading_button(false);
+						$.error_log('edit_submit_event', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#event_edit_submit_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#event_edit_submit_button').loading_button(false);
+			$.error_log('edit_submit_event',e);
+			alert(e);
+		}
+	}		
+	
+	$(function () {
+		$('#calendar').day_selector({
+										time_selector_panel:$("#timeline")[0],
+										selected_date:[<%=available_dates.map { |d| '"'+d.available_date.strftime("%Y-%m-%d")+'"' }.join(',')%>]
+									});
+		$('#timeline').time_selector({
+			selected_time:[<%=available_dates.map { |d| '"'+d.available_date.strftime("%Y-%m-%d-%H")+'"' }.join(',')%>],
+			calendar_panel:$('#calendar')[0]
+		});
+		
+		
+		$("#jfmfs-container").jfmfs({
+		  	pre_selected_friends: [<%=selected_friends.map { |d| d.facebook_id }.join(',')%>],
+			data:[<%=friends_data.map{|d| '{id:"'+d['id']+'",name:"'+d['name']+'"}'}.join(',')%>]
+		
+		});
+ 
+	})
+	
+</script>
+
+<span class="span-55 light_gray_bg height24">
+	<span class="span-50 margin-left-1">
+		<% if is_new %>
+			<%=word_for :create_event_page_name%>		
+		<% else %>
+			<%=word_for :edit_event_page_name%>	
+		<% end %>
+	</span>
+</span>
+<span class="right_corner_gray" style="margin-top:-9px;">
+</span>
+	<span class="span-55 margin-top-1">
+		<span class=" float-left height24 fontsize14 span-55 light_blue_bg">
+			<span class="float-left fontsize12 bold_font margin-left-1">
+				<%= word_for :title%>
+			</span>
+			<span class="float-left height24 margin-left-1">						
+				<input class="dark_gray span-47 postbox_input" style="margin-top:2px;" id="event_title" onkeyup="event_form_validator.validate(this);" type="text" value="<%=event.title%>" />
+			</span>
+		</span>
+		<span class="span-55 tab_body">
+			<span class="span-50 medium_dark_gray margin-left-1 margin-bottom-1 fontsize10">
+				<%= word_for :calendar_instruction%>
+			</span>
+			<span class="span-21">
+				<span id="calendar">
+			
+				</span>
+				<a href="#" class="gray_button margin-left-1" onclick="$('#calendar').day_selector_reset();">
+					Reset
+				</a>
+			</span>
+			<span class="span-34">
+				<span id="timeline">
+					
+				</span>
+			</span>
+			<span class="span-53 margin-top-1">
+				<span id="jfmfs-container"></span>
+			</span>
+			<span class="span-48 margin-left-1 margin-bottom-2 margin-top-2">
+				<% if is_new %>
+					<a href="#" class="facebook_button event_submit_button" onclick="submit_event();">
+						<%= word_for :add_button%>
+					</a>
+				<% else %>
+					<a href="#" class="facebook_button event_edit_submit_button" onclick="submit_edit_event();">
+						<%= word_for :edit_button%>
+					</a>
+				<% end %>
+			</span>
+		</span>
+	</span>
+	<span class="span-55 tab_container">
+		<span class="span-55 tab_topic" >
+			<span class="float-left">
+				<span class="left_corner_blue">
+				</span>
+				<span class="tab_link">
+					<span class="float-left height24 fontsize14 facebook_blue_bg span-54 white">
+						<%=word_for :optional_tab%>
+					</span>
+				</span>
+				<span class="right_corner_blue float-right">
+				</span>
+			</span>
+		</span>
+		<span class="span-55 tab_body">
+			<span class="swap_selected_box_take light_blue_bg span-50 margin-left-1 margin-top-1">
+				<span class="span-48 margin-swap_unit">
+					<span class="span-48 margin-left-1">
+						<span class="span-48 fontsize14 bold_font  medium_dark_gray">
+							Location Detail:
+						</span>
+						
+						<span class="span-48 margin-top-1">
+							<span class="span-20 map_image">
+							</span>
+							<span class="span-22 margin-left-1">
+								<span class="upload_pic_button" id="swfupload_simple_upload_image_button">
+								</span>
+								<span class="span-22 margin-top-1 fontsize12 bold_font medium_dark_gray height20">
+									<span class="span-8">
+										<%= word_for :location%>
+									</span>
+									<span class="span-14">
+										<input class="dark_gray span-14 postbox_input" id="event_location"  type="text" value="<%=event.location%>" />
+									</span>
+								</span>
+								<span class="span-22 margin-top-1 fontsize12 bold_font medium_dark_gray height20">
+									<span class="span-8">
+										<%= word_for :location_url%>
+									</span>
+									<span class="span-14">
+										
+										<input class="dark_gray span-14 postbox_input" id="event_location_url"  type="text" value="<%=event.location_url%>" />
+									</span>
+								</span>
+							</span>
+						</span>
+					</span>
+				</span>
+			</span>
+			<span class="span-50 margin-top-2">
+				<span class="span-48 margin-left-1 height20">
+					<span class="span-10 fontsize12 bold_font medium_dark_gray">
+						<%= word_for :category%>
+					</span> 
+					<span class="span-36 ">
+						<select id="event_category_id">
+							<%
+								Category.all().each do |category|
+							%>
+									<option value="<%=category.id%>" <%='selected' if event.category_id == category.id%>><%=category.name%></option>
+							<%
+								end
+							%>
+						</select>
+					</span>
+				</span>
+				<span class="span-48 margin-left-1 margin-top-2">
+					<span class="span-10 fontsize12 bold_font medium_dark_gray">
+						<%= word_for :description%>
+					</span>  
+					<span class="span-38">	
+						<textarea class="dark_gray span-36 comment_zone" id="event_description"  type="text"><%=event.description%></textarea>
+					</span>
+					
+				</span>
+				<span class="span-48 margin-left-1 margin-top-2" >
+					<span class="span-10" >&nbsp;</span> 
+					<span class="span-36 ">
+						<input type="checkbox" id="item_share_on_facebook"> <%= word_for :share_fb%>
+					</span>
+				</span>
+			</span>
+			<span class="span-48 margin-left-1 margin-bottom-2 margin-top-2">
+				<% if is_new %>
+					<a href="#" class="facebook_button event_submit_button" onclick="submit_event();">
+						<%= word_for :add_button%>
+					</a>
+				<% else %>
+					<a href="#" class="facebook_button event_edit_submit_button" onclick="submit_edit_event();">
+						<%= word_for :edit_button%>
+					</a>
+				<% end %>
+			</span>
+		</span>
+	</span>
+
+
+
+
+
+
+

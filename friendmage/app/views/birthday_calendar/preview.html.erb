@@ -1,0 +1,673 @@
+<%
+	hash_birthday = ActiveSupport::JSON.decode(@entity.birthday_information)
+%>
+<style>
+	.sortable {
+		margin: 0;
+		padding: 0;
+		list-style-type: none;
+	}
+	
+	.sortable li {
+		display: inline;
+		margin-left:5px;
+		float: left;
+	}
+	
+	.friend_image_sortable > img {
+		position:absolute;
+		cursor:pointer;
+	}
+	
+	.friend_image_sortable {
+		width:30px;
+		height:30px;
+		display:inline-block;
+		overflow:hidden;
+		position:relative;
+	}
+	
+	.calendar
+	{
+		display:block;
+		position:absolute;
+		width:248px;
+		height:219px;
+	}
+	
+	.calendar > .calendar_label
+	{
+		display:block;
+		position:absolute;
+		left:0px;
+		top:0px;
+		width:30px;
+		height:180px;
+		background-repeat:no-repeat;
+		background-image:url(/images/calendar/month.png);
+	}
+	
+	.calendar > .calendar_label.month1 { background-position: 0px 0px; }
+	.calendar > .calendar_label.month2 { background-position: 0px -180px; }
+	.calendar > .calendar_label.month3 { background-position: 0px -360px; }
+	.calendar > .calendar_label.month4 { background-position: 0px -540px; }
+	.calendar > .calendar_label.month5 { background-position: 0px -720px; }
+	.calendar > .calendar_label.month6 { background-position: 0px -900px; }
+	.calendar > .calendar_label.month7 { background-position: 0px -1080px; }
+	.calendar > .calendar_label.month8 { background-position: 0px -1260px; }
+	.calendar > .calendar_label.month9 { background-position: 0px -1440px; }
+	.calendar > .calendar_label.month10 { background-position: 0px -1620px; }
+	.calendar > .calendar_label.month11 { background-position: 0px -1800px; }
+	.calendar > .calendar_label.month12 { background-position: 0px -1980px; }
+	
+	.calendar > .calendar_body
+	{
+		display:block;
+		position:absolute;
+		left:30px;
+		top:0px;
+		width:218px;
+		height:219px;
+		background-repeat:no-repeat;
+	}
+	
+	.calendar_body.row4
+	{
+		background-image:url(/images/calendar/calendar4Row.png);
+	}
+	
+	.calendar_body.row5
+	{
+		background-image:url(/images/calendar/calendar5Row.png);
+	}
+	
+	.calendar_body.row6
+	{
+		background-image:url(/images/calendar/calendar6Row.png);
+	}
+	
+	.friend_image {
+		position:absolute;
+		width:30px;
+		height:30px;
+		display:block;
+		overflow:hidden;
+	}
+	
+
+	
+	.friend_image > img {
+		position:absolute;
+	}
+	
+	.calendar_body > .day {
+		position:absolute;
+		display:block;
+		width:20px;
+		height:8px;
+		background-image:url(/images/calendar/date.png);
+	}
+	
+	.red_day { background-image:url(/images/calendar/red_date.png) !important; }
+	.day.day1 { background-position: 0px 0px; }
+	.day.day2 { background-position: 0px -8px; }
+	.day.day3 { background-position: 0px -16px; }
+	.day.day4 { background-position: 0px -24px; }
+	.day.day5 { background-position: 0px -32px; }
+	.day.day6 { background-position: 0px -40px; }
+	.day.day7 { background-position: 0px -48px; }
+	.day.day8 { background-position: 0px -56px; }
+	.day.day9 { background-position: 0px -64px; }
+	
+	.day.day10 { background-position: 0px -72px; }
+	.day.day11 { background-position: 0px -80px; }
+	.day.day12 { background-position: 0px -88px; }
+	.day.day13 { background-position: 0px -96px; }
+	.day.day14 { background-position: 0px -104px; }
+	.day.day15 { background-position: 0px -112px; }
+	.day.day16 { background-position: 0px -120px; }
+	.day.day17 { background-position: 0px -128px; }
+	.day.day18 { background-position: 0px -136px; }
+	.day.day19 { background-position: 0px -144px; }
+	
+	.day.day20 { background-position: 0px -152px; }
+	.day.day21 { background-position: 0px -160px; }
+	.day.day22 { background-position: 0px -168px; }
+	.day.day23 { background-position: 0px -176px; }
+	.day.day24 { background-position: 0px -184px; }
+	.day.day25 { background-position: 0px -192px; }
+	.day.day26 { background-position: 0px -200px; }
+	.day.day27 { background-position: 0px -208px; }
+	.day.day28 { background-position: 0px -216px; }
+	.day.day29 { background-position: 0px -224px; }
+	
+	.day.day30 { background-position: 0px -232px; }
+	.day.day31 { background-position: 0px -240px; }
+	
+</style>
+<%=javascript_include_tag "/javascripts/jquery.json.js"%>
+<%=javascript_include_tag "/sortable/jquery.sortable.js"%>
+<span id="cache_image_panel" style="overflow:hidden;width:0px;height:0px;display:block;">
+<%
+	hash_birthday.each do |k,v|
+		v.each do |obj|
+%>
+		<img src="<%=obj['url']%>"/>
+<%
+		end
+	end
+%>
+</span>
+<span class="span-98 clearfix">
+	<span class="span-96 margin-left-1 margin-top-1 font28 bold_font friendmage_red whiteShadow clearfix">
+		<%=word_for :preview_topic%>
+	</span>
+	<span class="span-33 margin-left-1 clearfix">
+		
+		<span class="span-33 margin-top-4 clearfix">
+			
+			<span class="span-33 margin-top-2 font14 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :select_friend%>
+			</span>
+			<span class="span-33 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-33 margin-top-5px font11 bold_font medium_dark_gray clearfix">
+				<%=word_for :select_mode_instruction%>
+			</span>
+			<span class="span-33 margin-top-1 font11 bold_font medium_dark_gray clearfix" >
+				<span class="span-32 margin-top-1 margin-left-1">
+					<input type="radio" id="mode_one" name="mode_<%=@entity.friendmage_order_key%>" onclick="mode=ONE_PEOPLE;async_preview();" <%='checked' if @entity.mode != BirthdayCalendar::MODE_FOUR_PEOPLE%>> <%=word_for :mode_one%>
+				</span>
+				<span class="span-32 margin-top-1 margin-left-1">
+					<input type="radio" id="mode_four" name="mode_<%=@entity.friendmage_order_key%>" onclick="mode=FOUR_PEOPLE;async_preview();" <%='checked' if @entity.mode == BirthdayCalendar::MODE_FOUR_PEOPLE%>> <%=word_for :mode_four%>
+				</span>
+			</span>
+			<span class="span-33 margin-top-2 font11 bold_font medium_dark_gray clearfix">
+				<%=word_for :select_friend_instruction%>
+			</span>
+			<span id="sortable_friend_panel" class="span-33 margin-top-1 font11 bold_font medium_dark_gray clearfix"  style="display:none;">
+				<%
+					months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+					hash_birthday.to_a.sort{ |x,y| x[0] <=> y[0] }.each do |arr|
+						next if arr[1].length <= 1
+
+						m,d = arr[0].split('-')
+						day_label = "#{d.to_i} #{months[m.to_i - 1]}"
+				%>
+						<span class="span-32">
+							<span class="span-4 margin-right-1" style="white-space:nowrap;line-height:30px;text-align:right;"><%=day_label%></span>
+							<span class="span-27">
+								<ul class="sortable">
+									<%
+										arr[1].each do |obj|
+									%>
+										<li>
+											<span class="friend_image_sortable birthday_<%=arr[0]%>">
+												<img src="<%=obj['url']%>" title="<%=obj['name'].gsub('"','"')%>"/>
+											</span>
+										</li>
+									<%
+										end
+									%>
+								</ul>
+							</span>
+						</span>
+				<%
+					end
+				%>
+			</span>
+		</span>
+		<span class="span-33 margin-top-2 clearfix">
+			<span class="span-33 margin-top-2 font14 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :select_type%>
+			</span>
+			<span class="span-33 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-33 margin-top-5px font11 bold_font medium_dark_gray clearfix">
+				<%=word_for :select_type_instruction%>
+			</span>
+			<span class="span-33 margin-top-1 font11 bold_font medium_dark_gray clearfix">
+				<span class="span-32 margin-top-1 margin-left-1">
+					<input type="radio" id="buy_digital_and_print" onclick="cal_price(this);" name="buy_<%=@entity.friendmage_order_key%>" <%='checked' if !session[:only_digital]%>> <%=word_for :buy_digital_and_print_copy%>
+				</span>
+				<span class="span-32 margin-top-1 margin-left-1">
+					<input type="radio" id="buy_print_only" onclick="cal_price(this);" name="buy_<%=@entity.friendmage_order_key%>" disabled> <%=word_for :buy_print_copy_only%>
+				</span>
+				<span class="span-32 margin-top-1 margin-left-1">
+					<input type="radio" id="buy_digital_only" onclick="cal_price(this);" name="buy_<%=@entity.friendmage_order_key%>" <%='checked' if session[:only_digital] == true %>> <%=word_for :buy_digital_copy_only%>
+				</span>
+			</span>
+			<span class="span-33 margin-top-1 font11 bold_font medium_dark_gray clearfix">
+				<span class="float-left margin-left-1 margin-top-1 padding_horizontal_8px height20 friendmage_red_bg font14 bold_font white">
+					<span id="preview_price">
+						<%if session[:only_digital] == true%>
+							80
+						<%else%>
+							380
+						<%end%>
+					</span> 
+					<%=word_for :currency%>
+				</span>
+			</span>
+		</span>
+		<span class="span-33 margin-top-4 clearfix">
+			<span class="span-33 margin-top-2 font14 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :submit_topic%>
+			</span>
+			<span class="span-33 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-33 margin-top-5px font11 bold_font medium_dark_gray clearfix">
+				<%=word_for :submit_instruction%>
+			</span>
+			<span class="span-33 margin-top-1 margin-bottom-2 font11 bold_font medium_dark_gray clearfix" style="text-align:center;">
+				<span class="gray_button30px margin-left-2" id="submit_button" onclick="submit_image();"><%=word_for :next_button%></span>
+			</span>
+			<div style="height:0px;clear:left;">&nbsp;</div>
+		</span>
+	</span>
+	<span class="span-60 margin-left-1 clearfix">
+		<span class="span-60 clearfix">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :your_preview%>
+				<%=word_for :dimension,:width=>20,:height=>(20*13880/6000).to_i%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span id="preview_frame" class="span-60 margin-top-1 clearfix" style="display:none;border:1px solid #FFFFFF;">
+				<span id="preview_panel" style="position:relative;float:left;background-color:#FFFFFF;width:600px;height:1500px;overflow:hidden;">
+					<img src="/images/calendar/calendarHeader.png" style="position:absolute;left:0px;top:0px;" />
+					<%
+						month_end = [31,29,31,30,31,30,31,31,30,31,30,31]
+						(1..12).each do |i|
+					%>
+						<span class="calendar" style="left:<%=(((i-1)%2)*250 + 50)%>px;top:<%=(((i-1)/2)*240 + 50)%>px;">
+							<span class="calendar_label month<%=i%>"></span>
+							<span class="calendar_body row6">
+								<%
+									(1..month_end[i-1]).each do |j|
+								%>
+									<span class="day day<%=j%>" style="left:<%=(((j-1)%7)*30+2+10)%>px;top:<%=(((j-1)/7)*30+32+2)%>px;"></span>
+								<%
+									end
+								%>
+							</span>
+						</span>
+					<%
+						end
+
+						hash_birthday.each do |k,v|
+							z = 1000
+							v.each do |obj|
+								z = z - 1
+					%>
+							<span class="friend_image birthday_<%=k%>" style="z-index:<%=z%>;left:-100px;">
+								<img src="<%=obj['url']%>" title="<%=obj['name'].gsub('"','"')%>"/>
+							</span>
+					<%
+							end
+						end
+					%>
+				</span>
+			</span>
+		</span>
+	</span>
+</span>
+<script language="javascript">
+	
+	var FOUR_PEOPLE = "<%=BirthdayCalendar::MODE_FOUR_PEOPLE%>";
+	var ONE_PEOPLE = "<%=BirthdayCalendar::MODE_ONE_PEOPLE%>";
+	
+	var mode = "<%=@entity.mode%>";
+	var offset_x = <%=@entity.offset_x/10%>;
+	var offset_y = <%=@entity.offset_y/10%>+30;
+	var gap_x = <%=@entity.gap_x/10%>;
+	var gap_y = <%=@entity.gap_y/10%>;
+	var year = 2011;
+	var CELL_DIMENSION = 30;
+	var hash_image_size = {};
+
+	function get_month_end(year,month)
+	{
+		var MONTH_ENDS = [31,28,31,30,31,30,31,31,30,31,30,31];
+		
+		if ((year%4)==0 && month == 2) return 28;
+		return MONTH_ENDS[month-1];
+	}
+	
+	function async_preview()
+	{
+		//$('#preview_frame').hide();
+		setTimeout("preview();",1);
+	}
+
+	function preview()
+	{
+		var first_day_of_week = (new Date ( year, 0, 1 )).getDay();
+		
+		var month_bodies = $('.calendar','#preview_panel');
+		
+		for (var month=0;month<=11;month++)
+		{
+			var num_days = get_month_end(year,month+1);
+			var days = $($('.calendar_body',month_bodies[month])[0]).children('.day');
+			var count_day = first_day_of_week;
+			
+			$('.calendar_body',month_bodies[month]).removeClass('row6').removeClass('row5').removeClass('row4');
+			$('.calendar_body',month_bodies[month]).addClass('row' + parseInt(Math.ceil(parseFloat(first_day_of_week + num_days)/7)));
+
+			var width = $(month_bodies[month]).width();
+			var height = $(month_bodies[month]).height();
+			
+			var month_left = ((month%2)*(width+gap_x)+offset_x);
+			var month_top = (parseInt(month/2)*(height+gap_y)+offset_y);
+
+			$(month_bodies[month]).css({
+										left: month_left + 'px',
+										top: month_top + 'px'
+										})
+
+			for (var i=0;i<num_days;i++)
+			{
+				var day_left = ((first_day_of_week%7)*30.6+2.1);
+				var day_top = (parseInt(count_day/7)*30.6+33.34);
+				
+				$(days[i]).css({
+								'left':(day_left+13)+'px',
+								'top':(day_top+2)+'px',
+								'display':'block'
+								});
+								
+				if (first_day_of_week == 0 || first_day_of_week == 6)
+					if (!($(days[i]).hasClass('red_day'))) $(days[i]).addClass('red_day');
+				else
+					if ($(days[i]).hasClass('red_day')) $(days[i]).removeClass('red_day');
+					
+				// friend
+				var friends = $('.friend_image.birthday_'+add_zero(month+1)+'-'+add_zero(i+1));
+				var target_size = (mode==FOUR_PEOPLE && friends.length > 1)?(CELL_DIMENSION/2):CELL_DIMENSION;
+					
+				
+				for (var f=0;f<friends.length;f++)
+				{
+					if (f > 3)
+					{
+						$(friends[f]).hide();
+						continue;
+					}
+					
+					$(friends[f]).show();
+					
+					var left = month_left+day_left+30;
+					var top = month_top+day_top;
+					
+					if (mode==FOUR_PEOPLE && friends.length > 1)
+					{
+						var offset_index = (4-f)%4;
+						left += (offset_index%2)*target_size;
+						top += parseInt(offset_index/2)*target_size;
+					}
+			
+					$(friends[f]).css({
+										left: left + 'px',
+									   	top: top + 'px',
+										width: target_size+'px',
+										height: target_size+'px'
+										})
+					
+					var size = hash_image_size[$(friends[f]).children('img')[0].src];
+					
+					
+					// in case image is not loaded yet
+					if (size[0]==0 ||size[1]==0)
+					{
+						setTimeout("load_image_cache();preview();",1000);
+						return;
+					}
+					
+					var pos = resize_to_square(size[0],size[1],target_size);
+					
+					
+					$(friends[f]).children('img').css({
+						left: pos[0]+'px',
+						top: pos[1]+'px',
+						width:pos[2]+'px',
+						height:pos[3]+'px' 	
+					});
+				}
+
+				first_day_of_week = (first_day_of_week+1)%7;
+				count_day++;
+			}
+		
+			for(var i=num_days;i<days.length;i++)
+			{
+				$(days[i]).css({
+								'display':'none'
+								});
+			}
+			
+		}
+		
+		$('#preview_frame').show();
+		$('#sortable_friend_panel').show();
+	}
+	
+	function resize_to_square(w,h,target_size)
+	{
+		
+		var sx = 0,sy = 0
+		if (h > w) {
+			h = parseFloat(target_size) * h / w;
+			w = target_size;
+			
+			sx = 0;
+            //sy = -(h-w)/2;
+			sy = 0;
+        }
+        else
+        {
+            w = parseFloat(target_size) * w / h;
+			h = target_size;
+			
+			sx = -(w-h)/2;
+            sy = 0;
+        }
+		
+		return [sx,sy,w,h];
+	}
+	
+	function add_zero(n)
+	{
+		n = parseInt(n);
+		if (n < 10) return "0"+n;
+		return n;
+	}
+	
+	function load_image_cache()
+	{
+		var friend_images = $('#cache_image_panel').children('img');
+		for (var i=0;i<friend_images.length;i++)
+		{
+			hash_image_size[friend_images[i].src] = [friend_images[i].clientWidth,friend_images[i].clientHeight];
+		}
+	}
+	
+	function resize_sortable()
+	{
+		var friends = $('.friend_image_sortable');
+		
+		for (var i=0;i<friends.length;i++)
+		{
+			var size = hash_image_size[$(friends[i]).children('img')[0].src];
+			var pos = resize_to_square(size[0],size[1],CELL_DIMENSION);
+					
+					
+			$(friends[i]).children('img').css({
+				left: pos[0]+'px',
+				top: pos[1]+'px',
+				width:pos[2]+'px',
+				height:pos[3]+'px' 	
+			});
+		}
+		
+	}
+	
+	$(function() {
+		
+		load_image_cache();
+		
+		resize_sortable();
+		
+		preview();
+		
+		$( ".sortable" ).sortable({
+			opacity:0.5,
+			tolerance:'pointer',
+			axis: 'x',
+			stop: function(event, ui) {
+				var re = new RegExp(/birthday_[0-9][0-9]-[0-9][0-9]/);
+				
+				var ordered_friends = $(ui.item).parent('ul').find('span');
+				var birthday_class = re.exec(ordered_friends[0].className);
+				
+				if (birthday_class == null || birthday_class.length == 0)
+					return;
+				
+				var friends = $('.friend_image.'+birthday_class[0]);
+				
+				var target_size = (mode==FOUR_PEOPLE && friends.length > 1)?(CELL_DIMENSION/2):CELL_DIMENSION;
+				
+				for (var i=0;i<friends.length;i++)
+				{
+					var img = $(friends[i]).children('img')[0];
+					img.src = $(ordered_friends[i]).children('img')[0].src;
+					img.title = $(ordered_friends[i]).children('img')[0].title;
+					
+					var size = hash_image_size[img.src];
+					var pos = resize_to_square(size[0],size[1],target_size);
+					
+					$(img).css({
+						left: pos[0]+'px',
+						top: pos[1]+'px',
+						width:pos[2]+'px',
+						height:pos[3]+'px' 	
+					});
+				}
+				
+			}
+
+		});
+		$( ".sortable" ).disableSelection();
+
+	});
+	
+	var hexDigits = new Array
+        ("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"); 
+
+	//Function to convert hex format to a rgb color
+	function rgb2hex(rgb) {
+	 rgb = rgb.match(/^[a-zA-z]+\((\d+),\s*(\d+),\s*(\d+)\)$/);
+	 if (rgb == null ||rgb == undefined) rgb = "000000";
+	 
+	 return hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+	}
+	
+	function hex(x) {
+	  return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+	 }
+
+	
+	function submit_image()
+	{
+		try {
+                $('#submit_button').loading_button(true);
+				
+				var buy_digital_copy = "false";
+				var buy_print_copy = "false";
+				
+				var birthday_information = {};
+				var re = new RegExp(/birthday_([0-9][0-9]-[0-9][0-9])/);
+				var friend_images = $('.friend_image');
+				
+				for(var i=0;i<friend_images.length;i++)
+				{
+					var birthday_class = re.exec(friend_images[i].className);
+					
+					var date = birthday_class[1];
+					
+					if (!(date in birthday_information))
+						birthday_information[date] = [];
+						
+					var img = $(friend_images[i]).children('img')[0];
+					birthday_information[date].push({name:img.title,url:img.src});
+				}
+				
+				if ($('#buy_digital_and_print')[0].checked || $('#buy_digital_only')[0].checked)
+					buy_digital_copy = "true";
+					
+				if ($('#buy_digital_and_print')[0].checked || $('#buy_print_only')[0].checked)
+					buy_print_copy = "true";
+
+                $.ajax({
+                    type: "POST",
+                    url: '/birthday_calendar/save_preview',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+						order_key: "<%=@entity.friendmage_order_key%>",
+						mode: mode,
+						birthday_information: $.toJSON(birthday_information),
+						buy_digital_copy:buy_digital_copy,
+						buy_print_copy:buy_print_copy
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+                            }
+                            else {
+                                $('#submit_button').ruby_box(true,data.error_message);
+                            }
+							
+							$('#submit_button').loading_button(false);
+                        }
+                        catch (e) {
+                            $('#submit_button').loading_button(false);
+							alert(e);
+                            $.error_log('create_friend_poster', e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#submit_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#submit_button').loading_button(false);
+				alert(e);
+                $.error_log('create_friend_poster',e);
+                
+            }
+	}
+	function cal_price(sender)
+	{
+		if (sender.id == 'buy_digital_and_print')
+		{
+			$('#preview_price').html('380');
+		}
+		else if (sender.id == 'buy_print_only')
+		{
+			$('#preview_price').html('380');
+		}
+		else
+		{
+			$('#preview_price').html('80');
+		}
+	}
+</script>

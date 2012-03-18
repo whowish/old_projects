@@ -1,0 +1,143 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<%
+	item_owner = get_facebook_info( @item.facebook_id)
+
+	color_theme = get_color_theme(@item)
+
+%>
+<script language="javascript">
+	$.whowish_box_title_color('<%=color_theme.bgColorCode%>');
+</script>
+<span class="span-50 margin-bottom-1">
+	<span class="span-48 margin-left-1">
+		<%
+			image_url = @item.get_item_image(false)
+			if image_url
+		%>
+		<span class="span-48 margin-top-1" style="background-color:#F4F4F4;">
+			<span class="span-48 noImageView margin-top-1 margin-bottom-1 margin-swap_pic" style="width:470;height:275;background-image:url(<%=image_url%>);">
+			</span>
+		</span>
+		<%	end%>
+		
+		<%if $facebook.facebook_id != @item.facebook_id and @item.status == Item::STATUS_ACTIVE %>
+			<%if @item.item_type == Item::ITEM_TYPE_WISH%>
+				<span class="float-left blue_button_small align_center margin-left-1 margin-top-1" 
+					onclick="$.whowish_box({title: 'Make a swap request!',url:'/take?requestor_item_id=<%=@item.id%>',background_color:'#999999'});">
+					<%=word_for :got_it_swap_button%>
+				</span>
+			<%else%>
+				<span class="float-left green_button_small align_center margin-left-1 margin-top-1"
+					onclick="$.whowish_box({title: 'Make a swap request!',url:'/give?responder_item_id=<%=@item.id%>',background_color:'#999999'});">
+					<%=word_for :want_it_swap_button%>
+				</span>
+			<%end%>
+		<%end%>
+		<%if $facebook.facebook_id == @item.facebook_id and (@item.status == Item::STATUS_COMPLETED or @item.status == Item::STATUS_DELETED) %>
+			<span class="float-left gray_button_small align_center margin-left-1 margin-top-1"
+			 onclick="$.whowish_box({title: 'Renew',url:'/inbox/renew?item_id=<%=@item.id%>',background_color:'#999999'});">
+				<%=word_for :renew%>
+			</span>
+		<%end%>
+		<span class="span-46 margin-left-1 margin-top-1">
+			<span class="span-46 medium_dark_gray  fontsize14 bold_font" style="white-space:normal;overflow:hidden;">
+				<%
+					pronoun = get_pronoun(item_owner,false);
+					verb = ((@item.item_type == "WISH")?"want":"have")
+					verb = "can" if @item.category_id == 4 and @item.item_type == "JUNK"
+				%>
+				<span class="float-left">
+					<%=wrap_word(pronoun.capitalize + " " + get_verb(pronoun,verb) + " '" + @item.title,45)+"'"%>
+				</span>
+			</span>
+			
+			<span class="span-46 medium_dark_gray margin-top-1" >
+				<span class="span-10 fontsize12 bold_font" ><%=word_for :category%></span> 
+				<span class="span-32 fontsize12 dark_gray">
+					<%category = Category.first(:conditions=>{:id => @item.category_id})
+					
+						if category
+							if category.id.to_s == category.parent_id.to_s
+								category_name = category.name
+							else
+								parent_category = Category.first(:conditions=>{:id => category.parent_id})
+			  					category_name = parent_category.name + "&nbsp;&gt;&nbsp;" + category.name
+							end
+					%>
+						<%=category_name%>
+					<%
+						end
+					%>
+				</span>
+			</span>
+			<%if @item.value != nil %>
+				<span class="span-46 medium_dark_gray margin-top-1" >
+					<span class="span-10 fontsize12 bold_font" >
+						<%=word_for :est_value%>
+					</span> 
+					<span class="span-32 fontsize12 dark_gray">
+						<%=format_currency_by_country_code(@item.country_code,@item.value)%>
+					</span>
+				</span>
+			<%end%>
+			<%if @item.description != nil and @item.description != "" %>
+				<span class="span-46 medium_dark_gray margin-top-1" style="white-space:normal;overflow:hidden;">
+					<span class="span-10 fontsize12 bold_font" ><%=word_for :description%></span> 
+					<span class="span-32 fontsize12 dark_gray" >
+						<%=wrap_word(@item.description,50)%>
+					</span>
+				</span>
+			<%end%>
+			<%if @item.expiration_date != nil %>
+			<span class="span-46 medium_dark_gray margin-top-1" >
+				<span class="span-10 fontsize12 bold_font" >
+					<%=word_for :expired_on%>
+				</span> 
+				<span class="span-32 fontsize12 dark_gray">
+					<%=@item.expiration_date.strftime("%d %b %Y")%>
+					<%if @item.status == Item::STATUS_EXPIRED%>
+					<span class="fontsize12 red">
+					(Expired!)
+					<%end%>
+				</span>
+			</span>
+			
+			<%end%>
+			<span class="span-46 medium_dark_gray margin-top-1" style="white-space:normal;overflow:hidden;">
+				<span class="span-10 fontsize12 bold_font" ><%=word_for :created_by%></span> 
+				
+			</span>
+			<span class="top span-46  margin-bottom-1">
+				<span class="span-6 margin-left-1 margin-top-1">
+					<span class="facebook_pic2 margin-profile_comment_box" style="background-image:url(http://graph.facebook.com/<%=@item.facebook_id%>/picture?type=square);">
+					</span>
+				</span>
+				<span class="span-38 fontsize12 normal_font margin-top-1">
+					<%=item_owner.get_badge%>
+				</span>
+				<span class="span-38 fontsize11 normal_font" style="margin-top:2px;">
+					<span class="float-left dark_gray">
+						<%=get_college_name(item_owner.college_id)%>
+					</span>
+				</span>
+				<span class="span-38 fontsize11 normal_font margin-comment_foot" style="margin-top:2px;">
+					<span class="float-left medium_dark_gray">
+						Posted <%=semantic_time(@item.created_date)%> <!--<a href="#" class="normal_font">share</a>-->
+					</span>
+				</span>
+			</span>
+			
+		</span>
+	</span>
+</span>
+<%= render :partial=>"comment/comment_panel", :locals=>{:item=>@item}%>
+<div style="height:0px;clear:left;">&nbsp;</div>
+
+		
+		
+	
+
+
+

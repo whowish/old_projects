@@ -1,0 +1,173 @@
+<script language="javascript">
+
+	sell_form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("item_form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"offer_money" : function (input_obj) {
+				return validate_input_obj(input_obj,get_money_errors);
+			}
+		}
+	}
+
+	function submit_swap()
+	{
+		if (!sell_form_validator.validate_form()) return;
+		try {
+			$('#swap_submit_button').loading_button(true);
+			$.ajax({
+				type: "POST",
+				url: '/swap/save',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"requestor_item_id": "<%=params[:requestor_item_id]%>",
+					"offer_money": $('#offer_money').val(),
+					"message": $('#swap_message').val(),
+					"share_on_facebook":(($('#swap_share_on_facebook')[0].checked == true)?"yes":"no")
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							
+							$.whowish_box({title:'Succeeded',url:'/swap/success?item_id=<%=params[:requestor_item_id]%>',background_color:'#1963BD'});
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#swap_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}
+							
+							$('#swap_submit_button').loading_button(false);
+						}
+					} 
+					catch (e) {
+						$.error_log('submit_swap', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#swap_submit_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#swap_submit_button').loading_button(false);
+			$.error_log('submit_swap',e);
+			alert(e);
+		}
+	}		
+	
+</script>
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50 margin-bottom-1">
+	<span class="span-50 margin-top-1">
+		<span class="span-40 light_blue_bg">
+			<span class="span-40 margin-swap_unit">
+				
+				<span class="facebook_pic margin-swap_pic" style="background-image:url(<%=@requestor_item.get_thumbnail_item_image()%>);">
+				</span>
+				
+				<span class="span-32 margin-left-1">
+					<span class="span-32 ">
+						<span class="span-32 fontsize12 bold_font">
+							<a href="#" class="dark_blue" onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=@requestor_item.id%>'}); return false;"><%=word_for :i_have%> <%=trim_title(@requestor_item.title ,30,30)%></a>
+						</span>
+						<span class="span-32 fontsize11 normal_font  medium_gray">
+							<%=trim_description(@requestor_item.id,@requestor_item.description,45,80,2)%>
+						</span>
+					</span>
+				</span>
+				
+			</span>
+			<div style="height:0px;clear:left;">&nbsp;</div>
+		</span>
+		<span class="right_arrow">
+		</span>
+	</span>
+	<span class="span-48 margin-left-1 margin-top-1 align_center fontsize14 bold_font whowish_green">
+		<%=word_for :you_request_to_sell_to,:name=>@responder.get_badge%>
+	</span>
+	<span class="margin-top-1 float-right">
+		<span class="left_arrow">
+		</span>
+		<span class="span-40 light_green_bg">
+			<span class="span-40 margin-swap_unit margin-swap_line">
+				
+				<span class="span-32 margin-left-1">
+					<span class="span-32 ">
+						<span class="span-32 fontsize12 bold_font medium_dark_green">
+							<%=word_for :is_asked_to_pay,:name=>@responder.get_badge%>
+						</span>
+						<span class="form_unit span-32 fontsize11 normal_font dark_gray margin-top-1">
+							<!--<span class="span-1">$ </span> -->
+							<span class="span-20">
+								<input type="text" id="offer_money" class="postbox_input span-8"  onkeyup="sell_form_validator.validate(this);">
+								<span class="span-10 margin-left-1">(<%=Currency.get_by_country_code($facebook.country_code).name%>)</span>
+							</span>
+						</span>
+					</span>
+				</span>
+				
+				<span class="facebook_pic margin-swap_pic" style="background-image:url(/images/thumbnail/coin.png);">
+				</span>
+				
+			</span>
+			<div style="height:0px;clear:left;">&nbsp;</div>
+		</span>
+	</span>
+	<span class="span-50 margin-top-1">
+		<span class="span-36 margin-left-7">
+			<input type="checkbox" id="swap_share_on_facebook" > <%=word_for :share_on_my_wall%>
+		</span>
+	</span>
+	<span class="span-50 margin-top-1 margin-bottom-1">
+		<span class="span-38 margin-left-5">
+			<%=word_for :optional_private_message%>
+		</span>
+		<textarea id="swap_message" style="height:70px !important;" class="dark_gray span-38 comment_zone margin-left-5"></textarea>
+	</span>
+	
+	<span class="span-50 margin-top-1 margin-bottom-1">
+		<span class="orange_button  margin-left-10 span-30 "  id="swap_submit_button"  onclick="submit_swap();">
+			<%=word_for :sell_button%>
+		</span>
+	</span>
+</span>
+<div style="height:0px;clear:left;">&nbsp;</div>
+<script language="javascript">
+	$('#swap_message').default_text("<%=word_for :swap_message_default%>");
+</script>
+
+
+	
+
+

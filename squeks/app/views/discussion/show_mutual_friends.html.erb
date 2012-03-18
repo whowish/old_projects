@@ -1,0 +1,155 @@
+<%
+	params[:offset] ||= 0
+    params[:limit] ||= 10
+
+	params[:offset] = params[:offset].to_i
+    params[:limit] = params[:limit].to_i
+
+	params[:filter] ||= 'friend'
+	mutual_friends = []
+	count = 0
+	if params[:filter] == 'all'
+		count = DiscussionLove.count(:conditions=>["discussion_id = ? and love_type = ?",params[:discussion_id],params[:love_type]])
+		mutual_friends = DiscussionLove.all(:conditions=>["discussion_id = ? and love_type = ?",params[:discussion_id],params[:love_type]],:order=>"id DESC",:offset=>params[:offset],:limit=>params[:limit])
+	else
+		count = DiscussionLove.count(:conditions=>["discussion_id = ? and love_type = ? and not(facebook_id = ?) and facebook_id in (?)",params[:discussion_id],params[:love_type],$member.facebook_id,$member.all_friends])
+		mutual_friends = DiscussionLove.all(:conditions=>["discussion_id = ? and love_type = ? and not(facebook_id = ?) and facebook_id in (?)",params[:discussion_id],params[:love_type],$member.facebook_id,$member.all_friends],:order=>"id DESC",:offset=>params[:offset],:limit=>params[:limit])
+	end
+	
+	is_anonymous = {}
+	mutual_friends.each do |m|
+		is_anonymous[m.facebook_id] = m.is_anonymous
+	end
+	friends = Member.all(:conditions=>{:facebook_id=>mutual_friends.map{|m| m.facebook_id}})
+	
+%>
+
+<span class="span-50 margin-top-2">
+	<span class="span-50 white_bg">
+		<span class="span-48 margin-top-1 margin-left-1 margin-bottom-1">
+			<span class="float-left height20">
+				<span class="float-left font11 bold_font medium_dark_gray">
+					Sort by:
+				</span>
+				
+				<span class="comment_filter font12 margin-left-1">
+					<ul class="medium_dark_gray">
+						<li>
+							<a class="<%=(params[:filter] == 'all')?'selected':'tab'%>" href="#" onclick="$.whowish_box({url:'/figure/show_mutual_friends?figure_id=<%=params[:figure_id]%>&love_type=<%=params[:love_type]%>&filter=all',background_color:'#999999'});return false;">
+								<span>
+									<%=word_for(:all)%>
+								</span>
+							</a>
+						</li>
+						<li>
+							<a class="<%=(params[:filter] == 'friend')?'selected':'tab'%>" href="#" onclick="$.whowish_box({url:'/figure/show_mutual_friends?figure_id=<%=params[:figure_id]%>&love_type=<%=params[:love_type]%>&filter=friend',background_color:'#999999'});return false;">
+								<span>
+									<%=word_for(:friend)%>
+								</span>
+							</a>
+						</li>
+					</ul>
+				</span>
+			</span>
+			<span class="span-48 friend_list margin-top-1">
+				<ul>
+					<%
+						friends.each do |friend|
+						
+					%>
+						<li>
+						<%
+							if is_anonymous[friend.facebook_id] 
+						%>
+							    <span class="facebook_id_pic margin-top-5px" style="background-image:url(<%=friend.anonymous_profile_picture_url%>) !important;">
+							    </span>
+								<span class="span-42 margin-left-1 margin-top-5px">
+									<%=friend.anonymous_name%>
+								 </span>
+							
+						<%
+						 	else
+						%>
+							    <span class="facebook_id_pic margin-top-5px" style="background-image:url(<%=friend.profile_picture_url%>) !important;">
+							    </span>
+								
+								<span class="span-42 margin-left-1 margin-top-5px">
+									<a href="/profile?user_id=<%=friend.facebook_id%>" class="medium_blue"><%=friend.name%></a>
+								 </span>
+						 <%
+						 	end
+						%>
+						 </li>
+					<%end%>
+					
+				</ul>
+			</span>
+		</span>
+		
+	</span>
+	<span class="left_shadow">
+	</span>
+	<span class="right_shadow">
+	</span>
+</span>
+<%
+    if count > params[:limit].to_i
+%>
+<span class="span-49 margin-top-1 margin-bottom-1 margin-left-1">
+	<span class="margin-left-4px total_page squeks_blue_bg">
+		<%=params[:offset].to_i+1%> - <%=[(params[:offset].to_i+params[:limit].to_i),count].min%> of <%=count%> <%=word_for(:people)%>
+	</span>
+	<span class="page_number">
+		<ul>
+			<%
+				pages = []
+
+				current_page = (params[:offset] / params[:limit])+1
+
+				number_of_pages = (count.to_f/params[:limit].to_f).ceil
+				if number_of_pages > 10
+					pages = [current_page]
+
+					
+					# span on current page
+					(1..5).each { |i|
+						pages.unshift(current_page-i) if (current_page-i) >= 1
+						pages.push(current_page+i)  if (current_page+i) <= number_of_pages
+					}
+
+
+					# add head and tail
+					[3,2,1].each { |i|
+						logger.debug { "#{i} #{pages.first}" }
+						pages = pages.unshift(i) if i < pages.first
+						pages = pages.push(number_of_pages - i + 1) if (number_of_pages - i + 1) > pages.last
+					}
+					
+				else
+					pages = (1..number_of_pages)
+				end
+
+				last = 0
+				pages.each do |i|
+				
+					if i > (last+1)
+			%>
+						<li>...</li>
+			<%
+					end
+			%>
+					<li><a href="#" onclick="$.whowish_box({url:'/discussion/show_mutual_friends?discussion_id=<%=params[:discussion_id]%>&love_type=<%=params[:love_type]%>&filter=<%=params[:filter]%>&offset=<%=params[:limit]*(i-1)%>&limit=<%=params[:limit]%>',background_color:'#999999'});return false;" <%='class="active"' if i == current_page%>><%=i%></a></li>
+			<%
+					last = i
+				end
+			%>
+		</ul>
+	</span>
+</span>
+<%
+    end
+%>
+
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title,:type=>params[:love_type].downcase%>");
+</script>

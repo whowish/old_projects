@@ -1,0 +1,70 @@
+# Auto-generated template
+member1:
+  name: "Tanun Niyomjit"
+  gender: "male"
+  facebook_id: 632591624
+  anonymous_name: "pond"
+  anonymous_profile_pic: ""
+  is_anonymous: 0
+  is_share_love: 0
+  is_share_hate: 0
+  is_share_comment: 0
+  is_share_comment_agree: 0
+  is_share_comment_disagree: 0
+  updated_date: ""
+  credits: 10
+  country_code: "TH"
+  is_aesir: 0
+
+member2:
+  name: "Tanin Na Nakorn"
+  gender: "male"
+  facebook_id: 632818246
+  anonymous_name: "Tanin"
+  anonymous_profile_pic: ""
+  is_anonymous: 0
+  is_share_love: 0
+  is_share_hate: 0
+  is_share_comment: 0
+  is_share_comment_agree: 0
+  is_share_comment_disagree: 0
+  updated_date: ""
+  credits: 10
+  country_code: "TH"
+  is_aesir: 0
+  
+member3:
+  name: "Nilobol Ariyamongkollert"
+  gender: "female"
+  facebook_id: 100000201256691
+  anonymous_name: "ni"
+  anonymous_profile_pic: ""
+  country_code: "TH"
+  is_anonymous: 0
+  is_share_love: 0
+  is_share_hate: 0
+  is_share_comment: 0
+  is_share_comment_agree: 0
+  is_share_comment_disagree: 0
+  updated_date: ""
+  credits: 10
+  country_code: "TH"
+  is_aesir: 0
+
+member4:
+  name: "Moopino"
+  gender: "female"
+  facebook_id: 100002085428291
+  anonymous_name: "ni"
+  anonymous_profile_pic: ""
+  country_code: "TH"
+  is_anonymous: 0
+  is_share_love: 0
+  is_share_hate: 0
+  is_share_comment: 0
+  is_share_comment_agree: 0
+  is_share_comment_disagree: 0
+  updated_date: ""
+  credits: 10
+  country_code: "TH"
+  is_aesir: 0

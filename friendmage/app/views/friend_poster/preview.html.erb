@@ -1,0 +1,395 @@
+<%
+	image_urls = @poster.image_urls.split(',')
+	
+	duplicate = 0
+	if (image_urls.length%20) > 0
+		duplicate = (20 - image_urls.length%20)
+		duplicate.times { |i|
+			image_urls.push(image_urls [(image_urls.length/4) + (i * 7) % (image_urls.length/2)])
+		}
+	end
+%>
+<%=javascript_include_tag "/filament/js/jquery-ui-1.8.11.custom.min.js"%>
+<%=javascript_include_tag "/filament/js/selectToUISlider.jQuery.js"%>
+<%=stylesheet_link_tag("/filament/css/redmond/jquery-ui-1.7.1.custom.css")%>
+<%=stylesheet_link_tag("/filament/css/ui.slider.extras.css")%>
+<%=stylesheet_link_tag("/farbtastic/farbtastic.css")%>
+<%=javascript_include_tag "/farbtastic/farbtastic.js"%>
+<style>
+	#preview_poster {
+		position:relative;
+		width:600px;
+		height:600px;
+	}
+	
+	.facebook_thumbnail {
+		position:absolute;
+		display:block;
+		overflow:hidden;
+		width: 35px;
+		height:35px;
+	}
+	
+	.color_palette_unit {
+		display:inline-block;
+		width:20px;
+		height:20px;
+		border:1px solid #000000;
+		cursor:pointer;
+		margin:3px 3px 3px 3px;
+	}
+</style>
+<span id="cache_image_panel" style="overflow:hidden;width:0px;height:0px;display:block;">
+	<%
+		image_urls.each do |url|
+	%>
+		<img src="<%=url%>"/>
+	<%
+		end
+	%>
+</span>
+<span class="span-98 clearfix">
+	<span class="span-96 margin-left-1 margin-top-1 font28 bold_font friendmage_red whiteShadow clearfix">
+		<%=word_for :preview_poster_topic%>
+	</span>
+	<span class="span-24 margin-left-1 clearfix">
+		<span class="span-24 clearfix">
+			<span class="span-24 margin-top-2 font14 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :gap_topic%>
+			</span>
+			<span class="span-24 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-24 margin-top-5px font11 bold_font medium_dark_gray clearfix">
+				<%=word_for :gap_instruction%>
+			</span>
+			<span class="span-22 margin-left-3 margin-top-2 font11 bold_font medium_dark_gray clearfix">
+				<select name="margin_slider" id="margin_slider" style="display:none;">
+					<%
+						(0..7).each do |i|
+					%>
+						<option value="<%=i%>" <%="selected='selected'" if (@poster.gap/10) == i%>><%=i%></option>
+					<%
+						end
+					%>
+				</select>
+			</span>
+			<!--<span  class="span-24 margin-top-3 clearfix align_center">
+				<span class="gray_button30px margin-left-2" onclick="preview_poster();"><%=word_for :preview_button%></span>
+			</span>-->
+		</span>
+		<span class="span-24 margin-top-4 clearfix">
+			<span class="span-24 margin-top-2 font14 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :background_color_topic%>
+			</span>
+			<span class="span-24 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-24 margin-top-5px font11 bold_font medium_dark_gray clearfix">
+				<%=word_for :background_color_instruction%>
+			</span>
+			<span class="span-24 margin-top-1 font11 bold_font medium_dark_gray clearfix" style="position:relative;">
+				<span id="background_picker"></span>
+			</span>
+			<span class="span-24 margin-top-1 font11 bold_font medium_dark_gray clearfix" style="position:relative;">
+				<span class="span-22">
+					<%
+						['000000','330000','330099','000099','990099','339900','CC3366','FF6633'].each do |c|
+					%>
+						<span class="color_palette_unit" style="background-color:#<%=c%>;" onclick="$.farbtastic('#background_picker').setColor('#<%=c%>');"></span>
+					<%
+						end
+					%>
+				</span>
+			</span>
+		</span>
+		<span class="span-24 margin-top-4 clearfix">
+			<span class="span-24 margin-top-2 font14 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :select_type%>
+			</span>
+			<span class="span-24 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-24 margin-top-5px font11 bold_font medium_dark_gray clearfix">
+				<%=word_for :select_type_instruction%>
+			</span>
+			<span class="span-24 margin-top-1 font11 bold_font medium_dark_gray clearfix">
+				<span class="span-23 margin-top-1 margin-left-1">
+					<input type="radio" id="buy_digital_and_print" onclick="cal_price(this);" name="buy_<%=@poster.friendmage_order_key%>" <%='checked' if !session[:only_digital]%>> <%=word_for :buy_digital_and_print_copy%>
+				</span>
+				<span class="span-23 margin-top-1 margin-left-1">
+					<input type="radio" id="buy_print_only" onclick="cal_price(this);" name="buy_<%=@poster.friendmage_order_key%>" disabled> <%=word_for :buy_print_copy_only%>
+				</span>
+				<span class="span-23 margin-top-1 margin-left-1">
+					<input type="radio" id="buy_digital_only" onclick="cal_price(this);" name="buy_<%=@poster.friendmage_order_key%>" <%='checked' if session[:only_digital] == true %>> <%=word_for :buy_digital_copy_only%>
+				</span>
+			</span>
+			<span class="span-33 margin-top-1 font11 bold_font medium_dark_gray clearfix">
+				<span class="float-left margin-left-1 margin-top-1 padding_horizontal_8px height20 friendmage_red_bg font14 bold_font white">
+					<span id="preview_price">
+						<span id="digital_price" style="<%='display:none;' if !session[:only_digital]%>">
+							80
+						</span>
+						<span id="print_price" style="display:none;">
+							<%=calculate_price(@poster)%>
+						</span>
+						<span id="digital_and_print_price" style="<%='display:none;' if session[:only_digital] == true%>">
+							<%=calculate_price(@poster)%>
+						</span>
+					</span> 
+					<%=word_for :currency%>
+				</span>
+			</span>
+		</span>
+		<span class="span-24 margin-top-4 clearfix">
+			<span class="span-24 margin-top-2 font14 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :submit_poster_topic%>
+			</span>
+			<span class="span-24 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-24 margin-top-5px font11 bold_font medium_dark_gray clearfix">
+				<%=word_for :submit_poster_instruction%>
+			</span>
+			<span class="span-24 margin-top-1 margin-bottom-2 font11 bold_font medium_dark_gray clearfix" style="text-align:center;">
+				<span class="gray_button30px margin-left-2" id="submit_button" onclick="submit_image();"><%=word_for :next_button%></span>
+			</span>
+			<div style="height:0px;clear:left;">&nbsp;</div>
+		</span>
+	</span>
+	<span class="span-60 margin-left-10 clearfix">
+		<span class="span-60 clearfix">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :your_poster%>
+				<%=word_for :dimension,:width=>20,:height=>"<span id='poster_height'></span>"%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span id="preview_poster_frame" class="span-60 margin-top-1 clearfix" style="display:none;border:1px solid #000000;">
+				<span id="preview_poster" style="position:relative;float:left;background-color:#<%=@poster.background_color%>;">
+					<%
+						i = 0
+						image_urls.each do |url|
+					%>
+						<span class="facebook_thumbnail" style="left:<%=(i%20)*35%>px;top:<%=(i/20)*35%>px;"><img src="<%=url%>" style="position:absolute;"/></span>
+					<%
+							i = i + 1
+						end
+					%>
+				</span>
+			</span>
+			<span class="span-60 margin-top-1 font11 medium_dark_gray clearfix">
+				* <%=word_for :duplicate_friends, :number=>duplicate%>
+			</span>
+		</span>
+	</span>
+</span>
+<script language="javascript">
+	$('#background_picker').farbtastic('#preview_poster',function (color) {
+		$('#preview_poster').css('background-color',color);
+	});
+	
+	$.farbtastic('#background_picker').setColor('#<%=@poster.background_color%>');
+
+	var perRow = <%=@poster.photo_per_row%>;
+	var border = <%=@poster.border/10%>;
+	var hash_image_size = {};
+	
+	function load_image_cache()
+	{
+		var friend_images = $('#cache_image_panel').children('img');
+		for (var i=0;i<friend_images.length;i++)
+		{
+			hash_image_size[friend_images[i].src] = [friend_images[i].clientWidth,friend_images[i].clientHeight];
+		}
+	}
+	
+
+	function async_preview_poster()
+	{
+		$('#preview_poster_frame').hide();
+		setTimeout("preview_poster();",1);
+	}
+
+	function preview_poster()
+	{
+		var gap = parseInt($('#margin_slider').val());
+		var thumbs = $('#preview_poster').children('span');
+		var full_images = $('#full_image_panel').children('img');
+		
+		var width = $('#preview_poster').width();
+        var dimension = (parseFloat(width - border*2 - (perRow-1)*gap)/perRow);
+        var height = (border*2 + parseInt(0.5 + parseFloat(thumbs.length)/perRow) * (dimension) + (parseInt(0.5 + parseFloat(thumbs.length)/perRow)-1) * gap);
+		
+		$('#poster_height').html(parseInt(Math.ceil((20*height/600)))+"");
+		$('#preview_poster').css('height',height+'px');
+		
+		for (var i=0;i<thumbs.length;i++)
+		{
+			var x = border + (i%perRow)*(dimension+gap);
+            var y = border + (parseInt(i/perRow))*(dimension+gap);
+			
+			$(thumbs[i]).css({
+				'left': x+'px',
+				'top': y+'px',
+				'width':dimension,
+				'height':dimension
+			});
+			
+			
+			var size = hash_image_size[$(thumbs[i]).children('img')[0].src];
+			var h = size[1];
+			var w = size[0];
+			
+			
+			
+			
+			// in case image is not loaded yet
+			if (h==0 || w==0)
+			{
+				setTimeout("load_image_cache();preview_poster();",1000);
+				return;
+			}
+			
+			var sx = 0,sy = 0;
+			if (h > w) {
+				h = parseFloat(dimension) * h / w;
+				w = dimension;
+				
+				sx = 0;
+                //sy = -(h-w)/2;
+				sy = 0;
+            }
+            else
+            {
+                w = parseFloat(dimension) * w / h;
+				h = dimension;
+				
+				sx = -(w-h)/2;
+                sy = 0;
+            }
+			
+			$(thumbs[i]).children('img').css({
+				left: sx+'px',
+				top: sy+'px',
+				width:w+'px',
+				height:h+'px' 	
+			});
+		}
+		
+		$('#preview_poster_frame').show();
+	}
+	
+	$(function() {
+		load_image_cache();
+		preview_poster();
+		
+		$('#margin_slider').selectToUISlider({
+			labels: 8, //number of visible labels
+			tooltip: false,
+			sliderOptions: {
+				change: function() {
+					async_preview_poster();
+				}
+			}
+		});
+		
+		setTimeout("preview_poster();",10000);
+	});
+	
+	var hexDigits = new Array
+        ("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"); 
+
+	//Function to convert hex format to a rgb color
+	function rgb2hex(rgb) {
+	 rgb = rgb.match(/^[a-zA-z]+\((\d+),\s*(\d+),\s*(\d+)\)$/);
+	 if (rgb == null ||rgb == undefined) rgb = "000000";
+	 
+	 return hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+	}
+	
+	function hex(x) {
+	  return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+	 }
+
+	
+	function submit_image()
+	{
+		try {
+                $('#submit_button').loading_button(true);
+				
+				var buy_digital_copy = "false";
+				var buy_print_copy = "false";
+				
+				if ($('#buy_digital_and_print')[0].checked || $('#buy_digital_only')[0].checked)
+					buy_digital_copy = "true";
+					
+				if ($('#buy_digital_and_print')[0].checked || $('#buy_print_only')[0].checked)
+					buy_print_copy = "true";
+
+                $.ajax({
+                    type: "POST",
+                    url: '/friend_poster/save_preview',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+						order_key: "<%=@poster.friendmage_order_key%>",
+						background_color: rgb2hex($('#preview_poster').css('background-color')),
+						gap: $('#margin_slider').val(),
+						buy_digital_copy:buy_digital_copy,
+						buy_print_copy:buy_print_copy
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+                            }
+                            else {
+                                $('#submit_button').ruby_box(true,data.error_message);
+                            }
+							
+							$('#submit_button').loading_button(false);
+                        }
+                        catch (e) {
+                            $('#submit_button').loading_button(false);
+							alert(e);
+                            $.error_log('create_friend_poster', e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#submit_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#submit_button').loading_button(false);
+				alert(e);
+                $.error_log('create_friend_poster',e);
+                
+            }
+	}
+	
+	function cal_price(sender)
+	{
+		if (sender.id == 'buy_digital_and_print')
+		{
+			$('#digital_price').hide();
+			$('#print_price').hide();
+			$('#digital_and_print_price').show();
+		}
+		else if (sender.id == 'buy_print_only')
+		{
+			$('#digital_price').hide();
+			$('#print_price').show();
+			$('#digital_and_print_price').hide();
+		}
+		else
+		{
+			$('#digital_price').show();
+			$('#print_price').hide();
+			$('#digital_and_print_price').hide();
+		}
+	}
+</script>

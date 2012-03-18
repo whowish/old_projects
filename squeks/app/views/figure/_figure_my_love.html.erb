@@ -1,0 +1,23 @@
+<span id="my_love_<%=figure.id%>">&nbsp;
+    <%
+       logger.debug {"Enter #{self.template}"}
+
+        member_love_hate = FigureLove.first(:conditions=>{:figure_id=>figure.id,:facebook_id=>$member.facebook_id})
+        mutual_love_count = FigureLove.count(:conditions=>["figure_id = ? and love_type = ? and not(facebook_id = ?) and facebook_id in (?)",figure.id,FigureLove::TYPE_LOVE,$member.facebook_id,$member.all_friends])
+
+        if member_love_hate and member_love_hate.love_type == FigureLove::TYPE_LOVE
+    %>
+        You
+            <% if mutual_love_count > 0 %>
+            and 
+			 <a href="#" class="squeks_blue" onclick="$.whowish_box({url:'/figure/show_mutual_friends?figure_id=<%=figure.id%>&love_type=<%=FigureLove::TYPE_LOVE%>&filter=friend',background_color:'#999999'});return false;"><%=number_with_delimiter(mutual_love_count)%> friends</a>
+            <% end %>
+        love this
+    <%
+        elsif mutual_love_count > 0
+    %>
+        <a href="#" class="squeks_blue" onclick="$.whowish_box({url:'/figure/show_mutual_friends?figure_id=<%=figure.id%>&love_type=<%=FigureLove::TYPE_LOVE%>&filter=friend',background_color:'#999999'});return false;"><%=number_with_delimiter(mutual_love_count)%> friends</a> love this
+    <%
+        end
+    %>
+</span>

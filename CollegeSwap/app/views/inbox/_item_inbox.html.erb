@@ -1,0 +1,38 @@
+<%
+	color_theme = get_color_theme(item)
+%>
+<span class="span-35 height-6 margin-swap_line">	
+	<span class="span-5">
+		<span class="facebook_pic margin-swap_pic" style="background-image: url(<%=item.get_thumbnail_item_image()%>);">
+		</span>
+		<span class="span-5" style="text-align:center;">
+			<%if $facebook.facebook_id == item.facebook_id%>
+				<%if (item.status == Item::STATUS_COMPLETED or item.status == Item::STATUS_DELETED) and item.expiration_date == nil and item.is_money == 0%>
+					<span class="span-6 fontsize11 normal_font  medium_gray" title="Click to renew this item into your swap list">
+						<a href="#" id="item_renew_<%=item.id%>" onclick="$.whowish_box({title: 'Renew',url:'/inbox/renew?item_id=<%=item.id%>'});return false;"><%=word_for :renew%></a>
+					</span>
+				<%end%>
+			<%end%>
+		</span>
+	</span>
+	<span class="span-29 margin-left-1">
+		<span class="span-29  height-4">
+			<%if item.is_money == 0%>
+				<span class="span-29 fontsize12 bold_font"  style="white-space:nowrap;overflow:hidden;">
+					<a href="#" class="<%=color_theme.textColor%>" onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=item.id%>'}); return false;"><%=word_for :owner_item,:pronoun=>possessive_pronoun%> <%=trim_title(item.title ,30,30)%></a>
+				</span>
+			<%else%>
+				<span class="span-29 fontsize12 bold_font <%=color_theme.textColor%>"  style="white-space:nowrap;overflow:hidden;">
+					<%=word_for :owner_item,:pronoun=>possessive_pronoun%> <%=trim_title(item.title ,30,30)%>
+				</span>
+			<%end%>
+			<span class="span-29 fontsize11 normal_font  medium_gray">
+				<%=trim_description(item.id,item.description,40,60,2)%>
+			</span>
+			
+		</span>
+	</span>
+</span>
+<span class="height01 span-35 margin-swap_line medium_gray_bg">
+</span>
+

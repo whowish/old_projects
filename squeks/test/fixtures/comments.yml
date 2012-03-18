@@ -1,0 +1,26 @@
+# Auto-generated template
+comment1:
+  id: 1
+  figure_id: 1
+  facebook_id: 100002085428291
+  created_date: <%= DateTime.now %>
+  comment: "test test"
+  agrees: 0
+  disagrees: 0
+  parent_id: 0
+  is_anonymous: 0
+  total_agree: 0
+  status: <%= Comment::STATUS_ACTIVE %>
+
+comment2:
+  id: 2
+  figure_id: 2
+  facebook_id: 100002085428291
+  created_date: <%= DateTime.now %>
+  comment: "test test2"
+  agrees: 0
+  disagrees: 0
+  parent_id: 0
+  is_anonymous: 0
+  total_agree: 0
+  status: <%= Comment::STATUS_ACTIVE %>

@@ -1,0 +1,314 @@
+<%	
+	params[:view] ||= "confirm_transfer"
+	action = "check_confirm_transfer"
+	action = "print_order" if params[:view] == "print" or params[:view] == "shipped"
+	action = "ship_order" if params[:view] == "ship" 
+	action = "cancel_order" if params[:view] == "cancel"
+	order_by = "created_date ASC"
+	sql = "status = :status"
+	sql = "status = :status and buy_print_copy = true and not(print_image_url is null)" if params[:view] == "ship" or params[:view] == "print"
+	if params[:view] == "print"
+		orders = Order.all(:conditions =>[sql,{:status=>Order::STATUS_PAID}],:order=>order_by)
+	elsif params[:view] == "ship"
+		orders = Order.all(:conditions =>[sql,{:status=>Order::STATUS_PRINTING}],:order=>order_by)
+	elsif params[:view] == "confirm_transfer"
+		orders = Order.all(:conditions =>[sql,{:status=>Order::STATUS_CUSTOMER_CONFIRM_TRANSFER}],:order=>order_by)
+	elsif params[:view] == "cancel"
+		orders = Order.all(:conditions =>[sql,{:status=>Order::STATUS_PENDING_CANCELLED}],:order=>order_by)
+	elsif params[:view] == "pending"
+		orders = Order.all(:conditions =>[sql,{:status=>Order::STATUS_PENDING}],:order=>order_by)
+	elsif params[:view] == "shipped"
+		orders = Order.all(:conditions =>[sql,{:status=>Order::STATUS_SHIPPING}],:order=>order_by)
+	end
+%>
+<%if $facebook.is_aesir%>
+<span class="span-98 margin-top-2">
+    <span class="span-98 clearfix">
+		<span class="navigator clearfix">
+			<span class="float-left ">
+				<span class="float-left font12 bold_font medium_dark_gray line_height26px">
+					View:
+				</span>
+				<span class="float-left margin-left-1">
+					<ul class="float-left medium_dark_gray font12 line_height26px">
+						<li>
+							<a href="#" class="<%=(params[:view] == 'confirm_transfer')?'selected':'tab'%>" onclick="search_item({view:'confirm_transfer'});return false;">
+								<span>
+									<%=word_for :view_confirm_transfer%>
+								</span>
+							</a>
+						</li>
+						<li>
+							<a href="#" class="<%=(params[:view] == 'print')?'selected':'tab'%>" onclick="search_item({view:'print'});return false;">
+								<span>
+									<%=word_for :view_print%>
+								</span>
+							</a>
+						</li>
+						<li>
+							<a href="#" class="<%=(params[:view] == 'ship')?'selected':'tab'%>" onclick="search_item({view:'ship'});return false;">
+								<span>
+									<%=word_for :view_ship%>
+								</span>
+							</a>
+						</li>
+						<li>
+							 <a href="#" class="<%=(params[:view] == 'cancel')?'selected':'tab'%>" onclick="search_item({view:'cancel'});return false;">
+								<span>
+									<%=word_for :view_cancel_order%>
+								</span>
+							</a>
+						</li>
+						<li>
+							 <a href="#" class="<%=(params[:view] == 'pending')?'selected':'tab'%>" onclick="search_item({view:'pending'});return false;">
+								<span>
+									<%=word_for :view_pending%>
+								</span>
+							</a>
+						</li>
+						<li>
+							 <a href="#" class="<%=(params[:view] == 'shipped')?'selected':'tab'%>" onclick="search_item({view:'shipped'});return false;">
+								<span>
+									<%=word_for :view_shipped%>
+								</span>
+							</a>
+						</li>
+					</ul>
+				</span>
+			</span>	
+		</span>
+        <span class="span-68 search_result margin-top-1 clearfix">
+            <ul>
+                <%
+                    orders.each do |o|
+                %>
+                    <%=render :partial=>"/admin/admin_order_unit",:locals=>{:order=>o}%>
+                <%end%>
+            </ul>
+        </span>
+		<span class="span-68">
+			<a class="gray_button_small margin-left-1 margin-top-1 font12 medium_dark_gray" href="#" onclick="submit_admin();return false;" id="admin_submit_button" >
+				<%if params[:view] == "print"%>
+					<%= word_for :print%>
+				<%elsif params[:view] == "ship"%>
+					<%= word_for :ship%>
+				<%elsif params[:view] == "confirm_transfer"%>
+					<%= word_for :confirm_transfer%>
+				<%elsif params[:view] == "cancel"%>
+					<%= word_for :cancel_order%>
+				<%elsif params[:view] == "pending"%>
+					<%= word_for :confirm_transfer%>
+				<%elsif params[:view] == "shipped"%>
+					<%= word_for :download_zip_file%>
+				<%end%>
+			</a>
+			<%if params[:view] == "print"%>
+				<a class="gray_button_small margin-left-1 margin-top-1 font12 medium_dark_gray" href="/admin/print_list" target="_new" >
+					<%= word_for :print_list_order%>
+				</a>
+			<%end%>
+			<%if params[:view] == "pending"%>
+				<a href="#" class="gray_button_small margin-left-1 margin-top-1 font12 medium_dark_gray" id="check_paypal_button" onclick="check_paypal(this);return false;" >
+					<%= word_for :check_paypal%>
+				</a>
+			<%end%>
+       	</span>
+    </span>
+</span>
+<%else%>
+<span class="span-98 margin-top-2">
+    <span class="span-98 clearfix">
+		<span class="float-left ">
+			<span class="float-left font12 bold_font medium_dark_gray line_height26px">
+				<%= word_for :not_authorized%>
+			</span>
+		</span>
+	</span>
+</span>
+<%end%>
+       
+<script language="javascript">
+	function search_item(options) {
+		
+		var o = {
+			view:"confirm_transfer"
+		}
+		
+		if (options != undefined)
+		{
+			$.extend(o,options);
+		}
+		
+		location.href = '/admin?view='+o.view
+	}
+
+   	function regenerate_image(sender,key)
+    {
+        try {
+            $(sender).loading_button(true);
+
+            $.ajax({
+                type: "POST",
+                url: '/admin/regenerate',
+                cache: false,
+                data: {
+                    authenticity_token: "<%=form_authenticity_token%>",
+                    order_key:key
+                },
+                success: function(data){
+                    try {
+                        if (data.ok == true) {
+                            try
+                            {
+								$(sender).loading_button(false);
+                                alert('regenerated!')
+
+                            } catch(e) {
+                                $(sender).loading_button(false);
+                            }
+                        }
+                        else {
+                            $(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+                        }
+
+                    }
+                    catch (e) {
+                        $(sender).loading_button(false);
+                        $.error_log('regenerate_image', e);
+                        alert(e);
+                    }
+
+                },
+                error: function(req, status, e){
+                    $(sender).loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+        } catch (e)
+        {
+            $(sender).loading_button(false);
+            $.error_log('regenerate_image',e);
+            alert(e);
+        }
+    }
+	
+	function submit_admin()
+	{
+		var all_chkboxes = $('input[id^=chkbox_order_]');
+		var selected_orders_id = []
+		for ( var i=0;i<all_chkboxes.length;i++)
+		{
+			if (all_chkboxes[i].checked == true) 
+			{ 
+				selected_orders_id.push(all_chkboxes[i].value);
+			}
+		}
+		
+		try {
+			
+			$('#admin_submit_button').loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin/<%=action%>',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"order_id": selected_orders_id.join(',')
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+							if (data.redirect_url != undefined)
+							{
+								$('#admin_submit_button').loading_button(false);
+								top.location.href = data.redirect_url;
+								return;
+							}
+							
+							for ( var i=0;i<selected_orders_id.length;i++)
+							{
+								$('#admin_order_unit_'+selected_orders_id[i]).fadeOut(
+								function (){$('#admin_order_unit_'+selected_orders_id[i]).remove();})
+							}
+						}
+						else {
+							
+						}
+						$('#admin_submit_button').loading_button(false);
+					} 
+					catch (e) {
+						$('#admin_submit_button').loading_button(false);
+						$.error_log('submit_admin', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#admin_submit_button').loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#admin_submit_button').loading_button(false);
+			$.error_log('submit_admin',e);
+			alert(e);
+		}
+	}		
+	
+	function check_paypal(sender)
+    {
+        try {
+            $(sender).loading_button(true);
+
+            $.ajax({
+                type: "POST",
+                url: '/admin/check_paypal_payment',
+                cache: false,
+                data: {
+                    authenticity_token: "<%=form_authenticity_token%>"
+                },
+                success: function(data){
+                    try {
+                        if (data.ok == true) {
+                            try
+                            {
+								search_item({view:'pending'});
+
+                            } catch(e) {
+                                $(sender).loading_button(false);
+                            }
+                        }
+                        else {
+                            $(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+                        }
+
+                    }
+                    catch (e) {
+                        $(sender).loading_button(false);
+                        $.error_log('check_paypal', e);
+                        alert(e);
+                    }
+
+                },
+                error: function(req, status, e){
+                    $(sender).loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+        } catch (e)
+        {
+            $(sender).loading_button(false);
+            $.error_log('check_paypal',e);
+            alert(e);
+        }
+    }
+	
+</script>

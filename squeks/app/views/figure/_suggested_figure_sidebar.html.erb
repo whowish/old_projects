@@ -1,0 +1,43 @@
+<%
+  figure_ids = get_suggested_figures(7,excluded_ids)
+%>
+<span class="figure-unit">
+    <ul>
+        <li class="span-28 squeks_shadow_bg">
+            <span class="squeks_blue_bg font14 white figure_header">
+                <%=word_for :suggestion%>
+            </span>
+        </li>
+        <%
+            if figure_ids.length == 0
+        %>
+            <li class="span-28 light_medium_gray_bg">
+               <span class="margin-left-1 margin-top-1 span-26" style="white-space:normal;">
+                    <a href="/home?add_title="><%=word_for :you_have_watched_all_figure%></a>
+               </span>
+            </li>
+        <%
+            else
+				figures =  Figure.all(:conditions=>{:id=>figure_ids})
+
+				figure_ids = []
+				figures.each { |f|
+					figure_ids.push(f.id)
+				}
+				
+				@figure_love_hash = {}
+				FigureLove.all(:conditions=>{:figure_id=>figure_ids,:facebook_id=>$facebook.facebook_id}).each { |love|
+					@figure_love_hash[love.figure_id] = love
+				}
+
+               	figures.each do |figure|
+        %>
+                <li class="span-28 light_medium_gray_bg">
+                    <%=render :partial=>"figure/suggested_unit",:locals=>{:figure=>figure}%>
+                </li>
+        <%
+                end
+            end
+        %>
+    </ul>
+</span>

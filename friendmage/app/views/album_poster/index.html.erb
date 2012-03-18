@@ -1,0 +1,188 @@
+<span class="span-98 clearfix">
+	<%=render :partial=>"/order/instruction",:locals=>{:number=>1,:app_name=>"Album Poster"}%>
+	<span class="span-60 margin-left-10 clearfix">
+		<span class="span-60">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%=word_for :choose_album%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-60 margin-top-1 font12 bold_font dark_gray clearfix">
+				<%=word_for :connected_as, :name=>$facebook.name%>
+			</span>
+			<span class="span-60 margin-top-1 font12 bold_font medium_dark_gray clearfix">
+				<span class="span-60 medium_dark_gray font12 bold_font margin-top-5px" style="line-height:20px;">
+					<a href="#" class="gray_button_small" onclick="show_album(this,true);return false;">
+		                <%= word_for :your_album%>
+		            </a>
+					<span class="float-left">
+						&nbsp; or friend:
+						<input type="text" id="friend_name">
+						&nbsp;
+					</span>
+					<a href="#" class="gray_button_small" onclick="show_album(this,$('#friend_name').val());return false;">
+		                <%= word_for :friend_album%>
+		            </a>
+				</span>
+				<span id="album_list" class="span-60 medium_dark_gray font12 bold_font margin-top-5px">
+					
+				</span>
+			</span>
+		</span>
+		<span class="span-60 margin-top-2 margin-bottom-2">
+            <a href="#" class="gray_button30px" id="order_submit_button" onclick="submit_order();return false;">
+                <%= word_for :next%>
+            </a>
+        </span>
+		<div style="height:0px;clear:left;">&nbsp;</div>
+	</span>
+</span>
+
+ <script language="javascript">
+ 	
+	function add_album(span_album_id)
+	{
+		
+	}
+ 	
+	function show_album(sender,name)
+	{
+		try {
+            
+			data = { authenticity_token: "<%=form_authenticity_token%>" };
+			
+			if (name == true) data["me"] = "true";
+			else data["friend_name"] = name;
+			
+			$(sender).loading_button(true);
+
+            $.ajax({
+                type: "POST",
+                url: '/album_poster/show_album',
+                cache: false,
+                data: data,
+                success: function(data){
+                    try {
+						$(sender).loading_button(false);
+                        if (data.ok == true) {
+                            $('#album_list').html(data.html);
+                        }
+                        else {
+                        }
+                    }
+                    catch (e) {
+                        $(sender).loading_button(false);
+                        $.error_log('show_album', e);
+                        alert(e);
+                    }
+
+                },
+                error: function(req, status, e){
+                    $(sender).loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+        } catch (e)
+        {
+            $(sender).loading_button(false);
+            $.error_log('show_album',e);
+            alert(e);
+        }
+	}
+ 	
+	$(function() {
+		$("#friend_name").autocomplete('/album_poster/friend', {
+			parse : function(data) {
+				//data = $.parseJSON(data);
+				
+				var parsed = [];
+				var rows = data.result;
+				for (var i=0; i < rows.length; i++) {
+					var row = $.trim(rows[i]);
+					if (row) {
+						parsed[parsed.length] = {
+							data: [row],
+							value: row,
+							result: row
+						};
+					}
+				}
+				return parsed;
+			},
+			matchContains: true
+		});
+	});
+	
+	$('#friend_name').default_text('Your friend\'s name',true);
+
+    function submit_order()
+    {
+		$('#order_submit_button').ruby_box(false);
+        try {
+            
+			var checkboxes = $('input[id^=friend_list_checkbox_]');
+			
+			var flids = [];
+			for (var i=0;i<checkboxes.length;i++)
+			{
+				if (checkboxes[i].checked == true)
+				{
+					flids.push(checkboxes[i].value);
+				}
+			}
+			
+			if (flids.length == 0) {
+				$('#order_submit_button').ruby_box(true,"Please select at least one friend list.");
+				return
+			}
+			
+			$('#order_submit_button').loading_button(true);
+
+            $.ajax({
+                type: "POST",
+                url: '/album_poster/create',
+                cache: false,
+                data: {
+                    authenticity_token: "<%=form_authenticity_token%>",
+					app_id:"<%=params[:app_id]%>",
+					friend_list_ids:flids.join(",")
+                },
+                success: function(data){
+                    try {
+                        if (data.ok == true) {
+                            try
+                            {
+                                top.location.href = data.redirect_url;
+
+                            } catch(e) {
+                                
+                            }
+                        }
+                        else {
+                            $('#order_submit_button').loading_button(false);
+                            $('#order_submit_button').ruby_box(true,data.error_message);
+                        }
+
+                    }
+                    catch (e) {
+                        $('#order_submit_button').loading_button(false);
+                        $.error_log('submit_order', e);
+                        alert(e);
+                    }
+
+                },
+                error: function(req, status, e){
+                    $('#order_submit_button').loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+        } catch (e)
+        {
+            $('#order_submit_button').loading_button(false);
+            $.error_log('submit_order',e);
+            alert(e);
+        }
+    }
+</script>

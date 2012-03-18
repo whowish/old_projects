@@ -1,0 +1,12 @@
+<option value="0" <%="selected" if selected == 0%>>All Categories</option>
+<% categories = Category.all(:order=>"parent_id ASC")%>
+	<% categories.each do |category| %>
+	<option value="<%=category.id%>" <%="selected" if selected.to_i == category.id%>>
+		<%if category.id.to_s == category.parent_id.to_s%>
+			<%=category.name%>
+		<%else%>
+			<%parent_category = Category.first(:conditions=>{:id => category.parent_id})%>
+			&nbsp;&nbsp;&nbsp;&nbsp;&gt; <%=category.name%>
+		<%end%>
+	</option>
+<% end %>

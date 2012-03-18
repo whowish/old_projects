@@ -1,0 +1,183 @@
+<%
+	connection = ActiveRecord::Base.connection
+	num_received = Request.count(:conditions=>{:responder_facebook_id=>$facebook.facebook_id,:status=>Request::STATUS_PENDING})
+	num_accepted = Request.count(:conditions=>{:requestor_facebook_id=>$facebook.facebook_id,:status=>Request::STATUS_ACCEPTED,:is_read=>0})	
+	num_rejected = Request.count(:conditions=>{:requestor_facebook_id=>$facebook.facebook_id,:status=>Request::STATUS_REJECTED,:is_read=>0})	
+%>
+<span class="span-80">
+	<span class="span-80 height01 dark_blue_bg">
+	</span>
+	<span class="span-80 fontsize18 bold_font dark_gray light_blue_bg height24">
+		<span class="margin-left-1">
+			<%=word_for :inbox%>
+		</span>
+		<span class="margin-left-1">
+			<% 
+				if $facebook.email == nil
+			%>
+				<a target="_top" href="<%=generate_permission_url([FacebookCache::SCOPE_EMAIL],'http://'+DOMAIN_NAME+'/inbox/get_email')%>" class="fontsize10">
+					<%=word_for :receive_notification%>
+				</a>&nbsp;
+			<%
+				end
+			%>
+		</span>
+	</span>
+</span>
+<span class="span-80 light_gray_bg dark_gray fontsize12 bold_font height24">
+	<span class="medium_gray_bg height01 span-80">
+	</span>
+	<span class="span-1 margin-left-1">
+		&nbsp;
+	</span>
+	<span class="filter float-right">
+		<ul>
+			<%
+				filters = [{:id=>["all","",nil],:label=>word_for(:all)},
+							{:id=>["pending_response"],:label=>word_for(:received)+((num_received > 0) ?' ('+num_received.to_s+')':'')},
+							{:id=>["pending_request"],:label=>word_for(:sent)},
+							{:id=>["accepted"],:label=>word_for(:accepted)+((num_accepted > 0) ?' ('+num_accepted.to_s+')':'')},
+							{:id=>["rejected"],:label=>word_for(:rejected)+((num_rejected > 0) ?' ('+num_rejected.to_s+')':'')}]
+
+				filters.each do |i|
+			%>
+				<li <%='class="filter_selected"' if i[:id].include?(params[:filter])%>><a href="/inbox?filter=<%=i[:id]%>"><%=i[:label]%></a></li>
+			<%
+				end
+			%>
+		</ul>
+	</span>
+</span>
+<%
+	params[:limit] = 10 if !params[:limit]
+	params[:limit] = params[:limit].to_i
+
+	params[:offset] = 0 if !params[:offset]
+	params[:offset] = params[:offset].to_i
+
+	params[:filter] = "all" if !params[:filter]
+	
+	limit = params[:limit].to_i
+	pending_response_count = 0
+	pending_request_count = 0
+	accepted_or_rejected_count = 0
+
+	connection = ActiveRecord::Base.connection();
+
+	if params[:filter] == "all" or params[:filter] == "pending_response"
+		pending_response_count = Request.count(:conditions=>{:responder_facebook_id=>$facebook.facebook_id,:status=>Request::STATUS_PENDING});
+	end
+
+	if params[:filter] == "all" or params[:filter] == "pending_request"
+		pending_request_count = Request.count(:conditions=>{:requestor_facebook_id=>$facebook.facebook_id,:status=>Request::STATUS_PENDING});
+	end
+
+	if params[:filter] == "all" or params[:filter] == "accepted" or params[:filter] == "rejected"
+
+		sql = "(requestor_facebook_id = ? OR responder_facebook_id = ?) AND status in (?)"
+		status_sql = [Request::STATUS_ACCEPTED,Request::STATUS_REJECTED]
+		status_sql = [Request::STATUS_ACCEPTED] if params[:filter] == "accepted"
+		status_sql = [Request::STATUS_REJECTED] if params[:filter] == "rejected"
+			
+		accepted_or_rejected_count = Request.count(:conditions=>[sql,$facebook.facebook_id,$facebook.facebook_id,status_sql])
+	end
+
+	count = accepted_or_rejected_count + pending_request_count + pending_response_count
+
+	if count == 0
+%>
+		<span class="span-80  margin-left-1 fontsize18 bold_font margin-top-2 medium_dark_gray align_center">
+			<%=word_for :there_is_no_message%>
+		</span>
+<%
+	else
+		offset_pending_response = params[:offset]
+		offset_pending_request = params[:offset] - pending_response_count
+		offset_accepted_or_rejected = params[:offset] - pending_response_count - pending_request_count
+	
+		offset_pending_request = 0 if offset_pending_request < 0
+		offset_accepted_or_rejected = 0 if offset_accepted_or_rejected < 0
+	
+		if params[:filter] == "all" or params[:filter] == "pending_response"
+			pending_responses = Request.all(:conditions=>{:responder_facebook_id => $facebook.facebook_id,:status=>Request::STATUS_PENDING},:order=>"created_date desc",:offset=>offset_pending_response,:limit=>limit)
+	
+			limit = limit - pending_responses.length
+			
+			pending_responses.each do |pending_response|
+%>
+			<%=render :partial=>"pending_response",:locals=>{:request=>pending_response}%>
+<%
+			end	
+		end
+	
+		if (params[:filter] == "all" or params[:filter] == "pending_request") and params[:limit] > 0
+			pending_requests = Request.all(:conditions=>{:requestor_facebook_id => $facebook.facebook_id,:status=>Request::STATUS_PENDING},:order=>"is_read desc,created_date desc",:offset=>offset_pending_request,:limit=>limit)
+			limit = limit - pending_requests.length
+			pending_requests.each do |pending_request|
+%>
+		<%=render :partial=>"pending_request",:locals=>{:request=>pending_request}%>
+<%			end
+		end
+	
+		if (params[:filter] == "all" or params[:filter] == "accepted" or params[:filter] == "rejected") and params[:limit] > 0
+	
+			sql = "(requestor_facebook_id = ? OR responder_facebook_id = ?) AND status in (?)"
+			status_sql = [Request::STATUS_ACCEPTED,Request::STATUS_REJECTED]
+			status_sql = [Request::STATUS_ACCEPTED] if params[:filter] == "accepted"
+			status_sql = [Request::STATUS_REJECTED] if params[:filter] == "rejected"
+
+			complete_requests = Request.all(:conditions=>[sql,$facebook.facebook_id,$facebook.facebook_id,status_sql] ,:order=>"is_read desc,created_date desc",:offset=>offset_accepted_or_rejected,:limit=>limit)
+			limit = limit - complete_requests.length			
+			complete_requests.each do |complete_request|
+%>
+			<%=render :partial=>"completed",:locals=>{:request=>complete_request}%>
+<%
+			end
+		end
+	end
+	
+	if count > 0
+%>
+<span class="span-80 margin-left-1">
+		<span class="total_page whowish_green_bg">
+			<%=params[:offset]+1%> - <%=[params[:offset]+params[:limit],count].min%> of <%=count%> requests
+		</span>
+		<span class="page_number">
+			<ul>
+				<%
+					number_of_pages = (count.to_f/params[:limit].to_f).ceil
+				
+					(1..number_of_pages).each do |i|
+				%>
+					<li><a href="/inbox?filter=<%=params[:filter]%>&offset=<%=params[:limit]*(i-1)%>&limit=<%=params[:limit]%>" <%='class="active"' if params[:limit]*(i-1) == params[:offset]%>><%=i%></a></li>
+				<%
+					end
+				%>
+			</ul>
+		</span>
+</span>
+<%
+	end
+%>
+
+<script language="javascript">
+	$(function() {
+		setTimeout(function(){
+			$.ajax({
+				type: "POST",
+				url: '/inbox/read',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>"
+				},
+				success: function(data){
+		
+				},
+				error: function(req, status, e){
+
+				}
+			});
+		},3000)
+	});
+</script>

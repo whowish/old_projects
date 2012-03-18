@@ -1,0 +1,59 @@
+<%
+    comment_agree = nil
+
+    if !$facebook.is_guest
+  	    comment_agree = DiscussionCommentAgree.first(:conditions=>{:discussion_comment_id=>comment.id,:facebook_id=>$facebook.facebook_id})
+    end
+
+    agree,disagree = comment.agrees,comment.disagrees
+    #agree = agree - 1 if comment_agree and comment_agree.comment_type == DiscussionCommentAgree::TYPE_AGREE
+    #disagree = disagree - 1 if comment_agree and comment_agree.comment_type == DiscussionCommentAgree::TYPE_DISAGREE
+%>
+<span id="discussion_comment_agree_<%=comment.id%>" style="display:inline-block;">
+    <%
+        if !comment_agree or comment_agree.agree_type == DiscussionCommentAgree::TYPE_CANCEL
+    %>
+    <span class="font11 medium_gray">
+        <span class="whowish_green">
+            <%=(word_for :people_agree, :number=>agree)%>
+        </span>
+        <%
+           if !$facebook.is_guest
+        %>
+            <a href="#" class="agree_mini_icon" title="Agree"  onclick="discussion_comment_agree('<%=comment.id%>','<%=DiscussionCommentAgree::TYPE_AGREE%>');return false;">
+            </a>
+            &middot;
+            <a href="#" class="disagree_mini_icon" title="Disagree" onclick="discussion_comment_agree('<%=comment.id%>','<%=DiscussionCommentAgree::TYPE_DISAGREE%>');return false;">
+            </a>
+        <%
+            end
+        %>
+        <span class="red_color">
+            <%=(word_for :people_disagree, :number=>disagree)%>
+        </span>
+    </span>
+    <%
+        elsif comment_agree.agree_type == DiscussionCommentAgree::TYPE_AGREE \
+                or comment_agree.agree_type == DiscussionCommentAgree::TYPE_DISAGREE
+    %>
+        <span class="font11 medium_gray">
+            <%=word_for :you_agree if comment_agree.agree_type == DiscussionCommentAgree::TYPE_AGREE%>
+            <%=word_for :you_disagree if comment_agree.agree_type == DiscussionCommentAgree::TYPE_DISAGREE%>
+        </span>
+        <a href="#" class="cancle_agree_mini_icon" title="Cancel" onclick="discussion_comment_agree('<%=comment.id%>','<%=DiscussionCommentAgree::TYPE_CANCEL%>');return false;">
+        </a>
+        <span class="font11 medium_gray">
+            <span class="whowish_green">
+                <%=(word_for :people_agree, :number=>agree)%>
+            </span>
+                &middot;
+            <span class="red_color">
+                <%=(word_for :people_disagree, :number=>disagree)%>
+            </span>
+        </span>
+    <%
+        end
+    %>
+</span>
+
+

@@ -1,0 +1,796 @@
+<%
+    content_for :facebook_meta_tag do
+%>
+    <meta property="og:title" content="<%=figure.title%>" />
+    <meta property="og:type" content="public_figure" />
+    <meta property="og:url" content="http://<%=DOMAIN_NAME%><%=figure.get_url%>" />
+    <meta property="og:caption" content="You either love or hate" />
+    <meta property="og:description" content="Express yourself anonymously." />
+    <meta property="og:image" content="<%=figure.get_image_url%>" />
+    <meta property="og:site_name" content="Squeks" />
+    <meta property="fb:app_id" content="132211216851938" />
+<%
+    end
+
+images = FigureImage.all(:conditions=>{:figure_id=>figure.id},:order=>"(likes-dislikes) DESC")
+
+first_image = images[rand(images.length-1)]
+%>
+<span class="span-98 margin-top-2" id="page_<%=figure.id%>" style="display:inline-block;float:none;vertical-align:top;">
+	<script language="javascript">
+        document.title = "Love or Hate: <%=figure.title%>";
+
+        //location.hash = "#!<%=figure.get_url%>";
+
+        if ($('#facebook_login_button').length > 0)
+            $('#facebook_login_button')[0].href = "https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://#{DOMAIN_NAME}#{figure.get_url(false)}")%>";
+
+        var current_figure_image_id = 0;
+        function vote_image(figure_image_id,type)
+        {
+            current_figure_image_id = figure_image_id;
+            $('#image_vote_panel').loading_button(true,{word:""});
+            $.ajax({
+                type: "POST",
+                url: '/figure/image_like',
+                cache: false,
+                data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        figure_image_id:figure_image_id,
+                        type:type,
+						"is_anonymous":get_anonymous_value()
+                },
+                success: function(data){
+                    try {
+                        if (current_figure_image_id != figure_image_id) return;
+                        if (data.ok == true) {
+                            $('#image_vote_panel').html(data.html);
+							update_squeks_credit(data.credits,data.previous_credits);
+                            return;
+                        }
+                        else {
+                           if (data.error_message == "<%=MUST_LOGIN_ERROR%>")
+                           {
+                               $('#must_login_balloon').hide();
+                               $('#must_login_balloon').fadeIn();
+                           }
+                        }
+                    }
+                    catch (e) {
+                        $.error_log('submit_figure', e);
+                    }
+
+                    $('#image_vote_panel').loading_button(false);
+                },
+                error: function(req, status, e){
+                    $('#image_vote_panel').loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+        }
+		
+		function get_image_vote_panel(image_id)
+		{
+			if (current_image == null) return;
+			if (current_image.id != image_id) return;
+			
+			var figure_image_id = $(current_image).children('.image_id').html();
+			current_figure_image_id = figure_image_id;
+			
+			$('#image_vote_panel').show();
+			$('#image_vote_panel').loading_button(true,{word:""});
+            $.ajax({
+                type: "POST",
+                url: '/figure/get_image_vote_panel',
+                cache: false,
+                data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        figure_image_id:figure_image_id
+                },
+                success: function(data){
+					
+					if (current_image.id != image_id) return;
+					
+                    try {
+                        if (data.ok == true) {
+                            $('#image_vote_panel').html(data.html);
+                            return;
+                        }
+                        else {
+
+                        }
+                    }
+                    catch (e) {
+                        $.error_log('submit_figure', e);
+                    }
+
+                    $('#image_vote_panel').loading_button(false);
+                },
+                error: function(req, status, e){
+                    $('#image_vote_panel').loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+		}
+
+        function select_image(obj)
+        {
+			current_image = obj;
+			update_previous_next_picture_button();
+			
+			var image_url = $(obj).children('.image_url').html();
+			
+			
+            $('#figure_uploaded_image')[0].src = "";
+            $('#figure_uploaded_image')[0].src = image_url;
+            $('#single_image_view').fadeIn();
+            $('#thumbnail_image_view').hide();
+
+            var page = $('#inner_thumbnail_image_view').children();
+            var count_image = 0;
+
+            for (var i=0;i<page.length;i++)
+                count_image += $(page[i]).children().length;
+
+            if (count_image > 1)
+                $('#open_thumbnail_button').show();
+
+			$('#image_vote_panel').hide();
+            setTimeout('get_image_vote_panel("'+current_image.id+'");',1000);
+			
+			$('#delete_picture_button').show();
+        }
+
+        function open_thumbnail_view()
+        {
+            $('#thumbnail_image_view').fadeIn();
+            $('#single_image_view').hide();
+            $('#open_thumbnail_button').hide();
+			$('#previous_picture_button').css('visibility','hidden');
+			$('#next_picture_button').css('visibility','hidden');
+			$('#delete_picture_button').hide();
+        }
+		
+		var current_image = null;
+		function get_current_image_position()
+		{
+			var spans = $('#inner_thumbnail_image_view').find('.image_thumbnail');
+			
+			if (current_image == null) return [0,spans.length];
+
+			var pos = 0;
+			
+			for (var i=0;i<spans.length;i++)
+			{
+				if (spans[i].id == current_image.id) {
+					pos = i;
+					break;
+				}
+			}
+			
+			return [pos,spans.length];
+		}
+		function next_picture()
+		{
+			var pos = get_current_image_position();
+			var new_pos = pos[0]+1;
+			
+			if (new_pos > (pos[1]-1)) new_pos = pos[1]-1;
+			
+			select_image($('#inner_thumbnail_image_view').find('.image_thumbnail')[new_pos]);
+			$('#image_button_panel').hide();
+			setTimeout("$('#image_button_panel').fadeIn();",100);
+		}
+		
+		function previous_picture()
+		{
+			var pos = get_current_image_position();
+			var new_pos = pos[0]-1;
+			
+			if (new_pos < 0) new_pos = 0;
+			
+			select_image($('#inner_thumbnail_image_view').find('.image_thumbnail')[new_pos]);
+			
+			$('#image_button_panel').hide();
+			setTimeout("$('#image_button_panel').fadeIn();",100);
+		}
+		
+		$(function() {
+			update_previous_next_picture_button();
+			
+			<% 
+				if images.length > 0
+			%>
+				current_image = $('#thumbnail_<%=first_image.id%>')[0];
+			<%
+				end
+			%>
+		});
+		
+		function update_previous_next_picture_button()
+		{
+			var pos = get_current_image_position();
+			
+			if (pos[0] == 0 || pos[1].length == 0) {
+				$('#previous_picture_button').css('visibility','hidden');
+			}
+			else
+			{
+				$('#previous_picture_button').css('visibility','visible');
+			}
+			
+			if (pos[0] == (pos[1]-1) || pos[1].length == 0) {
+				$('#next_picture_button').css('visibility','hidden');
+			}
+			else
+			{
+				$('#next_picture_button').css('visibility','visible');
+			}
+		}
+		function share_feeling(sender)
+        {
+            $('#share_result').html('');
+            $(sender).loading_button(true,{word:""});
+            $.ajax({
+                type: "POST",
+                url: '/figure/share_feeling',
+                cache: false,
+                data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        figure_id:"<%=figure.id%>"
+                },
+                success: function(data){
+                    try {
+						if (data.ok == true) {
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							$('#share_result').html('shared successful.');
+						}
+						else {
+							$(sender).loading_button(false);
+						}
+                    }
+                    catch (e) {
+                        $.error_log('share_figure', e);
+                    }
+
+                    $(sender).loading_button(false);
+                },
+                error: function(req, status, e){
+                    $(sender).loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+        }
+		
+		function download_pictures(sender)
+		{
+			$(sender).loading_icon(true);
+			
+			$.ajax({
+                type: "POST",
+                url: '/figure/download_pictures',
+                cache: false,
+                data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        figure_id:"<%=figure.id%>"
+                },
+                success: function(data){
+                    try {
+						if (data.ok == true) {
+							
+							update_squeks_credit(data.credits,data.previous_credits);
+							top.location.href = data.redirect_url;
+				
+						}
+						else {
+							if (data.error_message == "<%=MUST_LOGIN_ERROR%>")
+							{
+							   $('#must_login_balloon').hide();
+							   $('#must_login_balloon').fadeIn();
+							}
+							else
+							{
+								alert(data.error_message);
+							}
+						}
+                    }
+                    catch (e) {
+						alert(e);
+                    }
+
+					$(sender).loading_icon(false);
+                },
+                error: function(req, status, e){
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+					$(sender).loading_icon(false);
+                }
+            });
+		}
+    </script>
+   
+	<span class="span-98 clearfix" style="white-space:normal;">
+		<a href="<%=figure.get_url%>" id="figure_title_head" class="float-left font30 dark_gray margin-left-1">
+            <%=figure.title%>
+        </a>
+		<span class="float-left margin-top-5px margin-left-1 clearfix" style="margin-top:12px;">
+			<span title="This is the minimum amount needed to bid." class="float-left height20 huneysuckle_pink_bg padding_horizontal_4px font11 normal_font white">
+				<%=word_for :value%> 
+			</span>
+			<span class="float-left height20 font12 bold_font white_bg padding_horizontal_4px">
+				<span class="squeks_coin_value">
+				</span>
+				<span class="float-left margin-left-5px font12 huneysuckle_pink bold_font" id="figure_value">
+					<%=number_with_delimiter(figure.value)%>
+				</span>
+				<!--<span class="float-left margin-left-5px">
+					[<a href="#" class=" font12 dark_gray bold_font" onclick="$.whowish_box({url:'/misc/help_worth',background_color:'#54a8e3'});return false;">?</a>]
+				</span>-->
+			</span>
+		</span>
+		<span class="float-left margin-top-5px margin-left-1 clearfix" style="margin-top:12px;">
+			<a href="#" onclick="share_feeling(this);return false;" class="facebook_button_small">
+				<span class="facebook_mini_icon">
+				</span>
+				<span class="float-left">
+					<%= word_for :share_my_wall%>
+				</span>
+			</a>
+			<span id="share_result" class="margin-left-1">
+				
+			</span>
+		</span>
+		<span class="float-left margin-left-1 " style="margin-top:12px;">
+			<a href="http://twitter.com/share" class="twitter-share-button" data-url="http://<%=DOMAIN_NAME%><%=figure.get_url(false)%>?share_log=twitter&share_log_referer_id=0" data-count="none">Tweet</a><script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+		</span>
+	</span>
+	<span class="span-98 margin-top-1 margin-bottom-1 clearfix">
+		<span class="span-68 height-3 line_height30px">
+			<span class="float-left margin-top-5px clearfix">
+				<span class="float-left height20 squeks_blue_bg padding_horizontal_4px font11 normal_font white">
+					<%=word_for :personal_manager%> 
+				</span>
+				<span class="float-left height20 font12 bold_font white_bg squeks_blue padding_horizontal_4px">
+					<%
+						if figure.manager_facebook_id and figure.manager_facebook_id != 0
+					%>
+						<%
+							manager = Member.first(:conditions=>{:facebook_id=>figure.manager_facebook_id})
+						%>
+						<a href="/profile?user_id=<%=manager.facebook_id%>">
+							<%=manager.name%>
+						</a>
+						
+					<%
+						else
+					%>
+						<%=word_for :no_manager%>
+					<%end%>
+				</span>
+				<%=render :partial=>"figure/manager_love",:locals=>{:figure=>figure}%>
+			</span>
+			<span class="float-right">
+				<span class="span-20 buy_figure_button margin-left-2" title="Bid to become manager of this Squeks page." style="overflow:hidden;" onclick="$.whowish_box({url:'/bid?figure_id=<%=figure.id%>',background_color:'#54a8e3'});">
+					<%=word_for :bid,:name=>figure.title%> 
+				</span>
+				<span class="float-left margin-left-5px">
+					[<a href="#" class=" font12 dark_gray bold_font" onclick="$.whowish_box({url:'/misc/help_bid',background_color:'#54a8e3'});return false;">?</a>]
+				</span>
+			</span>
+		</span>
+	</span>
+    <!-- =========== LEFT Column =========================================-->
+    <span class="span-68 clearfix" style="white-space:normal;">
+        <span class="spot_figure">
+            <span class="span-68 white_bg">
+               	<span class="span-68">
+					<%=render :partial=>"figure/love_meter",:locals=>{:figure=>figure}%>
+                    
+                    <span class="span-68"style="position:relative;">
+						<span id="image_button_panel" style="position:absolute;right:10px;top:10px;z-index:100;display:block;float:left;">
+                        	<span class="prev_image_icon" id="previous_picture_button" title="Previous Picture" onclick="previous_picture();" style="margin-left:5px;visibility:hidden;"></span>
+							<span class="next_image_icon" id="next_picture_button" title="Next Picture" onclick="next_picture();" style="margin-left:5px;visibility:hidden;"></span>
+							<span id="edit_upload_image_button_loading" title="Uploading image. Please wait..." style="margin-left:5px;display:none;"><img src="/images/button_loader.gif" style="margin-top:4px;"/></span>
+	                        <span class="album_view_bg" id="open_thumbnail_button" title="View All Pictures" style="margin-left:5px;cursor:pointer;<%='display:none;' if images.length <= 1%>" onclick="open_thumbnail_view();">Album</span>
+							<%
+								if !$facebook.is_guest and figure.zip_file_path != nil and figure.zip_file_path != ""
+							%>
+								<a href="#" class="download_image_icon" style="margin-left:5px;" title="Download All Pictures" onclick="download_pictures(this);return false;"></a>
+							<%
+								end
+
+								if $member.facebook_id == figure.manager_facebook_id or $member.is_aesir
+							%>
+								<span class="upload_image_icon" id="edit_upload_image_button_<%=figure.id%>" title="Upload new picture" style="margin-left:5px;"></span>
+							<%
+								end
+								
+								if $member.is_aesir
+							%>
+								<span class="delete_image_icon" id="delete_picture_button" title="Remove this picture" style="margin-left:5px;" onclick="$.whowish_box({url:'/figure/confirm_delete_picture?figure_image_id='+$(current_image).children('.image_id').html()});"></span>
+							<%
+								end
+							%>	
+						</span>
+						<%
+                        	if images.length == 0
+                        %>
+	                        <span class="span-68" id="blank_image">
+	                            <img src="/images/defaultImage.jpg" width="680"/>
+	                        </span>
+                        <% end %>
+                        <span class="span-68" style="<%='display:none;' if images.length == 0%>position:relative;min-height:300px;max-height:1000px;overflow:hidden;" id="single_image_view">
+                            <span style="position:absolute;left:10px;top:10px;" id="image_vote_panel">
+                                <%=render :partial=>"figure/image_vote_panel",:locals=>{:image=>first_image} if images.length > 0%>
+                            </span>
+                            <img src="http://s3.amazonaws.com/<%=AWS_S3_BUCKET_NAME%>/uploads/<%=first_image.original_image_path if images.length > 0%>" width="680" id="figure_uploaded_image" />
+                        </span>
+                        <span class="span-68" style="display:none;height:530px;overflow:auto;white-space:nowrap;" id="thumbnail_image_view">
+                            <span style="width:<%=((images.length.to_f/12).ceil.to_i * 680)%>px;display:block;height:510px" id="inner_thumbnail_image_view">
+                                <%
+                                    image_count = 0
+                                    images.each do |image|
+                                        if (image_count%12)==0 or image == images.first
+                                %>
+                                            <span class="album_page album_picture">
+                                <%
+                                        end
+                                %>
+                                            <%=render :partial=>"figure/image_thumbnail",:locals=>{:image=>image}%>
+                                <%
+                                        if (image_count > 0 and (image_count%12)==11) or image == images.last
+                                %>
+                                            </span>
+                                <%
+                                        end
+                                        image_count = image_count + 1
+                                    end
+                                %>
+                            </span>
+                        </span>
+                    </span>
+                    <span class="span-68 height26">
+                        <span class="span-68 height26 huneysuckle_pink_bg" style="overflow:hidden;">
+                            <span id="show_title">
+                                <span class="span-65 height26 " style="overflow:hidden;">
+                                    <a href="<%=figure.get_url%>" id="span_figure_title" class="font16 white bold_font margin-left-1">
+                                        <%=CGI.escapeHTML(figure.title)%>
+                                    </a>
+                                </span>
+								<%#if $member.facebook_id == figure.manager_facebook_id or $member.is_aesir%>
+								<%if $member.is_aesir%>
+                                <span class="span-2 height26 margin-left-1">
+                                    <a href="#" class="edit_icon" title="Edit Title" style="margin-top:3px;" onclick="$.whowish_box({title: 'edit_title',url:'/figure/edit_title?figure_id=<%=figure.id%>',background_color:'#54a8e3'}); return false;">
+                                    </a>
+                                </span>
+								<%end%>
+						    </span>
+						</span>
+                    </span>
+                    <span class="span-68 margin-top-1 font11 normal_font margin-bottom-1">
+                        <span id="show_description">
+                            <span class="span-62 margin-left-1">
+                                <span class="span-57 margin-top-1 dark_gray" id="span_figure_description">
+                                    <%=CGI.escapeHTML(figure.description).gsub("\n","<br/>").gsub(/(https?:\/\/[\S]+)/,'<a href="\1" target="_new_'+rand().to_s+'" style="font-weight:normal;color: #1963BD;">\1</a>')%>
+                                </span>
+                            </span>
+                            <span class="span-4 margin-left-1">
+                                <span class="span-4" style="height:40px;">
+                                    <a href="#" class="flag_icon" title="flag this figure" onclick="$.whowish_box({url:'/flag?figure_id=<%=figure.id%>',background_color:'#54a8e3'});return false;"></a>
+                                </span>
+                                <span class="span-4">
+                                	<%#if $member.facebook_id == figure.manager_facebook_id or $member.is_aesir%>
+                                    <%
+										if $member.is_aesir
+									%>
+											<a href="#" class="edit_icon" title="Edit Description"
+                                        		onclick="show_edit('description');return false;"></a>
+									<%	
+										end
+									%>
+									<%
+										if $member.is_aesir
+									%>
+										<a href="#" class="x_icon" onclick="$.whowish_box({url:'/figure/confirm_delete?figure_id=<%=figure.id%>'});return false;"></a>
+									<%	
+										end
+									%>
+                                    <a href="#" class="stat_icon" style="display:none;"></a>
+                                    <a href="#" class="flag_icon" style="display:none;"></a>
+                                    
+                                </span>
+                            </span>
+							
+                        </span>
+						<%
+                           if $member.facebook_id == figure.manager_facebook_id or $member.is_aesir
+                        %>
+                        <span id="edit_description" style="display:none;">
+							<span class="font12 squeks_blue bold_font">
+                    			<%= word_for :edit_description%>
+                			</span>
+                            <span class="span-66 margin-top-5px margin-left-5px font11 normal_font medium_gray">
+                                <textarea  id="figure_description" class="textarea_input span-66"><%=figure.description%></textarea>
+                            </span>
+                            <span class="span-66 margin-left-5px margin-bottom-1 margin-top-1">
+                                <a href="#" class="squeks_button" onclick="edit_figure(this,'description');return false;"><%= word_for :edit_description%></a>
+                                <a href="#" class="squeks_gary_button margin-left-1" onclick="cancel_edit('description');return false;"><%= word_for :cancel_edit_description%></a>
+                            </span>
+                        </span>
+                        <%
+                           end
+                        %>
+                        <div style="height:0px;clear:left;">&nbsp;</div>
+                    </span>
+                    <!--<span class="span-66 margin-top-1">
+                        <a href="#" class="font12 facebook_blue"><%=word_for :show_more_button%></a>
+                    </span>-->
+					 <span class="span-68 margin-top-1 font11 normal_font margin-bottom-1">
+                        <span id="show_tag">
+                            <span class="span-62 margin-left-1">
+                                <span class="span-57 margin-top-1 dark_gray">
+                                    <span >
+                                    	<%= word_for :category%>
+                                	</span>
+									<%= render :partial=>"/figure/edit_tag", :locals=>{:figure=>figure}%>
+                                </span>
+                            </span>
+                            <span class="span-4 margin-left-1">
+                               
+                                <span class="span-4 margin-top-1">
+                                	<%if $member.facebook_id == figure.manager_facebook_id or $member.is_aesir%>
+                                    <a href="#" class="edit_icon" title="Edit Description"
+                                        onclick="show_edit('tag');return false;"></a>
+									<%end%>
+                                </span>
+                            </span>
+							
+                        </span>
+						<%
+                           #if $member.facebook_id == figure.manager_facebook_id or $member.is_aesir
+							if $member.is_aesir
+                        %>
+                        <span id="edit_tag" style="display:none;">
+							<span class="font12 squeks_blue bold_font">
+                    			<%= word_for :edit_category%>
+                			</span>
+                            <span class="span-66 margin-top-5px margin-left-5px font11 normal_font medium_gray">
+                                 <input id="figure_tag" name="<%=rand()%>" type="text" class="text_input span-66" value="<%=get_tag_text(figure) if get_tag_text(figure) != '-'%>" />
+                            </span>
+                            <span class="span-66 margin-left-5px margin-bottom-1 margin-top-1">
+                                <a href="#" class="squeks_button" onclick="edit_figure(this,'tag');return false;"><%= word_for :edit_tag%></a>
+                                <a href="#" class="squeks_gary_button margin-left-1" onclick="cancel_edit('tag');return false;"><%= word_for :cancel_edit_tag%></a>
+                            </span>
+                        </span>
+                        <%
+                           end
+                        %>
+                        <div style="height:0px;clear:left;">&nbsp;</div>
+                    </span>
+                </span>
+            </span>
+            <span class="left_shadow">
+            </span>
+            <span class="right_shadow">
+            </span>
+        </span>
+		<%=render :partial=>"/discussion/top_discussion", :locals=>{:figure=>figure}%>
+		<%=render :partial=>"/discussion/add_panel", :locals=>{:figure=>figure}%>		
+		<%=render :partial=>"/discussion/view_all", :locals=>{:figure=>figure}%>
+    <!-- =========== SPOT FIGURE END HERE =========================================-->
+    <!-- =========== COMMENT HERE =========================================-->
+    <!-- =========== COMMENT END HERE =========================================-->
+    </span>
+    <!-- =========== LEFT END HERE =========================================-->
+    <!-- =========== RIGHT Column =========================================-->
+    <span class="span-28 margin-left-2 clearfix">
+        <span class="span-28">
+            <%=render :partial=>"figure/suggested_figure_sidebar", :locals=>{:excluded_ids=>[figure.id]}%>
+			<%=render :partial=>"figure/figure_popular"%>
+
+        </span>
+    </span>
+    <!-- =========== RIGHT END HERE =========================================-->
+	<%= render :partial=>"comment/comment_javascript", :locals=>{:figure=>figure}%>
+    <script language="javascript">
+    	
+        function show_edit(column_name) {
+            $('#show_'+column_name).hide();
+            $('#edit_'+column_name).fadeIn();
+        }
+        function cancel_edit(column_name) {
+            $('#edit_'+column_name).hide();
+            $('#show_'+column_name).fadeIn();
+        }
+
+        function edit_figure(sender,column_name)
+        {
+            try {
+
+                $(sender).loading_button(true);
+                data = {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        "figure_id":"<%=figure.id%>"
+                }
+
+                if (column_name == 'title')
+                {
+                    data['title'] = $('#figure_title').val();
+                }
+                if (column_name == 'description')
+                {
+                    data['description'] = $('#figure_description').val();
+                }
+				if (column_name == 'tag')
+                {
+                    data['tags'] = $('#figure_tag').val();
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '/figure/edit',
+                    cache: false,
+                    data: data,
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+                                    $(sender).loading_button(false);
+                                    $('#edit_'+column_name).hide();
+                                    $('#show_'+column_name).fadeIn();
+                                    $('#span_figure_title').html(data.figure.figure.title);
+                                    $('#span_figure_description').html(data.figure.figure.description);
+									$('#span_figure_tag').replaceWith(data.tag_text);
+									$('#span_figure_tag').hide();
+                                    $('#span_figure_tag').fadeIn();
+                            }
+                            else {
+								if (data.error_message == "<%=MUST_LOGIN_ERROR%>") {
+									$('#must_login_balloon').hide();
+									$('#must_login_balloon').fadeIn();
+								}
+								else {
+									$(sender).loading_button(false);
+									for (var i in data.error_message) {
+										try {
+											$('#figure_' + i).ruby_box(true, data.error_message[i]);
+										} 
+										catch (e) {
+										
+										}
+									}
+								}
+                            }
+
+                        }
+                        catch (e) {
+                            $(sender).loading_button(false);
+                            $.error_log('submit_figure', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $(sender).loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $(sender).loading_button(false);
+                $.error_log('submit_figure',e);
+                alert(e);
+            }
+        }
+
+        var uploading_anchor = false;
+        function is_uploading() {
+            return uploading_anchor;
+        }
+
+        function start_uploading() {
+            uploading_anchor = true;
+            $('#edit_upload_image_button_<%=figure.id%>').hide();
+            $('#edit_upload_image_button_loading').show();
+        }
+
+        function stop_uploading() {
+            uploading_anchor = false;
+            $('#edit_upload_image_button_<%=figure.id%>').show();
+            $('#edit_upload_image_button_loading').hide();
+        }
+
+		<%
+			if $member.facebook_id == figure.manager_facebook_id or $member.is_aesir
+		%>
+						
+	        new AjaxUpload('edit_upload_image_button_<%=figure.id%>', {
+	            action: '/figure/add_image',
+	            name: 'Filedata',
+	            data:{
+	                    authenticity_token: "<%=form_authenticity_token%>",
+	                    figure_id:"<%=figure.id%>",
+						"is_anonymous":get_anonymous_value()
+	            },
+	            onSubmit: function(file, extension,data) {
+	                if (is_uploading()) return;
+					
+					data["is_anonymous"] = get_anonymous_value();
+	
+	                if (extension && /^(jpg|png|jpeg|gif)$/.test(extension.toLowerCase())) {
+	                    start_uploading();
+	                }
+	                else
+	                {
+	                    alert("Only JPEG, GIF, and PNG are allowed.");
+	                    return false;
+	                }
+	            },
+	            onComplete : function(file,data){
+	                try {
+						data = eval('('+data+')');
+						data.thumbnail_html = decodeURI(data.thumbnail_html)
+	                    if (data.ok == true) {
+	                        $('#blank_image').hide();
+
+	                        var all_pages = $('#inner_thumbnail_image_view').children('.album_page');
+	
+	                        var add = false;
+	                        for (var i=0;i<all_pages.length;i++)
+	                        {
+	                            var children = $(all_pages[i]).children('span');
+	
+	                            if (children.length < 12)
+	                            {
+	                                add = true;
+	                                $(all_pages[i]).append(data.thumbnail_html);
+	                            }
+	
+	                        }
+							
+	
+	                        if (!add)
+	                        {
+	                           $('#inner_thumbnail_image_view').append('<span class="album_page album_picture">'+data.thumbnail_html+'</span>');
+	                           $('#inner_thumbnail_image_view').css('width',((all_pages.length+1)*680)+'px');
+	                        }
+							
+							
+							select_image($('#thumbnail_'+data.image_id)[0]);
+	                        setTimeout("stop_uploading();",3000);
+							update_squeks_credit(data.credits,data.previous_credits);
+	                    }
+	                    else {
+	                        alert(data.error_message);
+	                        stop_uploading();
+	                    }
+	
+	
+	                } catch (e)
+	                {
+						alert(e);
+	                    stop_uploading();
+	                }
+	
+					update_previous_next_picture_button();
+	            },
+	            onError: function (errorObj)
+	            {
+	                alert(errorObj);
+	                stop_uploading();
+	            }
+	        });
+			
+		<%
+			end
+		%>
+
+    </script>
+</span>
+

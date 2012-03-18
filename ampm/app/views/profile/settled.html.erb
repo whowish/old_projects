@@ -1,0 +1,92 @@
+<%
+	user = $facebook
+	user = get_facebook_info(params[:user_id]) if params[:user_id]
+	
+	params[:limit] = 10 if !params[:limit]
+	params[:limit] = params[:limit].to_i
+	
+	params[:offset] = 0 if !params[:offset]
+	params[:offset] = params[:offset].to_i
+	
+	params[:sort] = "ending_soonest" if !params[:sort]
+
+	limit = params[:limit].to_i
+	offset = params[:offset].to_i
+			
+%>
+
+	<span class="span-74 margin-top-1 clearfix">
+<!-- LEFT COLUMN -->
+		<span class="span-15 right_border clearfix" style="background-color:#282828;">
+        	<%=render :partial=>"profile/side_profile"%>
+            <%=render :partial=>"profile/side_event_stat",:locals=>{:facebook_id=>user.facebook_id}%>
+			<%=render :partial=>"profile/side_get_email"%>
+            <%=render :partial=>"profile/side_friend"%>
+        </span>
+<!-- RIGHT COLUMN -->
+		<span class="span-59 left_border clearfix">
+        	<%=render :partial=>"filter_bar",:locals=>{:facebook_id=>user.facebook_id,:is_settled=>true}%>
+			<%
+				status = Event::STATUS_SETTLED
+				if params[:sort] == "ending_soonest"
+					status = Event::STATUS_SETTLED
+					order = "settled_date asc"
+				elsif params[:sort] == "completed"
+					status = Event::STATUS_COMPLETED
+					order = "settled_date desc"
+				end
+
+				event_friend_ids = EventFriend.first(:select=>"GROUP_CONCAT(CONVERT(event_id,CHAR) SEPARATOR ',') AS ids",:conditions=>{:facebook_id=>user.facebook_id,:status=>[EventFriend::STATUS_ACCEPTED,EventFriend::STATUS_PENDING]})
+				
+				# get only some certain status
+				sql = "status = '"+status+"' AND (facebook_id='"+user.facebook_id+"' "
+				sql += " OR id in ("+event_friend_ids.ids+")" if event_friend_ids.ids
+				sql += ")";
+
+				my_event_ids = Event.first(:select=>"GROUP_CONCAT(CONVERT(id,CHAR) SEPARATOR ',') AS ids",:conditions=>[sql])
+
+				# revise new sql
+				sql = "(0 "
+				sql += " OR event_id in ("+my_event_ids.ids+")" if my_event_ids.ids
+				sql += ")";
+				
+				count = EventSettledDate.count('DATE(settled_date)',:conditions=>[sql],:distinct=>true)
+
+				if count == 0
+			%>
+					<span class="span-56  margin-left-1 fontsize18 bold_font margin-top-2 light_gray align_center">
+						" There are no events "
+					</span>
+			<%
+				else
+					event_dates = EventSettledDate.all(:conditions=>[sql],:select=>"DISTINCT(DATE(settled_date)) as settled_date ",:order=>order,:offset=>offset,:limit=>limit)
+
+					event_dates.each do |event|
+			%>
+						<%=render :partial=>"profile/day" ,:locals=>{:date=>event.settled_date,:event_id_sql=>sql}%>
+			<%
+					end
+			%>
+					<span class="span-58 margin-left-1">
+						<span class="total_page blue_2meet4_bg">
+							<%=offset+1%> - <%=[offset+limit,count].min%> of <%=count%> day<%="s" if count > 1%>
+						</span>
+						<span class="page_number">
+							<ul>
+								<%
+									number_of_pages = (count.to_f/limit.to_f).ceil
+								
+									(1..number_of_pages).each do |i|
+								%>
+									<li><a href="/profile/settled?sort=<%=params[:sort]%>&filter=<%=params[:filter]%>&offset=<%=limit*(i-1)%>&limit=<%=limit%>" <%='class="active"' if limit*(i-1) == offset%>><%=i%></a></li>
+								<%
+									end
+								%>
+							</ul>
+						</span>
+					</span>
+			<%
+				end
+			%>
+        </span>
+    </span>

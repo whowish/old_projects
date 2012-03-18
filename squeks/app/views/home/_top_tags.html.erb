@@ -1,0 +1,47 @@
+<%
+	
+	tags = ["Actor","Actress","Model","Idol","Singer","Band","Sport",
+			"Food","Business","Politician","Animation","Animal","City",
+			"Movie","Fictional"]
+
+	where_clause = tags.map{ |i| "name LIKE '#{i}'" }.join(" OR ")
+
+#	tag_ids = []
+	@tag_name_to_id_hash = {}
+	Tag.all(:conditions=>[where_clause]).each do |tag|
+		@tag_name_to_id_hash[tag.name] = tag.id
+#		tag_ids.push(tag.id)
+	end
+
+#	figure_tags = FigureTag.all(:select=>"DISTINCT figure_id,tag_id",:conditions=>{:tag_id=>tag_ids},:order=>"rand()",:group=>"tag_id")
+
+#	figure_ids = []
+#	@tag_to_figure_hash = {}
+#	figure_tags.each do |fg|
+#		@tag_to_figure_hash[fg.tag_id] = fg.figure_id
+#		figure_ids.push(fg.figure_id)
+#	end
+
+#	@figure_hash = {}	
+#	Figure.all(:conditions=>{:id=>figure_ids}).each do |figure|
+#		@figure_hash[figure.id] = figure
+#	end
+	
+%>
+<span class="span-52 margin-top-1">
+	<span class="span-52 height20 huneysuckle_pink_bg white bold_font font11">
+		<span class="margin-left-1">
+			<%=word_for :top_tags%>
+		</span>
+	</span>
+	<span class="span-50">
+		<%
+			tags.each do |tag_name|
+				figure = Figure.first(:conditions=>["tags LIKE '%%<t>#{tag_name}</t>%%' AND status='#{Figure::STATUS_ACTIVE}'"],:order=>"rand()")
+
+				next if figure == nil
+		%>
+			<%=render :partial=>"home/tag_thumbnail_unit",:locals=>{:tag_name=>tag_name,:figure=>figure}%>
+		<%end%>
+	</span>
+</span>

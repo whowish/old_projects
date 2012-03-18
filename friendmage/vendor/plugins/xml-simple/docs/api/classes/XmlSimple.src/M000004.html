@@ -1,0 +1,55 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>xml_out (XmlSimple)</title>
+<link rel=StyleSheet href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body bgcolor="white">
+<pre><span class="cmt"># File lib/xmlsimple.rb, line 211</span>
+  <span class="kw">def</span> xml_out(ref, options = <span class="kw">nil</span>)
+    handle_options(<span class="str">'out'</span>, options)
+    <span class="kw">if</span> ref.instance_of?(Array)
+      ref = { @options[<span class="str">'anonymoustag'</span>] =&gt; ref }
+    <span class="kw">end</span>
+
+    <span class="kw">if</span> @options[<span class="str">'keeproot'</span>]
+      keys = ref.keys
+      <span class="kw">if</span> keys.size == 1
+        ref = ref[keys[0]]
+        @options[<span class="str">'rootname'</span>] = keys[0]
+      <span class="kw">end</span>
+    <span class="kw">elsif</span> @options[<span class="str">'rootname'</span>] == <span class="str">''</span>
+      <span class="kw">if</span> ref.instance_of?(Hash)
+        refsave = ref
+        ref = {}
+        refsave.each { |key, value|
+          <span class="kw">if</span> !scalar(value)
+            ref[key] = value
+          <span class="kw">else</span>
+            ref[key] = [ value.to_s ]
+          <span class="kw">end</span>
+        }
+      <span class="kw">end</span>
+    <span class="kw">end</span>
+
+    @ancestors = []
+    xml = value_to_xml(ref, @options[<span class="str">'rootname'</span>], <span class="str">''</span>)
+    @ancestors = <span class="kw">nil</span>
+
+    <span class="kw">if</span> @options[<span class="str">'xmldeclaration'</span>]
+      xml = @options[<span class="str">'xmldeclaration'</span>] + <span class="str">&quot;\n&quot;</span> + xml
+    <span class="kw">end</span>
+
+    <span class="kw">if</span> @options.has_key?(<span class="str">'outputfile'</span>)
+      <span class="kw">if</span> @options[<span class="str">'outputfile'</span>].kind_of?(IO)
+        <span class="kw">return</span> @options[<span class="str">'outputfile'</span>].write(xml)
+      <span class="kw">else</span>
+        File.open(@options[<span class="str">'outputfile'</span>], <span class="str">&quot;w&quot;</span>) { |file| file.write(xml) }
+      <span class="kw">end</span>
+    <span class="kw">end</span>
+    xml
+  <span class="kw">end</span></pre>
+</body>
+</html>

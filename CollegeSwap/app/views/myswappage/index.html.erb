@@ -1,0 +1,135 @@
+<%
+	params[:user_id] = $facebook.facebook_id if !params[:user_id]
+
+	params[:limit] = 10 if !params[:limit]
+	params[:limit] = params[:limit].to_i
+
+	params[:offset] = 0 if !params[:offset]
+	params[:offset] = params[:offset].to_i
+
+	sql = "facebook_id='"+params[:user_id]+"' AND item_type=:item_type AND is_money=0 AND status=:status " + session[:flagged_item_sql]
+
+	sql += " AND ((privacy = '"+Item::PRIVACY_ALL+"') " +
+		" OR (privacy = '"+Item::PRIVACY_FRIENDS+"' AND facebook_id IN (:friends))" +
+		" OR (privacy = '"+Item::PRIVACY_FRIENDS_OF_FRIENDS+"' AND facebook_id IN (:friends_of_friends)))"
+	
+	friends = $facebook.all_friends
+	friends_of_friends = $facebook.all_friends_of_friends
+
+	friends.push($facebook.facebook_id)
+	friends_of_friends.push($facebook.facebook_id)
+
+	const_search_params = {:status=>Item::STATUS_ACTIVE,:friends=>friends,:friends_of_friends=>friends_of_friends}
+
+	want_count = Item.count(:conditions=>[sql,{:item_type=>Item::ITEM_TYPE_WISH}.merge(const_search_params)])
+	junk_count = Item.count(:conditions=>[sql,{:item_type=>Item::ITEM_TYPE_JUNK}.merge(const_search_params)])
+	
+	wishes = Item.all(:conditions=>[sql,{:item_type=>Item::ITEM_TYPE_WISH}.merge(const_search_params)], :order => "created_date DESC",:offset=>params[:offset],:limit=>params[:limit])
+	junks = Item.all(:conditions=>[sql,{:item_type=>Item::ITEM_TYPE_JUNK}.merge(const_search_params)], :order => "created_date DESC",:offset=>params[:offset],:limit=>params[:limit])
+	#want_title = "My Want List"
+	#junk_title = "My Trade List"
+
+	no_want_page = "no_wish_item"
+	no_junk_page = "no_junk_item"
+	
+	
+
+	if params[:user_id] != $facebook.facebook_id
+		want_count,junk_count = junk_count,want_count
+		wishes,junks = junks,wishes
+		no_want_page,no_junk_page = no_junk_page,no_want_page
+		#want_title = get_possessive_adj(params[:user_id]) +  " Trade List"
+		#junk_title = get_possessive_adj(params[:user_id]) +  " Want List"
+
+	end
+
+	want_title = word_for :want_list
+	junk_title = word_for :trade_list
+
+%>
+<span class="span-40" style="border-right: 1px solid #CCCCCC;">
+	
+	<span class="span-40 medium_dark_green_bg height01">
+	</span>
+	<span id="my_wish_<%=params[:user_id]%>" class="span-40 light_green_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		<span class="span-38 margin-left-1">
+			<%=want_title%>
+		</span>
+	</span>
+	
+	<%
+		if want_count == 0
+	%>
+			<%=render :partial=>no_want_page ,:locals=>{:user_id=>params[:user_id]}%>
+	<%	
+		elsif want_count > 0 and wishes.length == 0
+	%>
+
+	<%
+		else
+			wishes.each do |wish|
+	%>
+		<%=render :partial=>"home/item",:locals=>{:entity=>wish,:is_last=>(wish == wishes.last),:mode=>MODE_SWAP_PAGE}%>
+	<% 		end
+	 	end
+	%>
+	
+</span>
+	
+	<!-- =============================================================================================
+	==== RIGHT CONTENT START HERE  ======================================================================
+	=================================================================================================-->
+	
+<span class="column_span" style="margin-left: -1px;">
+	<span class="span-40 dark_blue_bg height01">
+	</span>
+	<span id="my_junk_<%=params[:user_id]%>" class="span-40 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		<span class="span-38 margin-left-1">
+			<%=junk_title%>
+		</span>
+	</span>
+	
+	<%
+		if junk_count == 0
+	%>
+		<%=render :partial=>no_junk_page,:locals=>{:user_id=>params[:user_id]}%>
+	<%	
+		elsif junk_count > 0 and junks.length == 0
+	%>		
+
+	<%	
+		else
+			junks.each do |junk|
+	%>
+			<%=render :partial=>"home/item",:locals=>{:entity=>junk,:is_last=>(junk == junks.last),:mode=>MODE_SWAP_PAGE}%>
+	<% 		
+			end
+	 	end
+	%>
+	
+</span>
+<%
+	count = (want_count < junk_count) ? junk_count : want_count;
+
+	if count > 0
+		number_of_pages = (count.to_f/params[:limit].to_f).ceil
+%>
+<span class="span-80 margin-left-1 margin-top-1">
+		<span class="total_page whowish_green_bg">
+			<%=((params[:offset]+1).to_f/params[:limit].to_f).ceil%> of <%=number_of_pages%> pages
+		</span>
+		<span class="page_number">
+			<ul>
+				<%
+					(1..number_of_pages).each do |i|
+				%>
+					<li><a href="/myswappage?user_id=<%=params[:user_id]%>&offset=<%=params[:limit]*(i-1)%>&limit=<%=params[:limit]%>" <%='class="active"' if params[:limit]*(i-1) == params[:offset]%>><%=i%></a></li>
+				<%
+					end
+				%>
+			</ul>
+		</span>
+</span>
+<%
+	end
+%>

@@ -1,0 +1,19 @@
+<%
+	if entity.action == Notification::ACTION_AGREE
+%>
+		<%=render :partial=>"notification/hover_unit_agree",:locals=>{:entity=>entity}%>
+<%
+	elsif entity.action == Notification::ACTION_REPLY
+%>
+		<%=render :partial=>"notification/hover_unit_reply",:locals=>{:entity=>entity}%>
+<%
+	elsif entity.action == Notification::ACTION_BID
+%>
+		<%=render :partial=>"notification/hover_unit_bid",:locals=>{:entity=>entity}%>
+<%
+	elsif entity.action == Notification::ACTION_WIN_BID
+%>
+		<%=render :partial=>"notification/hover_unit_win_bid",:locals=>{:entity=>entity}%>
+<%
+	end
+%>

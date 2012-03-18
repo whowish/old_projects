@@ -1,0 +1,11 @@
+.facebook_profile_link
+{
+	background-image:url(/whowish_foundation_asset/profileIcon.png);
+	width:10px;
+	height:10px;
+	display:inline-block;
+	vertical-align:middle;
+	cursor: pointer;
+	margin-right:1px;
+	background-position: 0px -10px;
+}

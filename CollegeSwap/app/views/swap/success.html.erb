@@ -1,0 +1,10 @@
+<%
+	item = Item.first(:conditions=>{:id=>params[:item_id]});
+	responder = get_facebook_info(item.facebook_id);
+%>
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-48 margin-bottom-1 margin-left-1 margin-top-1">
+	<%=word_for :been_notified_of_your_offer,:name=>responder.name%>
+</span>

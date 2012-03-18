@@ -1,0 +1,772 @@
+
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Class: XmlSimple</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link rel=StyleSheet href=".././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript" language="JavaScript">
+  <!--
+  function popCode(url) {
+    window.open(url, "Code", 
+          "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+  //-->
+  </script>
+</head>
+
+<body bgcolor="white">
+
+<table summary="Information on class" width="100%" border="0" cellspacing="0">
+ <tr class="title-row">
+ <td class="big-title-font">
+   <sup><font color="aqua">Class</font></sup> XmlSimple
+ </td>
+ <td align="right">
+   <table summary="layout" cellspacing="0" cellpadding="2">
+     <tr valign="top">
+      <td class="small-title-font">In:</td>
+      <td class="small-title-font">
+        <a href="../files/lib/xmlsimple_rb.html" class="aqua">
+lib/xmlsimple.rb
+         </a>
+<br />
+      </td>
+     </tr>
+     <tr>
+      <td class="small-title-font">Parent:</td>
+      <td class="small-title-font">
+Object
+      </td>
+     </tr>
+   </table>
+  </td>
+  </tr>
+</table>
+  <!-- banner header -->
+
+
+
+<div class="description"><p>
+Easy API to maintain XML (especially configuration files).
+</p>
+</div>
+
+
+<table summary="Methods" cellpadding="5" width="100%">
+<tr><td class="tablesubtitle">Methods</td></tr>
+</table>
+<div class="name-list">
+<a href="#M000008">collapse</a>&nbsp; &nbsp;
+<a href="#M000013">collapse_content</a>&nbsp; &nbsp;
+<a href="#M000009">collapse_text_node</a>&nbsp; &nbsp;
+<a href="#M000025">empty</a>&nbsp; &nbsp;
+<a href="#M000023">escape_value</a>&nbsp; &nbsp;
+<a href="#M000028">find_xml_file</a>&nbsp; &nbsp;
+<a href="#M000011">fold_array</a>&nbsp; &nbsp;
+<a href="#M000012">fold_array_by_name</a>&nbsp; &nbsp;
+<a href="#M000010">fold_arrays</a>&nbsp; &nbsp;
+<a href="#M000015">force_array?</a>&nbsp; &nbsp;
+<a href="#M000016">get_attributes</a>&nbsp; &nbsp;
+<a href="#M000019">get_var</a>&nbsp; &nbsp;
+<a href="#M000007">handle_options</a>&nbsp; &nbsp;
+<a href="#M000017">has_mixed_content?</a>&nbsp; &nbsp;
+<a href="#M000022">hash_to_array</a>&nbsp; &nbsp;
+<a href="#M000029">load_xml_file</a>&nbsp; &nbsp;
+<a href="#M000014">merge</a>&nbsp; &nbsp;
+<a href="#M000001">new</a>&nbsp; &nbsp;
+<a href="#M000026">node_to_text</a>&nbsp; &nbsp;
+<a href="#M000024">normalise_space</a>&nbsp; &nbsp;
+<a href="#M000006">normalize_option_names</a>&nbsp; &nbsp;
+<a href="#M000027">parse</a>&nbsp; &nbsp;
+<a href="#M000030">put_into_cache</a>&nbsp; &nbsp;
+<a href="#M000021">scalar</a>&nbsp; &nbsp;
+<a href="#M000018">set_var</a>&nbsp; &nbsp;
+<a href="#M000020">value_to_xml</a>&nbsp; &nbsp;
+<a href="#M000003">xml_in</a>&nbsp; &nbsp;
+<a href="#M000002">xml_in</a>&nbsp; &nbsp;
+<a href="#M000005">xml_out</a>&nbsp; &nbsp;
+<a href="#M000004">xml_out</a>&nbsp; &nbsp;
+</div>
+
+
+
+<table summary="List of classes" cellpadding="5" width="100%">
+<tr><td class="tablesubtitle">Classes and Modules</td></tr>
+</table>
+<div class="classlist">
+Class <a href="XmlSimple/Cache.html" class="link">XmlSimple::Cache</a><br />
+
+</div>
+
+<table summary="Included modules" cellpadding="5" width="100%">
+<tr><td class="tablesubtitle">Included modules</td></tr>
+</table>
+<div class="name-list">
+    <span class="method-name">REXML</span>
+</div>
+
+<table summary="Method list" cellpadding="5" width="100%">
+<tr><td class="tablesubtitle">Public Class methods</td></tr>
+</table>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000001"></a>
+<a href="XmlSimple.src/M000001.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000001.html');return false;">
+<b>new</b>(defaults = nil)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Creates and intializes a new <a href="XmlSimple.html">XmlSimple</a> object.
+</p>
+<table>
+<tr><td valign="top">defaults:</td><td>Default values for options.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000003"></a>
+<a href="XmlSimple.src/M000003.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000003.html');return false;">
+<b>xml_in</b>(string = nil, options = nil)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+This is the functional version of the instance method <a
+href="XmlSimple.html#M000003">xml_in</a>.
+</p>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000005"></a>
+<a href="XmlSimple.src/M000005.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000005.html');return false;">
+<b>xml_out</b>(hash, options = nil)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+This is the functional version of the instance method <a
+href="XmlSimple.html#M000005">xml_out</a>.
+</p>
+</div>
+<table summary="Method list" cellpadding="5" width="100%">
+<tr><td class="tablesubtitle">Public Instance methods</td></tr>
+</table>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000002"></a>
+<a href="XmlSimple.src/M000002.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000002.html');return false;">
+<b>xml_in</b>(string = nil, options = nil)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Converts an XML document in the same way as the Perl module XML::Simple.
+</p>
+<table>
+<tr><td valign="top">string:</td><td>XML source. Could be one of the following:
+
+<ul>
+<li>nil: Tries to load and parse &#8217;&lt;scriptname&gt;.xml&#8217;.
+
+</li>
+<li>filename: Tries to load and parse filename.
+
+</li>
+<li>IO object: Reads from object until EOF is detected and parses result.
+
+</li>
+<li>XML string: Parses string.
+
+</li>
+</ul>
+</td></tr>
+<tr><td valign="top">options:</td><td>Options to be used.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000004"></a>
+<a href="XmlSimple.src/M000004.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000004.html');return false;">
+<b>xml_out</b>(ref, options = nil)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Converts a data structure into an XML document.
+</p>
+<table>
+<tr><td valign="top">ref:</td><td>Reference to data structure to be converted into XML.
+
+</td></tr>
+<tr><td valign="top">options:</td><td>Options to be used.
+
+</td></tr>
+</table>
+</div>
+<table summary="Method list" cellpadding="5" width="100%">
+<tr><td class="tablesubtitle">Private Instance methods</td></tr>
+</table>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000006"></a>
+<a href="XmlSimple.src/M000006.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000006.html');return false;">
+<b>normalize_option_names</b>(options, known_options)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Normalizes option names in a hash, i.e., turns all characters to lower case
+and removes all underscores. Additionally, this method checks, if an
+unknown option was used and raises an according exception.
+</p>
+<table>
+<tr><td valign="top">options:</td><td>Hash to be normalized.
+
+</td></tr>
+<tr><td valign="top">known_options:</td><td>List of known options.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000007"></a>
+<a href="XmlSimple.src/M000007.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000007.html');return false;">
+<b>handle_options</b>(direction, options)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Merges a set of options with the default options.
+</p>
+<table>
+<tr><td valign="top">direction:</td><td>&#8216;in&#8217;: If options should be handled for <a
+href="XmlSimple.html#M000003">xml_in</a>. &#8216;out&#8217;: If options
+should be handled for <a href="XmlSimple.html#M000005">xml_out</a>.
+
+</td></tr>
+<tr><td valign="top">options:</td><td>Options to be merged with the default options.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000008"></a>
+<a href="XmlSimple.src/M000008.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000008.html');return false;">
+<b>collapse</b>(element)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Actually converts an XML document element into a data structure.
+</p>
+<table>
+<tr><td valign="top">element:</td><td>The document element to be collapsed.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000009"></a>
+<a href="XmlSimple.src/M000009.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000009.html');return false;">
+<b>collapse_text_node</b>(hash, element)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Collapses a text node and merges it with an existing Hash, if possible.
+Thanks to Curtis Schofield for reporting a subtle bug.
+</p>
+<table>
+<tr><td valign="top">hash:</td><td>Hash to merge text node value with, if possible.
+
+</td></tr>
+<tr><td valign="top">element:</td><td>Text node to be collapsed.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000010"></a>
+<a href="XmlSimple.src/M000010.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000010.html');return false;">
+<b>fold_arrays</b>(hash)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Folds all arrays in a Hash.
+</p>
+<table>
+<tr><td valign="top">hash:</td><td>Hash to be folded.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000011"></a>
+<a href="XmlSimple.src/M000011.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000011.html');return false;">
+<b>fold_array</b>(array)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Folds an Array to a Hash, if possible. Folding happens according to the
+content of keyattr, which has to be an array.
+</p>
+<table>
+<tr><td valign="top">array:</td><td>Array to be folded.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000012"></a>
+<a href="XmlSimple.src/M000012.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000012.html');return false;">
+<b>fold_array_by_name</b>(name, array)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Folds an Array to a Hash, if possible. Folding happens according to the
+content of keyattr, which has to be a Hash.
+</p>
+<table>
+<tr><td valign="top">name:</td><td>Name of the attribute to be folded upon.
+
+</td></tr>
+<tr><td valign="top">array:</td><td>Array to be folded.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000013"></a>
+<a href="XmlSimple.src/M000013.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000013.html');return false;">
+<b>collapse_content</b>(hash)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Tries to collapse a Hash even more ;-)
+</p>
+<table>
+<tr><td valign="top">hash:</td><td>Hash to be collapsed again.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000014"></a>
+<a href="XmlSimple.src/M000014.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000014.html');return false;">
+<b>merge</b>(hash, key, value)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Adds a new key/value pair to an existing Hash. If the key to be added does
+already exist and the existing value associated with key is not an Array,
+it will be converted into an Array. Then the new value is appended to that
+Array.
+</p>
+<table>
+<tr><td valign="top">hash:</td><td>Hash to add key/value pair to.
+
+</td></tr>
+<tr><td valign="top">key:</td><td>Key to be added.
+
+</td></tr>
+<tr><td valign="top">value:</td><td>Value to be associated with key.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000015"></a>
+<a href="XmlSimple.src/M000015.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000015.html');return false;">
+<b>force_array?</b>(key)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Checks, if the &#8216;forcearray&#8217; option has to be used for a certain
+key.
+</p>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000016"></a>
+<a href="XmlSimple.src/M000016.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000016.html');return false;">
+<b>get_attributes</b>(node)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Converts the attributes array of a document node into a Hash. Returns an
+empty Hash, if node has no attributes.
+</p>
+<table>
+<tr><td valign="top">node:</td><td>Document node to extract attributes from.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000017"></a>
+<a href="XmlSimple.src/M000017.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000017.html');return false;">
+<b>has_mixed_content?</b>(element)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Determines, if a document element has mixed content.
+</p>
+<table>
+<tr><td valign="top">element:</td><td>Document element to be checked.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000018"></a>
+<a href="XmlSimple.src/M000018.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000018.html');return false;">
+<b>set_var</b>(name, value)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Called when a variable definition is encountered in the XML. A variable
+definition looks like
+</p>
+<pre>
+   &lt;element attrname=&quot;name&quot;&gt;value&lt;/element&gt;
+</pre>
+<p>
+where attrname matches the varattr setting.
+</p>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000019"></a>
+<a href="XmlSimple.src/M000019.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000019.html');return false;">
+<b>get_var</b>(name)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Called during variable substitution to get the value for the named
+variable.
+</p>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000020"></a>
+<a href="XmlSimple.src/M000020.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000020.html');return false;">
+<b>value_to_xml</b>(ref, name, indent)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Recurses through a data structure building up and returning an XML
+representation of that structure as a string.
+</p>
+<table>
+<tr><td valign="top">ref:</td><td>Reference to the data structure to be encoded.
+
+</td></tr>
+<tr><td valign="top">name:</td><td>The XML tag name to be used for this item.
+
+</td></tr>
+<tr><td valign="top">indent:</td><td>A string of spaces for use as the current indent level.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000021"></a>
+<a href="XmlSimple.src/M000021.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000021.html');return false;">
+<b>scalar</b>(value)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Checks, if a certain value is a &quot;scalar&quot; value. Whatever that
+will be in Ruby &#8230; ;-)
+</p>
+<table>
+<tr><td valign="top">value:</td><td>Value to be checked.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000022"></a>
+<a href="XmlSimple.src/M000022.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000022.html');return false;">
+<b>hash_to_array</b>(parent, hashref)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Attempts to unfold a hash of hashes into an array of hashes. Returns a
+reference to th array on success or the original hash, if unfolding is not
+possible.
+</p>
+<p>
+parent::
+</p>
+<table>
+<tr><td valign="top">hashref:</td><td>Reference to the hash to be unfolded.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000023"></a>
+<a href="XmlSimple.src/M000023.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000023.html');return false;">
+<b>escape_value</b>(data)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Replaces XML markup characters by their external entities.
+</p>
+<table>
+<tr><td valign="top">data:</td><td>The string to be escaped.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000024"></a>
+<a href="XmlSimple.src/M000024.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000024.html');return false;">
+<b>normalise_space</b>(text)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Removes leading and trailing whitespace and sequences of whitespaces from a
+string.
+</p>
+<table>
+<tr><td valign="top">text:</td><td>String to be normalised.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000025"></a>
+<a href="XmlSimple.src/M000025.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000025.html');return false;">
+<b>empty</b>(value)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Checks, if an object is nil, an empty String or an empty Hash. Thanks to
+Norbert Gawor for a bugfix.
+</p>
+<table>
+<tr><td valign="top">value:</td><td>Value to be checked for emptyness.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000026"></a>
+<a href="XmlSimple.src/M000026.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000026.html');return false;">
+<b>node_to_text</b>(node, default = nil)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Converts a document node into a String. If the node could not be converted
+into a String for any reason, default will be returned.
+</p>
+<table>
+<tr><td valign="top">node:</td><td>Document node to be converted.
+
+</td></tr>
+<tr><td valign="top">default:</td><td>Value to be returned, if node could not be converted.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000027"></a>
+<a href="XmlSimple.src/M000027.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000027.html');return false;">
+<b>parse</b>(xml_string)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Parses an XML string and returns the according document.
+</p>
+<table>
+<tr><td valign="top">xml_string:</td><td>XML string to be parsed.
+
+</td></tr>
+</table>
+<p>
+The following exception may be raised:
+</p>
+<table>
+<tr><td valign="top">REXML::ParseException:</td><td>If the specified file is not wellformed.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000028"></a>
+<a href="XmlSimple.src/M000028.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000028.html');return false;">
+<b>find_xml_file</b>(file, searchpath)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Searches in a list of paths for a certain file. Returns the full path to
+the file, if it could be found. Otherwise, an exception will be raised.
+</p>
+<table>
+<tr><td valign="top">filename:</td><td>Name of the file to search for.
+
+</td></tr>
+<tr><td valign="top">searchpath:</td><td>List of paths to search in.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000029"></a>
+<a href="XmlSimple.src/M000029.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000029.html');return false;">
+<b>load_xml_file</b>(filename)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Loads and parses an XML configuration file.
+</p>
+<table>
+<tr><td valign="top">filename:</td><td>Name of the configuration file to be loaded.
+
+</td></tr>
+</table>
+<p>
+The following exceptions may be raised:
+</p>
+<table>
+<tr><td valign="top">Errno::ENOENT:</td><td>If the specified file does not exist.
+
+</td></tr>
+<tr><td valign="top">REXML::ParseException:</td><td>If the specified file is not wellformed.
+
+</td></tr>
+</table>
+</div>
+<table summary="method"  width="100%" cellspacing="0" cellpadding="5" border="0">
+<tr><td class="methodtitle">
+<a name="M000030"></a>
+<a href="XmlSimple.src/M000030.html" target="Code" class="methodtitle"
+ onClick="popCode('XmlSimple.src/M000030.html');return false;">
+<b>put_into_cache</b>(data, filename)
+</a>
+</td></tr>
+</table>
+<div class="description">
+<p>
+Caches the data belonging to a certain file.
+</p>
+<table>
+<tr><td valign="top">data:</td><td>Data to be cached.
+
+</td></tr>
+<tr><td valign="top">filename:</td><td>Name of file the data was read from.
+
+</td></tr>
+</table>
+</div>
+
+</body>
+</html>

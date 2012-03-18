@@ -1,0 +1,100 @@
+<%
+	entity = Article.new()
+	is_new = true
+	action = "add"
+
+	if params[:id]
+		is_new = false
+		action = "edit"
+		entity = Article[params[:id]]
+	end
+	
+%>
+
+<%= javascript_include_tag "/wiky/wiky_uploader.js"%>
+Title: <input type="text" id="title" value="<%=entity.title%>"/>
+Abstract: <input type="text" id="abstract" value="<%=entity.abstract%>"/>
+Content: <input type="text" id="content" value="<%=entity.content%>"/>
+Attachment: <input type="button" id="attachment_upload_button" value="Attach file"/>
+<span id="attachment_list">
+	
+</span>
+<span onclick="submit(this);">Save</span>
+
+<script language="javascript">
+	
+	$('#attachment_upload_button').wiky_uploader({
+												action: "/temporary_image",
+												mouseover_class:"button_hover",
+												mousedown_class:"button_down",
+												name:"Filedata",
+												debug:false,
+												multiple:true,
+												onSubmit: function(fileId, fileName){
+													$('#attachment_list').append('<span class="attachment_unit" id="attachment_unit_'+fileId+'">\
+																					<span class="attachment_filename">'+fileName+'</span>\
+																					<span class="attachment_loading">Queued</span>\
+																					<input type="hidden" id="attachment_data_'+fileId+'">\
+																				</span>\
+																				');
+												},
+										        onProgress: function(fileId, fileName, loaded, total){
+													$('#attachment_unit_'+fileId).children('.attachment_loading').html('Uploading...');
+												},
+										        onComplete: function(fileId, fileName, responseJSON){
+													
+													if (responseJSON.ok == false) {
+														alert(fileName + " " + responseJSON.error_message);
+														return;
+													}
+													
+													$('#attachment_unit_'+fileId).children('.attachment_loading').html('Done');
+													$('#attachment_data_'+fileId).val('{"path":"'+responseJSON.filename+'","name":"'+fileName+'"}');
+												},
+										        onCancel: function(id, fileName){
+													$('#attachment_unit_'+fileId).fadeOut(function(){
+														$(this).remove()
+													});
+												}
+											});
+	
+	function submit(sender) {
+		
+		// get files
+		var filenames = [];
+		var attachments = $('input[id^=attachment_data_]');
+		
+		for(var i=0;i<attachments.length;i++) {
+			filenames.push($(attachments[i]).val());
+		}
+		
+		$(sender).loading_button(true);
+		$.ajax({
+			type: "POST",
+			url: '/article/<%=action%>',
+			cache: false,
+			headers:{"Connection":"close"},
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"course_id":"<%=params[:course_id]%>",
+				"id":"<%=params[:id] if params[:id]%>",
+				"title": $('#title').val(),
+				"abstract": $('#abstract').val(),
+				"content": $('#content').val(),
+				"attachments":"["+filenames.join(",")+"]"
+			},
+			success: function(data){
+				alert(data.ok);
+				$(sender).loading_button(false);
+				if (data.url != undefined) {
+					top.location.href = data.url;
+					return;
+				}
+			},
+			error: function(req, status, e){
+				$(sender).loading_button(false);
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+</script>

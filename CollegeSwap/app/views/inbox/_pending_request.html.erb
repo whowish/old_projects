@@ -1,0 +1,59 @@
+<%
+	responder = get_facebook_info(request.responder_facebook_id)
+	requestor = get_facebook_info(request.requestor_facebook_id)
+	requestor_item = Item.first(:conditions=>{:id => request.requestor_item_id})
+	responder_item = Item.first(:conditions=>{:id => request.responder_item_id})
+%>
+	<span class="span-80 margin-bottom-2" id="response_flow_content_<%=request.id%>">
+		<span class="span-80 height01 medium_gray_bg">
+		</span>
+		<span class="span-80 height20 light_green_bg">
+
+			<span class="span-79 bold_font fontsize14 medium_dark_green margin-left-1">
+				<%=word_for :you_sent_a_swap_request,:name=>responder.get_badge%>
+				<%
+					if $facebook.facebook_id == request.requestor_facebook_id
+				%>
+					&nbsp;&nbsp; (<a href="#" style="color:#E54616;" onclick="$.whowish_box({url:'/inbox/confirm_delete?request_id=<%=request.id%>'});return false;"><%=word_for :cancel_this_request%></a>)
+				<%
+					end
+				%>
+			</span>
+		</span>
+		<span class="span-80">
+			<span class="swap-unit span-35 margin-swap_unit">
+				<%=render :partial=>"item_inbox" ,:locals=>{:item=>requestor_item,:possessive_pronoun=>"Yours"}%>
+			</span>
+			<span class="span-8">
+				<span class="status medium_blue_bg span-6"> 
+					<%=word_for :pending%>
+				</span>
+			</span>
+			<span class="swap-unit  span-35 margin-swap_unit">
+				<%=render :partial=>"item_inbox" ,:locals=>{:item=>responder_item,:possessive_pronoun=>get_possessive_pronoun(request.responder_facebook_id)}%>
+			</span>
+		</span>
+		<span class="span-79 margin-swap_unit">
+			<span class="margin-left-2 message-border top comment_unit span-76 light_gray_bg margin-swap_line">
+				<span class="span-6 margin-left-1 margin-top-1">
+					<span class="facebook_pic2 margin-profile_comment_box" style="background-image:url(http://graph.facebook.com/<%=request.requestor_facebook_id%>/picture?type=square);"></span>
+				</span>
+				<span class="span-69 fontsize12 normal_font margin-top-1">
+					<span class="span-69">
+						<%=requestor.get_badge%>
+					</span>
+					<span class="span-69 dark_gray" style="white-space:normal;overflow:hidden;">
+						<%=wrap_word(request.message,170)%>
+					</span>
+					<span class="span-69 margin-top-1 fontsize11 normal_font margin-comment_foot float-left medium_dark_gray">
+						<%=semantic_time(request.created_date)%>
+					</span>
+				</span>
+			
+				
+			</span>
+		</span>
+		
+	</span>
+
+

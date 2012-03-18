@@ -1,0 +1,33 @@
+<%
+	commentor = get_facebook_info(comment.facebook_id)
+	comment_like = CommentLike.first(:conditions=>{:comment_id=>comment.id,:facebook_id=>$facebook.facebook_id})
+	is_like = false
+	if comment_like
+		is_like = true
+	end
+%>
+<span class="comment_unit span-74 light_blue_bg margin-verticle-2px" id="comment_view_<%=comment.id%>">
+	<span class="span-5 margin-all-5px">
+        <span class="facebook_pic" style="background-image:url(<%=commentor.profile_picture_url%>) !important;">
+        </span>
+		<div style="height:0px;clear:left;">&nbsp;</div>
+    </span>
+	<% if $facebook.facebook_id == comment.facebook_id%>
+		<span class="function_icon float-right light_medium_gray_bg">
+			<a href="#" class="x_icon float-left" title="delete" id="item_delete_button_<%=comment.id%>" onclick="$.whowish_box({title: 'Delete',url:'/comment/confirm_delete?comment_id=<%=comment.id%>',background_color:'#999999'});return false;"></a>
+		</span>
+	<%end%>
+	<span class="span-65 fontsize12 normal_font margin-all-5px">
+		<span class="span-65">
+			<%=commentor.get_badge()%>
+		</span>
+		<span class="span-65 dark_gray">
+			<%=comment.comment%>
+		</span>
+        <span class="span-65 margin-top-1 fontsize11 normal_font medium_dark_gray">
+			<%=semantic_time(comment.created_date)%> &bull; <%=render :partial=>"comment/comment_status",:locals=>{:entity=>comment,:you_like=>is_like}%>
+		</span>
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>
+

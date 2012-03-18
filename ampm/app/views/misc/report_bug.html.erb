@@ -1,0 +1,17 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50 margin-top-1 margin-bottom-1">
+	<span class="span-49 margin-left-1 dark_gray">
+		Please report any bugs/glitches you have encountered while using 2Meet4 below. 
+		Thanks for using 2Meet4!
+	</span>
+	<span class="span-49 margin-left- margin-top-1 margin-bottom-1">
+		<span id="report_bug" style="margin-left:50px;">
+			<fb:comments xid="report_bug_2Meet4" numposts="10" width="400" publish_feed="true"></fb:comments>
+		</span>
+	</span>
+</span>
+<script language="javascript">
+	FB.XFBML.parse($('#report_bug')[0]);
+</script>

@@ -1,0 +1,89 @@
+<%
+	tags = get_tag_text(figure).split(', ')
+	tags = tags[0..1] if tags.length > 1
+%>
+<span class="thumbnail-unit" id="thumbnail_unit_<%=figure.id%>">
+	<span class="tag span-14 margin-bottom-1" style="overflow:hidden;white-space:nowrap;">
+		<%tags.each do |tag|%>
+			<%if tag != "" and tag != "-"%>
+			<a href="/search?tags=<%=tag%>" class="font11 dark_gray light_font" >
+				<%=tag%> 
+			</a>
+			<%=', ' if tag != tags[tags.length - 1]%>
+			<%end%>
+		<%end%>
+	</span>
+	<a href="<%=figure.get_url%>" class="picture margin-top-2" style="background-image:url(<%=figure.get_160x160_thumbnail_image_url%>);" title="<%=figure.title%>"></a>
+    <a href="<%=figure.get_url%>" class="span-14 margin-top-5px font11 squeks_blue" style="overflow:hidden;white-space:nowrap;">
+		<%=figure.title%> 
+	</a>
+	<span class="span-14 small-meter">
+		<%
+        	love_width, hate_width = calculate_love_hate_width(figure.loves,figure.hates,138)
+    	%>
+	<!--==== (width(140) - pinkMargin(2) = 138px =================================================-->
+		<span class="pink-meter-small" style="width:<%=love_width%>px;">
+		</span>
+		<span class="gray-meter-small" style="width:<%=hate_width%>px;">
+		</span>
+	</span>
+	<span class="span-14 height20">
+		<%
+            figure_love = FigureLove.first(:conditions=>{:figure_id=>figure.id,:facebook_id=>$facebook.facebook_id})
+
+            if figure_love \
+                and (figure_love.love_type == FigureLove::TYPE_LOVE \
+                or figure_love.love_type == FigureLove::TYPE_HATE)
+
+                if figure_love.love_type == FigureLove::TYPE_LOVE
+        %>
+                You love this
+        <%
+                elsif figure_love.love_type == FigureLove::TYPE_HATE
+        %>
+                You hate this
+        <%
+                end
+            else
+        %>
+			<span class="float-left">
+				<span class="love_icon_small">
+                </span>
+                <span class="float-left font11 huneysuckle_pink bold_font" style="margin-left:2px;">
+                    <%=number_with_delimiter(figure.loves)%>
+                </span>
+			</span>
+			
+			<span class="float-right">
+                <span class="float-left font11 medium_dark_gray bold_fon" style="margin-right:2px;">
+                    <%=number_with_delimiter(figure.hates)%>
+                </span>
+				<span class="hate_icon_small">
+                </span>
+			</span>
+			
+			<%
+				if false
+			%>
+	            <a href="#" class="float-left" onclick="submit_love(this,'<%=FigureLove::TYPE_LOVE%>',<%=figure.id%>);return false;">
+	                <span class="love_icon_small">
+	                </span>
+	                <span class="font11 huneysuckle_pink bold_font" style="margin-left:2px;">
+	                    <%=word_for :love_button%>
+	                </span>
+	            </a>
+	            <a href="#" class="float-right margin-left-1" onclick="submit_love(this,'<%=FigureLove::TYPE_HATE%>',<%=figure.id%>);return false;">
+	                <span class="hate_icon_small">
+	                </span>
+					<span class="font11 medium_dark_gray bold_font" style="margin-left:2px;">
+	                    <%=word_for :hate_button%>
+	                </span>
+	            </a>
+			<%
+				end
+			%>
+        <%
+            end
+        %>
+	</span>	
+</span>

@@ -1,0 +1,63 @@
+
+<span class="span-68 margin-top-2" id="add_forbidden_word_unit">
+    <span style="float:left;" >
+        <input id="forbidden_word" type="text" class="span-30" class="mergin-top-2"/>
+    </span>
+    <span style="float:left;" class="margin-left-1">
+        <button id="add_button" class="gray_button" onclick="submit_word(this);">
+			<%= word_for :add%>
+		</button>
+    </span>
+</span>
+<script language="javascript">
+	UNIQUE_WORD_ID = 0;
+	function submit_word(sender)
+	{
+		try {
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_forbidden_word/add',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"word": $('#forbidden_word').val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+							$('#new_word').before('<span id="new_word_'+UNIQUE_WORD_ID+'" style="display:none;">'+data.word_view+'</span>');
+							
+							$('#new_word_'+UNIQUE_WORD_ID).fadeIn();
+							
+							$('#forbidden_word').val('');
+							UNIQUE_WORD_ID++;
+						}
+						else {
+							$(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('forbidden_word', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('forbidden_word',e);
+			alert(e);
+		}
+	}
+</script>

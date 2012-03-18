@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="padding: 0px 0px 0px 0px; margin:0px 0px 0px 0px;">
+	<head>
+		<link rel="P3Pv1" href="/w3c/p3p.xml">
+		<meta http-equiv="P3P" policyref="/w3c/p3p.xml"  content='CP="<%=COMPACT_POLICY%>"'>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <%= yield(:facebook_meta_tag) or "" %>
+		<META NAME="Description" CONTENT="Get the best quality and best price Facebook friends posters and calendars with FriendMage! Free shipping. Get yours today.">
+		<title>FriendMage: Get Facebook Friends Posters & Calendars!</title>
+		<%=stylesheet_link_tag("reset.css")%>
+
+		<%=stylesheet_link_tag("jquery.autocomplete.css")%>
+		
+		<%=stylesheet_link_tag("friendmage.css")%>
+		<%=stylesheet_link_tag("button.css")%>
+
+		<%= javascript_include_tag "jquery-1.5.min.js"%>
+		<%= javascript_include_tag "jquery.escape.js"%>
+		<%= javascript_include_tag "jquery.relative_offset.1.0.js"%>
+       
+		<%= javascript_include_tag "jquery.autocomplete.js"%>
+		<%= javascript_include_tag "jquery.loading_button.js"%>
+        <%= javascript_include_tag "jquery.urldecoder.js"%>
+		<%= javascript_include_tag "jquery.json.js"%>
+		
+		<%=stylesheet_link_tag("jquery.ui.core.css")%>
+		<%=stylesheet_link_tag("jquery.ui.theme.css")%>
+		<%=stylesheet_link_tag("jquery.ui.datepicker.css")%>
+		<%= javascript_include_tag "jquery.ui.core.js"%>
+		<%= javascript_include_tag "jquery.ui.datepicker.js"%>
+      
+        <%= javascript_include_tag "form_validator_helper.js"%>
+		
+		<%=stylesheet_link_tag("/whowish_box/jquery.whowish_box.css")%>
+		<%= javascript_include_tag "/whowish_box/jquery.whowish_box.js"%>
+
+		<%=stylesheet_link_tag("/default_text/jquery.default_text.css")%>
+		<%= javascript_include_tag "/default_text/jquery.default_text.js" %>
+
+		<%=stylesheet_link_tag("/ruby_box/jquery.ruby_box.css")%>
+		<%= javascript_include_tag "/ruby_box/jquery.ruby_box.js" %>
+
+		<%= javascript_include_tag "/whowish_foundation_asset/swfupload/ajaxupload.js" %>
+		<link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico"/>
+		<link rel="icon" type="image/png" href="/images/favicon.png" />
+		<link rel="icon" type="image/gif" href="/images/favicon.png" />
+       
+	</head>
+	<body style="padding: 0px 0px 0px 0px; margin:0px 0px 0px 0px;">
+
+        <div class="global_container">
+		<span class="navigator clearfix">
+			<a href="#" class="friendmage_logo">
+			</a>
+			<span class="float-right">
+				<ul class="float-left medium_dark_gray font12 line_height26px">
+					<li>
+						<a class="<%=(params[:controller] == 'home')?'selected':'tab'%>" href="/home">
+							<span>
+                                <%=word_for :home%>
+							</span>
+                        </a>
+					</li>
+					<li>
+						<a class="<%=(params[:controller] == 'my_order')?'selected':'tab'%>" href="/my_order">
+							<span>
+                                <%=word_for :my_order%>
+							</span>
+                        </a>
+					</li>
+					<li>
+						<a class="<%=(params[:controller] == 'help')?'selected':'tab'%>" href="/help">
+							<span>
+                                <%=word_for :help%>
+							</span>
+                        </a>
+					</li>
+					<li>
+						  <%
+                            if $member.is_guest
+                        %>
+                            <a id="facebook_login_button" href="<%=generate_permission_url(['user_photos','friends_photos','read_friendlists','manage_friendlists','user_birthday','friends_birthday'],'http://'+DOMAIN_NAME+request.path)%>" style="margin-top:3px;cursor:pointer;display:block;">
+                                <img src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_medium_short.gif"  alt="Login with Facebook"/>
+                            </a>
+                            <span class="ballon" id="must_login_balloon" style="display:none;margin-left:-350px;margin-top:5px;">
+                                <span class="ballon_arrow" style="margin-left:400px;">
+                                </span>
+                                <span class="ballon_content">
+                                    Please Login First
+                                </span>
+                            </span>
+                        <%
+                            else
+                        %>
+	                        <span class="facebook_id_pic_nav float-left" style="background-image:url(<%=$facebook.profile_picture_url%>);">
+	                            <img src="<%=$facebook.profile_picture_url%>" width="40" height="40"/>
+	                        </span>
+	                        <span class="float-left height-4 margin-left-5px">
+	                            <span class="height-2 display_block" style="white-space:nowrap;overflow:hidden;">
+	                                <a href="/my_order" class="font14 bold_font squeks_blue"><%=$facebook.name%></a>
+	                            </span>
+	                            <span class="height-2 font10 bold_font" style="line-height:20px;">
+	                                <a href="/logout?redirect_url=<%=CGI.escape("http://"+DOMAIN_NAME+request.path)%>" class="medium_dark_gray" onclick="">
+	                                  <img src="http://static.ak.fbcdn.net/images/fbconnect/logout-buttons/logout_small.gif" alt="Logout"/>
+	                                </a>
+	                            </span>
+	                        </span>
+                        <%
+                            end
+                        %>
+					</li>
+					
+				</ul>
+			</span>
+		</span>
+		<span class="content_container clearfix">
+			 <%=yield%>
+		</span>
+		<span class="footer clearfix">
+			<span class="float-left font10 bold_font friendmage_red">
+            	&copy; friendmage 2011.
+				<span class="medium_gray">
+					powered by 
+               		<a href="http://www.whowish.com">
+               			<span class="whowish_green">who</span><span class="dark_blue">wish</span>
+               		</a>
+				</span>
+            </span>
+			<span class="float-right font11 bold_font medium_gray">
+				<a href="/home" class="friendmage_red"><%=word_for :home%></a> |
+				<a href="/help" class="friendmage_red"><%=word_for :help%></a> | 
+				<!--<a href="#" class="friendmage_red"><%=word_for :jobs%></a> | 
+				<a href="#" class="friendmage_red"><%=word_for :abouts%></a>|-->
+				<a href="/misc/terms" class="friendmage_red"><%=word_for :term_of_use%></a> |
+                <a href="/misc/privacy" class="friendmage_red"><%=word_for :privacy%></a> |
+				<%
+					q_without_locale = []
+					params.each { |k,v|
+						next if ['locale','controller','action'].include?(k.to_s)
+		
+						k ||= ""
+						v ||= ""
+						
+						q_without_locale.push("#{CGI.escape(k.to_s)}=#{CGI.escape(v)}")
+					}
+					q_without_locale = q_without_locale.join('&')
+				%>
+				<a href="<%=request.path%>?<%=q_without_locale%>&whowish_locale=en">English</a> |
+				<a href="<%=request.path%>?<%=q_without_locale%>&whowish_locale=th">Thai</a>
+				<% 
+					if $facebook.is_aesir
+				%>
+				 | <a href="/admin" class="orange">Valhalla</a>
+				<%
+					end
+				%>
+			</span>
+		</span>
+	</div>
+    </body>
+</html>
+<script language="javascript">
+	function change_whowish_word(self,word_id,word_arg,event)
+	{
+		if (!event) event = window.event;
+		event.cancelBubble = true;
+		if (event.stopPropagation) event.stopPropagation();
+		
+		$(self).loading_button(true,{word:""});
+
+		var content = ""
+		$.ajax({
+			type: "POST",
+			url: '/whowish_word/get_word',
+			cache: false,
+			async: false,
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"word_id": word_id
+			},
+			success: function(data){
+				content = data.content;
+			}
+		});
+
+		$(self).loading_button(false);
+		var new_word = prompt("Please set "+word_id+":",content);
+
+		if (new_word == null) return
+		
+		$(self).loading_button(true,{word:""});
+
+		$.ajax({
+				type: "POST",
+				url: '/whowish_word/change_word',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"word_id":word_id,
+					"content":new_word
+				},
+				success: function(data){
+					$(self).loading_button(false);
+					try {
+						if (data.ok == true) {
+
+							for (var i in word_arg)
+							{
+								re = new RegExp("\{"+i+"\}","g")
+								new_word = new_word.replace(re, word_arg[i])
+							}
+
+							var the_container = $(self).parent().children('*:first')[0];
+
+							try {$(the_container).val(new_word);} catch (e) {}
+							try {$(the_container).html(new_word);} catch (e) {}
+
+						}
+						else {
+							alert(data.error_message);
+						}
+
+					}
+					catch (e) {
+						alert(e);
+					}
+
+				},
+				error: function(req, status, e){
+					$(self).loading_button(false);
+                    if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+	}
+
+</script>
+

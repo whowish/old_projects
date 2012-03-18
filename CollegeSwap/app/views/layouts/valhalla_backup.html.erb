@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<title>College Swap</title>
+	<%=stylesheet_link_tag("reset.css")%>
+	<%=stylesheet_link_tag("swap.css")%>
+	<%=stylesheet_link_tag("whowish_box.css")%>
+	<%=stylesheet_link_tag("jquery.autocomplete.css")%>
+	<%= javascript_include_tag "jquery-1.4.2.min.js"%>
+	<%= javascript_include_tag "jquery.relative_offset.1.0.js"%>
+	<%= javascript_include_tag "jquery.autocomplete.js"%>
+	<%= javascript_include_tag "jquery.error_log.js"%>
+	<%= javascript_include_tag "jquery.ruby_alert.js" %>
+	<%= javascript_include_tag "jquery.loading_button.js"%>
+	<%= javascript_include_tag "jquery.json.js"%>
+	<%= javascript_include_tag "jquery.whowish_box.js"%>
+	<%= javascript_include_tag "basic.js"%>
+	<%= javascript_include_tag "form_validator_helper.js"%>
+	
+	<%=stylesheet_link_tag("/default_text/jquery.default_text.css")%>
+	<%= javascript_include_tag "/default_text/jquery.default_text.js" %>
+	
+	<%=stylesheet_link_tag("/ruby_box/jquery.ruby_box.css")%>
+	<%= javascript_include_tag "/ruby_box/jquery.ruby_box.js" %>
+
+	<script src="http://static.ak.fbcdn.net/connect/en_US/core.debug.js"></script>
+	<link rel="icon" type="image/vnd.microsoft.icon" href="/images/favicon.ico"/>
+	<link rel="icon" type="image/png" href="/images/favicon.png" />
+	<link rel="icon" type="image/gif" href="/images/favicon.png" />
+</head>
+<body>
+<!-- =============================================================================================
+==== NAVIGATOR START HERE  ======================================================================
+=================================================================================================-->
+<%
+	connection = ActiveRecord::Base.connection
+	num_alert = connection.execute("SELECT COUNT(1) FROM requests WHERE responder_facebook_id='"+$facebook.facebook_id+"' AND status = '"+Request::STATUS_PENDING+"'").fetch_row()[0].to_i
+	num_alert += connection.execute("SELECT COUNT(1) FROM requests WHERE requestor_facebook_id='"+$facebook.facebook_id+"' AND (status = '"+Request::STATUS_ACCEPTED+"' OR status = '"+Request::STATUS_REJECTED+"')").fetch_row()[0].to_i
+%>
+<div id="user-nav">
+	<span class="span-72 margin-left-2">
+		<span class="csLogo">
+		</span>
+		<span class=" float-left medium_gray_bg bold_font fontsize12 white height24" style="margin-top:14px;">
+			<ul class="margin-left-1 margin-right-1">
+				<li><a href="/">Home</a></li>
+				<li class="fontsize14">&middot;</li>
+				<li>
+					<a href="/inbox" style="position:relative;">
+						Inbox
+						<span class="notification_count"><%=num_alert%></span>
+					</a>
+				</li>
+			</ul>
+		</span>
+		<span class=" float-left whowish_green_bg bold_font fontsize12 white height24 margin-top-1" style="margin-top:14px;">
+			<span class="margin-left-1 margin-right-1">
+				<a href="#" class="white" onclick="$.whowish_box({title:'Add Wish',url:'/item?item_type=WISH'});return false;">Add Wish</a>
+			</span>
+		</span>
+		<span class=" float-left dark_blue_bg bold_font fontsize12 white height24 margin-top-1" style="margin-top:14px;">
+			<span class="margin-left-1 margin-right-1">
+				<a href="#" class="white" onclick="$.whowish_box({title:'Add Stuff/Service',url:'/item?item_type=JUNK'});return false;">Add Stuff/Service</a>
+			</span>
+		</span>
+		<% if $facebook.is_aesir%>
+			<span class=" float-left bold_font fontsize12 white height24 margin-top-1" style="margin-top:14px;background-color:#DB4242;">
+				<span class="margin-left-1 margin-right-1">
+					<a href="/admin" class="white">Valhalla</a>
+				</span>
+			</span>
+		<%end%>
+		<span class="csNameLogo">
+		</span>
+	</span>
+</div>
+<!-- =============================================================================================
+==== SEARCH START HERE  ======================================================================
+=================================================================================================-->
+<div id="search-tool" class="span-76">
+	<span class="span-2 left-search_corner height-5">
+	</span>
+	<span class="span-72">
+		<%=render :partial=>"home/search_bar"%>
+		
+<!-- =============================================================================================
+==== CONTETN START HERE  ======================================================================
+=================================================================================================-->
+		<span class="span-72 margin-bottom-2 global-container">
+<!-- =============================================================================================
+==== USER START HERE  ======================================================================
+=================================================================================================-->
+			<span class="span-16">
+				<span class="span-16 margin-top-1 margin-bottom-1">
+					<span class="span-5 facebook_pic2 margin-left-1" style="background-image:url(http://graph.facebook.com/<%=$facebook.user_id%>/picture?type=square);">
+					</span>
+					<span class="span-8 margin-left-1" style="overflow:hidden;">
+						<a href="http://apps.facebook.com/<%=FACEBOOK_APP_NAME%>/myswappage?user_id=<%=$facebook.facebook_id%>"  target="_new_profile_<%=$facebook.facebook_id%>"><%=$facebook.name%></a>
+					</span>	
+				</span>	
+				
+				<span class="span-16 margin-bottom-2">	
+					<span class="span-16 dark_blue_bg height01">
+					</span>
+					<span class="span-16 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+						<span class="span-13 margin-left-1">
+							Your college
+						</span>
+						<a href="#" class="edit_icon float-right" onclick="$.whowish_box({title:'Change College',url:'/college'});return false;">
+						</a>
+					</span>
+					<span class="span-14 margin-left-1 margin-bottom-1">
+						<span class="span-14 fontsize11 medium_dark_gray normal_font">
+							<%
+							college = College.first(:conditions=>{:id=>$facebook.college_id})
+							%>
+							<%=college.name%>
+						</span>
+					</span>
+				</span>
+			
+				<span class="span-16 margin-bottom-2">	
+					<span class="span-16 dark_blue_bg height01">
+					</span>
+					<span class="span-16 light_blue_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+						<span class="span-13 margin-left-1">
+							Menu
+						</span>
+					</span>
+					<span class="my_unit_thumbnail">
+						<ul>
+							<li><a href="/college_admin">Colleges</a></li>
+							<li><a href="/flag_admin">Flags</a></li>
+						</ul>
+					</span>
+				</span>
+			</span>
+			
+<!-- =============================================================================================
+==== LEFT CONTENT START HERE  ======================================================================
+=================================================================================================-->
+			<span class="full_column_span" id="main_content">
+				<%=yield%>
+			</span>
+		</span>
+	</span>
+	<span class="span-2 right-search_corner height-5">
+	</span>
+</div>
+<div id="fb-root"></div>
+</body>
+</html>
+
+<script language="javascript">
+	 FB.init({
+	    appId  : '<%=APP_ID%>',
+	    status : true, // check login status
+	    cookie : true, // enable cookies to allow the server to access the session
+	    xfbml  : false  // parse XFBML
+	  });
+	
+	FB.Canvas.setAutoResize(100);
+
+	$(function() {
+		$("#search_college_name").autocomplete('/college/list',{
+			width:250,
+			parse : function(data) {
+				//data = $.parseJSON(data);
+				
+				var parsed = [];
+				var rows = data.result;
+				for (var i=0; i < rows.length; i++) {
+					var row = $.trim(rows[i]);
+					if (row) {
+						parsed[parsed.length] = {
+							data: [row],
+							value: row,
+							result: row
+						};
+					}
+				}
+				return parsed;
+			},
+			matchContains: true
+		});
+	})
+</script>
+
+

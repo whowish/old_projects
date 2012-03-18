@@ -1,0 +1,68 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50 margin-top-1" id="take_container">
+				<span class="span-46 margin-left-1 fontsize14 bold_font white dark_blue_bg height20" style="padding-left: 8px;padding-right: 8px;">
+					<%=word_for :what_you_have_to_swap%>
+				</span>
+				<span class="swap_selected_box_take light_blue_bg span-46 margin-left-1">
+					<span class="span-46">
+						<span class="span-45 margin-swap_unit">
+							
+							<span class="facebook_pic margin-swap_pic" onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=@requestor_item.id%>'}); return false;" style="background-image:url(<%=@requestor_item.get_thumbnail_item_image()%>);">
+							</span>
+							<span class="span-38 margin-left-1">
+								<span class="span-38 ">
+									<span class="span-38 fontsize12 bold_font" style="white-space:normal;overflow:hidden;">
+										<a href="#" class="dark_blue" onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=@requestor_item.id%>'}); return false;">
+											<%=wrap_word('I have ' + @requestor_item.title ,70)%>
+										</a>
+									</span>
+									<span class="span-38 fontsize11 normal_font  medium_gray" style="white-space:normal;overflow:hidden;">
+										<%=trim_description(@requestor_item.id,@requestor_item.description,70,210,3)%>
+									</span>
+								</span>
+							</span>
+						</span>
+					</span>
+				</span>
+				<span class="span-50 fontsize14 bold_font white whowish_green_bg height20  margin-top-2">
+					<span class=" margin-left-1">
+						<%=word_for :please_select_what_you_want,:name=>@responder.get_badge('#FFFFFF')%>
+					</span>
+				</span>
+				<%if @responder_junk_list.length == 0%>
+
+					<%=render :partial=>"no_take" ,:locals=>{:responder=>@responder,:item=>@requestor_item}%>
+				<%else%>
+				<span class="span-50" style="height:252px;overflow:hidden;">
+					<span class="span-50" style="height:270px; overflow:scroll;">
+						<span class="span-24"  style="border-right: 1px solid #CCCCCC;">
+							<%(0..((@responder_junk_list.length / 2).to_i-1)).each do |i|%>
+								<%=render :partial=>"home/item",:locals=>{:entity=>@responder_junk_list[i],:mode=>MODE_TAKE,:before_item_id=>@requestor_item.id}%>
+							<%end%>
+									
+						</span>
+						<span class="span-24"  style="margin-left: -1px;border-left: 1px solid #CCCCCC;">
+							<%((@responder_junk_list.length / 2).to_i..@responder_junk_list.length - 1).each do |i|%>
+								<%=render :partial=>"home/item",:locals=>{:entity=>@responder_junk_list[i],:mode=>MODE_TAKE,:before_item_id=>@requestor_item.id}%>
+							<%end%>
+						</span>
+						
+					</span>
+				</span>
+				<%end%>
+				<span class="span-50">
+					<span class="span-50 height24 orange_bg">
+						<span class="span-48 margin-left-1 bold_font fontsize12 white">
+							<%=word_for :sell_option%>
+						</span>
+					</span>
+					<span class="span-48 fontsize11 normal_font medium_gray margin-bottom-1 margin-left-1" style="margin-top:4px;">
+						<%=word_for :if_you_cannot_find_anything%>
+					</span>
+					<a href="#" class="orange_button margin-bottom-1 margin-left-1"onclick="$.whowish_box({title: 'Sell Request',url:'/swap/sell_form?requestor_item_id=<%=@requestor_item.id%>',background_color:'#efc228'}); return false;">
+						<%=word_for :sell_your_item%>
+					</a>
+				</span>
+			</span>

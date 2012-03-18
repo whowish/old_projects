@@ -1,0 +1,19 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Untitled Document</title>
+		<script type="text/javascript" src="jquery-1.4.2.min.js"></script>
+		<script type="text/javascript" src="jquery.ruby_box.js"></script>
+		<link type="text/css" rel="stylesheet" href="jquery.ruby_box.css" />
+	</head>
+	<body>
+		<input type="text" id="test_textbox"><input type="text" id="test_textbox_1"><br/>
+		<input type="text" id="test_textbox_2">
+	</body>
+</html>
+<script language="javascript">
+	$('#test_textbox').ruby_box(true,'This is an alert');
+	$('#test_textbox_1').ruby_box(true,'This is another alert');
+	$('#test_textbox_2').ruby_box(true,['These are multiple alerts','These are multiple alerts','These are multiple alerts']);
+</script>

@@ -1,0 +1,16 @@
+# Auto-generated template
+request1_1:
+  id: 1
+  facebook_id: 100002085428291
+  figure_id: 1
+  value: 100
+  status: <%=BidRequest::STATUS_SUCCESSFUL%>
+  created_date: <%= DateTime.now %>
+
+request2_1:
+  id: 2
+  facebook_id: 100002085428291
+  figure_id: 2
+  value: 150
+  status: <%=BidRequest::STATUS_SUCCESSFUL%>
+  created_date: <%= DateTime.now %>

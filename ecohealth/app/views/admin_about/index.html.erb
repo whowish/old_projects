@@ -1,0 +1,77 @@
+<%
+	about_us = About.first()
+	if !about_us
+      about_us = About.new()
+    end
+%>
+
+<script language="javascript">
+	
+	function submit_description()
+	{
+		try {
+			$('#submit_button').loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_about/save',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"desc": $('#about_description').val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$('#submit_button').loading_button(false);
+							$('#save_message').html('save successfully!');
+						}
+						else {
+							$('#submit_button').loading_button(false);
+                            $('#submit_button').ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$('#submit_button').loading_button(false);
+						$.error_log('about_us', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#submit_button').loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#submit_button').loading_button(false);
+			$.error_log('about_us',e);
+			alert(e);
+		}
+	}
+</script>
+
+<%=stylesheet_link_tag("admin_activity.css")%>
+<%= javascript_include_tag "/ckeditor/ckeditor.js"%>
+
+<span class="span-79">
+	<span class="span-61">
+		<span class="span-60 font16 bold_font"><%= word_for :about_us%></span>
+		<span class="span-60 margin-top-1">
+			<%= word_for :desc%>
+		</span>
+		<span class="span-65 margin-top-1">
+			<textarea id="about_description" class="span-65" style="height:400px;"  name="<%=rand()%>"><%=CGI.escapeHTML(about_us.description)%></textarea>
+		</span>
+		<span class="span-60 margin-top-1">
+			<span style="float:left;">
+            	<a href="#" class="green_button" id="submit_button" onclick="submit_description();return false;"><%= word_for :save%></a>
+        	</span>
+		</span>
+		<span  id="save_message" style="line-height:35px;">
+			
+		</span>
+	</span>
+</span>

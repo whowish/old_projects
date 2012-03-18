@@ -1,0 +1,272 @@
+<%
+	confirm_transfer = ConfirmTransfer.new()
+	order = Order.first(:conditions=>{:key=>params[:order_key]})
+	app = App.first(:conditions=>{:app_id=>order.app_id})
+%>
+<span class="span-98 clearfix" id="confirm_transfer_container">
+    <script language="javascript">
+
+		if ($('#facebook_login_button').length > 0)
+            $('#facebook_login_button')[0].href = "https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://#{DOMAIN_NAME}/order")%>";
+		
+		$(function() {
+			$("#transfer_date").datepicker({
+				changeMonth: true,
+				changeYear: true,
+				dateFormat: 'dd M yy',
+				maxDate: 0
+		});
+	});
+
+
+	confirm_form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("confirm_form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"transfer_price" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					if ($.trim(s)=="")return null;
+					return get_money_errors(s);
+				});
+			},
+			"hour" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					if (!($.trim(s).match(/^[0-9]{2}$/)))
+					{
+						return "Hour must be between 0 and 23";
+					}
+					else
+					{
+						if (s >= "24") {
+							return "Hour must be between 0 and 23";
+						}
+					}
+				});
+			},
+			"min" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					if (!($.trim(s).match(/^[0-9]{2}$/)))
+					{
+						return "Minutes must be between 0 and 59";
+					}
+					else
+					{
+						if (s >= "60") {
+							return "Minutes must be between 0 and 59";
+						}
+					}
+				});
+			},
+			"transfer_date" : function (input_obj) {
+				return validate_input_obj(input_obj,function (s) {
+					if ($.trim(s)=="")return null;
+					if (!($.trim(s).match(/^[0-9]{2} [A-Za-z]{3} [0-9]{4}$/)))
+					{
+						return "Must be date with format DD MMM YYYY";
+					}
+					else
+					{
+						split_day = s.split(' ');
+						month = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"];
+						is_match = false;
+						for(i=0;i<month.length;i++)
+						{
+							if (split_day[1].toLowerCase() == month[i])
+							{
+								is_match = true;
+								break;
+							}
+							
+						}
+						if (is_match) {
+							selected_date = new Date(split_day[2], i, split_day[0], 00, 00, 00, 0);
+							
+							var currentTime = new Date();
+							if (selected_date > currentTime) {
+								return "selected date is invalid";
+							}
+							else {
+								return null;
+							}
+						}
+						else
+						{
+							return "selected date is invalid";
+						}
+					}
+				});
+			},
+			"transfer_to_bank" : function (input_obj) {
+				return validate_input_obj(input_obj,function(s) {
+					if (s == "0") {
+						return "You must select bank.";
+					}
+					else
+					{
+						return null;
+					}
+				});
+			}
+		}
+	}
+		
+        function submit_confirm()
+        {
+			if (!confirm_form_validator.validate_form()) return;
+            try {
+                $('#confirm_submit_button').loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/order/customer_confirm_transfer',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        order_key:"<%=params[:order_key]%>",
+						bank_id:$('#transfer_to_bank').val(),
+						member_tel:$('#member_tel').val(),
+						transfer_from_branch:$('#transfer_from_branch').val(),
+						transfer_price:$('#transfer_price').val(),
+						transfer_date:$('#transfer_date').val(),
+						hour:$('#hour').val(),
+						min:$('#min').val()
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+                                try
+                                {
+									top.location.href = data.url;
+
+                                } catch(e) {
+                                    
+                                }
+                            }
+                            else {
+                                $('#confirm_submit_button').loading_button(false);
+                                $('#confirm_submit_button').ruby_box(true,data.error_message);
+                            }
+							
+                        }
+                        catch (e) {
+                            $('#confirm_submit_button').loading_button(false);
+                            $.error_log('submit_confirm', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#confirm_submit_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#confirm_submit_button').loading_button(false);
+                $.error_log('submit_confirm',e);
+                alert(e);
+            }
+        }
+    </script>
+	<%=render :partial=>"/order/instruction",:locals=>{:number=>4,:app_name=>app.name}%>
+	<span class="span-60 margin-left-1 clearfix">
+		<span class="span-60">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%= word_for :confirm_order%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			
+			<span class="span-60 margin-top-1 margin-left-9 font12 medium_dark_gray clearfix">
+				<span class="span-60 font12 dark_gray bold_font">
+					<span class="span-10 height26">
+						<%= word_for :bank%>
+					</span>
+					<span class="span-50 height26">
+						<select id="transfer_to_bank" class="span-40">
+							<%
+								Bank.all().each do |bank|
+							%>
+									<option value="<%=bank.id%>" <%='selected' if bank.id == confirm_transfer.transfer_to_bank_id%>><%=bank.bank_name%> สาขา  <%=bank.bank_branch%></option>
+							<%
+								end
+							%>
+	            		</select>
+					</span>
+				</span>
+				<span class="span-60 font12 dark_gray bold_font">
+					<span class="span-10 height26">
+						 <%= word_for :transfer_from_branch%>
+					</span>
+					<span class="span-50 height26">
+						<input id="transfer_from_branch" type="text" class="input_type span-40" value="<%=confirm_transfer.transfer_from_branch%>" />
+					</span>
+				</span>
+				<span class="span-60 margin-top-1 font12 dark_gray bold_font">
+					<span class="span-10 height26">
+						 <%= word_for :transfer_price%>
+					</span>
+					<span class="span-50 height26">
+						 <span class="span-20">
+						 	<input id="transfer_price" type="text" class="input_type span-20" onkeyup="confirm_form_validator.validate(this);"/>
+						 </span>
+						 <span class="span-10 margin-left-1">
+							<%= word_for :price_currency%>
+						 </span>
+						 
+					</span>
+				</span>
+				<span class="span-60 margin-top-1 font12 dark_gray bold_font">
+					<span class="span-10 height26">
+						<%= word_for :transfer_date%>
+					</span>
+					<span class="span-50 height26">
+						<input id="transfer_date" type="text" class="input_type span-11" value="<%=DateTime.now.strftime('%d %b %Y')%>" onkeyup="confirm_form_validator.validate(this);"/>
+					</span>
+				</span>
+				<span class="span-60 font12 dark_gray bold_font">
+					<span class="span-10 height26">
+						<%= word_for :transfer_time%>
+					</span>
+					<span class="span-50 height26">
+						<input id="hour" type="text" class="input_type span-5" value="<%=DateTime.now.strftime('%H')%>" onkeyup="confirm_form_validator.validate(this);"/>
+						<input id="min" type="text" class="input_type span-5 margin-left-1" value="<%=DateTime.now.strftime('%M')%>" onkeyup="confirm_form_validator.validate(this);"/>
+					</span>
+				</span>
+				<span class="span-60 font12 dark_gray bold_font">
+					<span class="span-10 height26">
+						<%= word_for :member_tel%>
+					</span>
+					<span class="span-50 height26">
+						<input id="member_tel" type="text" class="input_type span-11" value="<%=confirm_transfer.member_tel%>" />
+					</span>
+				</span>
+				<span class="span-60 margin-top-2 margin-bottom-2 font12 dark_gray bold_font">
+					<a href="#" class="gray_button30px" id="confirm_submit_button" onclick="submit_confirm();return false;">
+	                    <%= word_for :add_button%>
+	                </a>
+				</span>
+				<div style="height:0px;clear:left;">&nbsp;</div>
+			</span>
+		</span>
+	</span>
+</span>	

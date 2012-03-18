@@ -1,0 +1,124 @@
+have_library: checking for socket() in -lsocket... -------------------- no
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lsocket  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: #include <ws2tcpip.h>
+2: #include <winsock2.h>
+3: #include <windows.h>
+4: 
+5: /*top*/
+6: int main() { return 0; }
+7: int t() { void ((*volatile p)()); p = (void ((*)()))socket; return 0; }
+/* end */
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lsocket  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { socket(); return 0; }
+/* end */
+
+--------------------
+
+have_library: checking for gethostbyname() in -lnsl... -------------------- no
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lnsl  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: #include <ws2tcpip.h>
+2: #include <winsock2.h>
+3: #include <windows.h>
+4: 
+5: /*top*/
+6: int main() { return 0; }
+7: int t() { void ((*volatile p)()); p = (void ((*)()))gethostbyname; return 0; }
+/* end */
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lnsl  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { gethostbyname(); return 0; }
+/* end */
+
+--------------------
+
+have_library: checking for atan() in -lm... -------------------- yes
+
+--------------------
+
+have_library: checking for inflate() in -lz... -------------------- no
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lz  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: #include <ws2tcpip.h>
+2: #include <winsock2.h>
+3: #include <windows.h>
+4: 
+5: /*top*/
+6: int main() { return 0; }
+7: int t() { void ((*volatile p)()); p = (void ((*)()))inflate; return 0; }
+/* end */
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lz  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { inflate(); return 0; }
+/* end */
+
+--------------------
+
+have_library: checking for inflate() in -lzlib... -------------------- no
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lzlib  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: #include <ws2tcpip.h>
+2: #include <winsock2.h>
+3: #include <windows.h>
+4: 
+5: /*top*/
+6: int main() { return 0; }
+7: int t() { void ((*volatile p)()); p = (void ((*)()))inflate; return 0; }
+/* end */
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lzlib  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { inflate(); return 0; }
+/* end */
+
+--------------------
+
+have_library: checking for inflate() in -lzlib1... -------------------- no
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lzlib1  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: #include <ws2tcpip.h>
+2: #include <winsock2.h>
+3: #include <windows.h>
+4: 
+5: /*top*/
+6: int main() { return 0; }
+7: int t() { void ((*volatile p)()); p = (void ((*)()))inflate; return 0; }
+/* end */
+
+"gcc -o conftest -I. -IC:/Ruby187/lib/ruby/1.8/i386-mingw32 -IC:/Users/admin/My Documents/Aptana RadRails Workspace/CollegeSwap/vendor/plugins/libxml/ext/libxml    -g -O2 -DFD_SETSIZE=256    conftest.c  -L. -LC:/Ruby187/lib -LC:/Ruby187/lib -L.      -lmsvcrt-ruby18-static -lzlib1  -lshell32 -lws2_32  "
+checked program was:
+/* begin */
+1: /*top*/
+2: int main() { return 0; }
+3: int t() { inflate(); return 0; }
+/* end */
+
+--------------------
+

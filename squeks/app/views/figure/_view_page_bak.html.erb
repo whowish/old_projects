@@ -1,0 +1,205 @@
+<span class="span-98" id="page_<%=figure.id%>" style="display:inline-block;float:none;vertical-align:top;">
+    <!-- =========== LEFT Column =========================================-->
+    <span class="span-68 clearfix" style="white-space:normal;">
+        <span class="spot_figure">
+            <span class="span-68 white_bg">
+                <span class="span-66 margin-top-1 margin-bottom-1 margin-left-1">
+                    <span class="span-66 height-3">
+                        <a href="#" class="love_button" onclick="submit_love(this,'<%=FigureLove::TYPE_LOVE%>',<%=figure.id%>);return false;">
+                            <span class="love_icon_big">
+                            </span>
+                            <span class="float-left font18 bold_font white">
+                                <%=word_for :love_button%>
+                            </span>
+                        </a>
+                        <span class="span-50 height-3">
+                            <!--======   METER  =================================================-->
+                            <span class="span-50 height-1">
+                                <%
+                                  love_width, hate_width = calculate_love_hate_width(figure.loves,figure.hates,496)
+                                %>
+                                <!--==== (width(500) - pinkMargin(4) = 496px =================================================-->
+                                <span class="pink-meter" style="width:<%=love_width%>px;">
+                                </span>
+                                <span class="gray-meter" style="width:<%=hate_width%>px;">
+                                </span>
+                            </span>
+                            <span class="span-24 float-left margin-left-5px height20 font12 bold_font medium_dark_gray">
+                                <%=render :partial=>"figure/figure_love_stat",:locals=>{:figure=>figure}%>
+                            </span>
+                            <span class="span-25 float-right margin-right-5px height20 font12 bold_font medium_dark_gray" style="text-align:right;">
+                                <%=render :partial=>"figure/figure_hate_stat",:locals=>{:figure=>figure}%>
+                            </span>
+                        </span>
+                        <a href="#" class="hate_button" onclick="submit_love(this,'<%=FigureLove::TYPE_HATE%>',<%=figure.id%>);return false;">
+                            <span class="hate_icon_big">
+                            </span>
+                            <span class="float-left font18 bold_font white">
+                                <%=word_for :hate_button%>
+                            </span>
+                        </a>
+                    </span>
+                    <span class="span-66 height-1 margin-top-5px">
+                       <span class="span-33 float-left">
+                            <%=render :partial=>"figure/figure_my_love",:locals=>{:figure=>figure}%>
+                       </span>
+                       <span class="span-33 float-right" style="text-align:right;">
+                            <%=render :partial=>"figure/figure_my_hate",:locals=>{:figure=>figure}%>
+                       </span>
+                    </span>
+                    <span class="span-66 margin-top-1">
+                        <img src="../images/figure/tiffany.jpg" />
+                    </span>
+                    <span class="span-66 height26">
+                        <span class="span-66 height26 huneysuckle_pink_bg" style="overflow:hidden;">
+							<div id="show_title">
+	                            <span href="#" class="font16 white bold_font margin-left-1" style="white-space:nowrap;">
+									<span id="span_figure_title">
+	                                	<%=figure.title%>
+									</span>
+	                            	<a href="#" class="edit_icon"  title="edit" id="item_edit" onclick="show_edit('title');return false;"></a>
+	                       		 </span>
+						    </div>
+							<div id="edit_title" style="display:none;">
+								<span>
+        							<input id="figure_title" type="text" class="input_type margin-top-5px" value="<%=figure.title%>" />
+								</span>
+								<span>
+            						<a href="#" class="comment_button" id="edit_title_button" onclick="edit_figure(this,'title');return false;"><%= word_for :edit_title%></a>
+									<a href="#" class="comment_button" id="cancel_edit_title_button" onclick="cancel_edit('title');return false;"><%= word_for :cancel_edit_title%></a>
+        						</span>
+	                        </div>
+						</span>
+                    </span>
+                    <span class="span-66 margin-top-1 font11 normal_font medium_gray">
+                        <span class="span-60">
+                        	<div id="show_description">
+	                            <span>
+									<span id="span_figure_description">
+	                                	<%=figure.description%>
+									</span>
+	                            	<a href="#" class="edit_icon"  title="edit" id="item_edit_description" onclick="show_edit('description');return false;"></a>
+	                       		 </span>
+						    </div>
+							<div id="edit_description" style="display:none;">
+								<span>
+        							<input id="figure_description" type="text" class="input_type margin-top-5px" value="<%=figure.description%>" />
+								</span>
+								<span>
+            						<a href="#" class="comment_button" id="edit_description_button" onclick="edit_figure(this,'description');return false;"><%= word_for :edit_description%></a>
+									<a href="#" class="comment_button" id="cancel_edit_description_button" onclick="cancel_edit('description');return false;"><%= word_for :cancel_edit_description%></a>
+        						</span>
+	                        </div>
+                        </span>
+                        <span class="span-4 margin-left-2">
+                            <a href="#" class="stat_icon"></a>
+                            <a href="#" class="flag_icon"></a>
+                        </span>
+                    </span>
+                    <span class="span-66 margin-top-1">
+                        <a href="#" class="font12 facebook_blue"><%=word_for :show_more_button%></a>
+                    </span>
+                </span>
+            </span>
+            <span class="left_shadow">
+            </span>
+            <span class="right_shadow">
+            </span>
+        </span>
+    <!-- =========== SPOT FIGURE END HERE =========================================-->
+    <!-- =========== COMMENT HERE =========================================-->
+        <%= render :partial=>"comment/comment_panel", :locals=>{:figure=>figure}%>
+    <!-- =========== COMMENT END HERE =========================================-->
+    </span>
+    <!-- =========== LEFT END HERE =========================================-->
+    <!-- =========== RIGHT Column =========================================-->
+    <span class="span-28 margin-left-2 clearfix">
+        <span class="span-28">
+            <%=render :partial=>"figure/suggested_figure_sidebar", :locals=>{:excluded_ids=>[figure.id]}%>
+            <%=render :partial=>"home/tips_side_bar"%>
+        </span>
+    </span>
+    <!-- =========== RIGHT END HERE =========================================-->
+    <script language="javascript">
+        function show_edit(column_name) {
+            $('#show_'+column_name).hide();
+            $('#edit_'+column_name).fadeIn();
+        }
+        function cancel_edit(column_name) {
+            $('#edit_'+column_name).hide();
+            $('#show_'+column_name).fadeIn();
+        }
+
+        function edit_figure(sender,column_name)
+        {
+            try {
+
+                $(sender).loading_button(true);
+                data = {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        "figure_id":"<%=figure.id%>",
+                        "images": "",
+                        "tags": ""
+                    }
+                if (column_name == 'title')
+                {
+                    data['title'] = $('#figure_title').val();
+                    data['description'] = "<%=figure.description%>";
+                }
+                if (column_name == 'description')
+                {
+                    data['title'] = "<%=figure.title%>";
+                    data['description'] = $('#figure_description').val();
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '/figure/edit',
+                    cache: false,
+                    data: data,
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+                                    $(sender).loading_button(false);
+                                    $('#edit_'+column_name).hide();
+                                    $('#show_'+column_name).fadeIn();
+                                    $('#span_figure_title').html(data.figure.figure.title);
+                                    $('#span_figure_description').html(data.figure.figure.description);
+                            }
+                            else {
+                                $(sender).loading_button(false);
+                                for (var i in data.error_message) {
+                                    try {
+                                        $('#figure_' + i).ruby_box(true,data.error_message[i]);
+                                    }
+                                    catch (e) {
+
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (e) {
+                            $(sender).loading_button(false);
+                            $.error_log('submit_figure', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $(sender).loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $(sender).loading_button(false);
+                $.error_log('submit_figure',e);
+                alert(e);
+            }
+        }
+    </script>
+</span>
+
+

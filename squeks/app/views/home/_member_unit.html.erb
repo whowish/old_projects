@@ -1,0 +1,11 @@
+<span class="thumbnail-unit">
+	<a href="/profile?user_id=<%=member.facebook_id%>"  class="picture margin-top-2" style="overflow:hidden;" title="<%=member.name%>">
+		<img src="<%=member.profile_picture_url('large')%>" width="160"/>
+	</a>
+    <a href="/profile?user_id=<%=member.facebook_id%>" class="span-14 margin-top-5px font11 squeks_blue" style="overflow:hidden;white-space:nowrap;">
+		<%=member.name%> 
+	</a>
+	<span class="span-14 huneysuckle_pink bold_font">
+		$<%=number_with_delimiter(member.credits)%>
+	</span>
+</span>

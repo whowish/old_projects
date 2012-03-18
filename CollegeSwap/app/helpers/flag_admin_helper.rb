@@ -1,0 +1,2 @@
+module FlagAdminHelper
+end

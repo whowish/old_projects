@@ -1,0 +1,157 @@
+<%
+	order = Order.first(:conditions=>{:key=>params[:order_key]})
+	member = Member.first(:conditions=>{:facebook_id=>$facebook.facebook_id})
+	app = App.first(:conditions=>{:app_id=>order.app_id})
+%>
+<span class="span-98 clearfix" id="add_page_container" style="white-space:normal;display:inline-block;float:none;vertical-align:top;">
+    <script language="javascript">
+
+		if ($('#facebook_login_button').length > 0)
+            $('#facebook_login_button')[0].href = "https://www.facebook.com/dialog/oauth?client_id=<%=APP_ID%>&redirect_uri=<%=CGI.escape("http://#{DOMAIN_NAME}/order")%>";
+		
+        function submit_order()
+        {
+            try {
+                $('#order_submit_button').loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/order/save_address',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+						order_key:"<%=params[:order_key]%>",
+						recipient_name:$('#order_recipient_name').val(),
+						address_identifier:$('#order_address_identifier').val(),
+						address_street:$('#order_address_street').val(),
+						address_subdistrict:$('#order_address_subdistrict').val(),
+						address_district:$('#order_address_district').val(),
+						address_province:$('#order_address_province').val(),
+						address_postal_code:$('#order_address_postal_code').val()
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+								if (data.redirect_url != undefined) {
+                                    top.location.href = data.redirect_url;
+                                    return;
+                                }
+                                try
+                                {
+                                    top.location.href = data.url;
+
+                                } catch(e) {
+                                    
+                                }
+                            }
+                            else {
+                                $('#order_submit_button').loading_button(false);
+                                $('#order_submit_button').ruby_box(true,data.error_message);
+                            }
+
+                        }
+                        catch (e) {
+                            $('#order_submit_button').loading_button(false);
+                            $.error_log('submit_order', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#order_submit_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#order_submit_button').loading_button(false);
+                $.error_log('submit_order',e);
+                alert(e);
+            }
+        }
+    </script>
+	<%=render :partial=>"/order/instruction",:locals=>{:number=>3,:app_name=>app.name}%>
+	<span class="span-60 margin-left-10 clearfix">
+		<span class="span-60">
+			<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+				<%= word_for :order_detail, :name=>$facebook.name%>
+			</span>
+			<span class="span-60 height01 medium_gray_bg margin-top-1">
+			</span>
+			<span class="span-60 margin-top-1 font12 bold_font dark_gray clearfix">
+				<%=word_for :connected_as, :name=>$facebook.name,:app_name=>app.name%>
+			</span>
+			<span class="span-60 margin-top-1">
+				<span class="float-left padding_horizontal_8px height20 friendmage_red_bg font14 bold_font white">
+					<%=order.price.to_i%> <%= word_for :currency%> 
+				</span>
+			</span>
+			<span class="span-60 font18 bold_font medium_dark_gray margin-top-4">
+				<%= word_for :address%><br>
+				<span class="span-60">
+					<span class="font12 bold_font clearfix margin-top-5px">
+                    	<%= word_for :recipient_name%>
+                	</span>
+                	<span class="span-48">
+                    	<input type="text" class="input_type span-30 margin-top-2px" id="order_recipient_name" value="<%=member.recipient_name%>">
+                	</span>
+				</span>
+				<span class="span-15">
+					<span class="font12 bold_font clearfix margin-top-5px">
+                    	<%= word_for :address_identifier%>
+                	</span>
+                	<span class="span-15">
+                    	<input type="text" class="input_type span-15 margin-top-2px" id="order_address_identifier" value="<%=member.address_identifier%>">
+                	</span>
+				</span>
+				<span class="span-15 margin-left-5px">
+					<span class="font12 bold_font clearfix margin-top-5px">
+                    	<%= word_for :address_street%>
+                	</span>
+                	<span class="span-15">
+                    	<input type="text" class="input_type span-15 margin-top-2px" id="order_address_street" value="<%=member.address_street%>">
+                	</span>
+				</span>
+				<span class="span-15 margin-left-5px">
+					<span class="font12 bold_font clearfix margin-top-5px">
+                    	<%= word_for :address_subdistrict%>
+                	</span>
+                	<span class="span-15">
+                    	<input type="text" class="input_type span-15 margin-top-2px" id="order_address_subdistrict" value="<%=member.address_subdistrict%>">
+                	</span>
+				</span>
+				<span class="span-15">
+					<span class="font12 bold_font clearfix margin-top-5px">
+                    	<%= word_for :address_district%>
+                	</span>
+                	<span class="span-15">
+                    	<input type="text" class="input_type span-15 margin-top-2px" id="order_address_district" value="<%=member.address_district%>">
+                	</span>
+				</span>
+				<span class="span-15 margin-left-5px">
+					<span class="font12 bold_font clearfix margin-top-5px">
+                    	<%= word_for :address_province%>
+                	</span>
+                	<span class="span-15">
+                    	<input type="text" class="input_type span-15 margin-top-2px" id="order_address_province" value="<%=member.address_province%>">
+                	</span>
+				</span>
+				<span class="span-15 margin-left-5px">
+					<span class="font12 bold_font clearfix margin-top-5px">
+                    	<%= word_for :address_postal_code%>
+                	</span>
+                	<span class="span-15">
+                    	<input type="text" class="input_type span-15 margin-top-2px" id="order_address_postal_code" value="<%=member.address_postal_code%>">
+                	</span>
+				</span>
+			</span>
+		</span>
+		<span class="span-60 margin-top-2 margin-bottom-2">
+			 <a href="#" class="gray_button30px" id="order_submit_button" onclick="submit_order();return false;">
+                  <%= word_for :next%>
+             </a>
+		</span>
+		<div style="height:0px;clear:left;">&nbsp;</div>
+	</span>
+</span>

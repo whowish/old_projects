@@ -1,0 +1,342 @@
+<%
+	event = Event.new(:mode=>Event::MODE_TIME)
+	available_dates = []
+	selected_friends = []
+	is_new = true
+	action = "add"
+
+	if params[:id]
+		is_new = false
+		action = "edit"
+		event = Event.first(:conditions=>{:id=>params[:id]})
+		available_dates = EventAvailableDate.all(:conditions=>{:facebook_id=>$facebook.facebook_id,:event_id=>event.id})
+		selected_friends = EventFriend.all(:conditions=>{:event_id=>event.id})
+	end
+
+	friends_data = FacebookFriendRecord.all(:conditions=>{:facebook_id=>$facebook.facebook_id},:order=>"rand()",:limit=>100)
+%>
+<%=stylesheet_link_tag("/calendar/calendar.css")%>
+<%= javascript_include_tag "/calendar/jquery.calendar.js"%>
+<%= javascript_include_tag "/calendar/jquery.time_selector.js"%>
+<%=stylesheet_link_tag("/facebook-multi-friend-selector/jquery.facebook.multifriend.select.css")%>
+<%=javascript_include_tag("/facebook-multi-friend-selector/jquery.facebook.multifriend.select.js")%>
+<script language="javascript">
+	var mode = "<%=event.mode%>";
+	
+	function change_mode(new_mode) {
+		mode = new_mode;
+		
+		update_mode();
+	}
+	
+	function update_mode() {
+		if (mode == "<%=Event::MODE_TIME%>")
+		{
+			$('#day_mode_panel').hide();
+			$('#time_mode_panel').show();
+			$('#time_mode_button').addClass('hilight');
+			$('#day_mode_button').removeClass('hilight');
+		}
+		else if (mode == "<%=Event::MODE_DAY%>")
+		{
+			$('#day_mode_panel').show();
+			$('#time_mode_panel').hide();
+			$('#time_mode_button').removeClass('hilight');
+			$('#day_mode_button').addClass('hilight');
+		}
+	}
+	
+	event_form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("event_form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"event_title" : function (input_obj) {
+				return validate_input_obj(input_obj,get_string_errors);
+			}
+		
+		}
+	}
+
+	function submit_event()
+	{
+		if (!event_form_validator.validate_form()) {
+			$('.event_submit_button').ruby_box(true,'Please fill in the title.');
+			return;
+		}
+		
+		try {
+			
+			
+			var selected_time = [];
+			
+			if (mode == "<%=Event::MODE_TIME%>") {
+				selected_time = $('#timeline').time_selector_get_selected_time($('#calendar')[0]);
+			}
+			else if (mode == "<%=Event::MODE_DAY%>") {
+				selected_time = $('#calendar_day').day_selector_get_selected_date();
+			}
+			
+		
+			var friends = $("#jfmfs-container").data('jfmfs').getSelectedIdsAndNames();     
+			//var friends = [{id:"632818246",name:"Tanin Na Nakorn"}]
+			
+			if (selected_time.length == 0)
+			{
+				$('.event_submit_button').ruby_box(true,'Please specify at least one available time slot');
+				return;
+			}
+			
+			if (friends.length == 0)
+			{
+				$('.event_submit_button').ruby_box(true,'Please select at least one friend');
+				return;
+			}
+			
+			for (var i=0;i<friends.length;i++)
+			{
+				friends[i] = friends[i].id + ":" + friends[i].name;
+			}
+			
+			$('.event_submit_button').loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/event/<%=action%>',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request:"<%=params[:signed_request]%>",
+					"title": $('#event_title').val(),
+					"location": $('#event_location').val(),
+					"event_id":"<%=params[:id] if params[:id]%>",
+					"location_url": $('#event_location_url').val(),
+					"category_id": $('#event_category_id').val(),
+					"description": $('#event_description').val(),
+					"friends": friends.join(','),
+					"available_dates": selected_time.join(','),
+					"mode":mode,
+					"images": "",//get_swfupload_uploaded_files().join(','),
+					"share_on_facebook":(($('#notify_friend_checkbox_0')[0].checked == true)?"yes":"no")
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							location.href = "/event/view?event_id="+ data.event_id;
+						}
+						else {
+							$('.event_submit_button').loading_button(false);
+							for (var i in data.error_message) {
+								try {
+									$('#event_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}	
+						}
+						
+					} 
+					catch (e) {
+						$('.event_submit_button').loading_button(false);
+						$.error_log('submit_event', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('.event_submit_button').loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('.event_submit_button').loading_button(false);
+			$.error_log('submit_event',e);
+			alert(e);
+		}
+	}		
+
+	$(function () {
+		$('#calendar').day_selector({
+										time_selector_panel:$("#timeline")[0],
+										selected_date:[<%=available_dates.map { |d| '"'+d.available_date.strftime("%Y-%m-%d")+'"' }.join(',')%>]
+									});
+		$('#timeline').time_selector({
+			selected_time:[<%=available_dates.map { |d| '"'+d.available_date.strftime("%Y-%m-%d-%H")+'"' }.join(',')%>],
+			calendar_panel:$('#calendar')[0]
+		});
+		
+		$('#calendar_day').day_selector({
+										selected_date:[<%=available_dates.map { |d| '"'+d.available_date.strftime("%Y-%m-%d")+'"' }.join(',')%>]
+									});
+		
+		$("#jfmfs-container").jfmfs({
+		  	pre_selected_friends: [<%=selected_friends.map { |d| "{id:'"+d.facebook_id+"',name:\""+d.name.gsub('"','\\"')+"\"}" }.join(',')%>],
+			data:[<%=friends_data.map{|d| '{id:"'+d.friend_id+'",name:"'+d.name.gsub('"','\\"')+'"}'}.join(',')%>]
+		});
+		
+		$('#event_title').default_text("<%=word_for :title_default_text%>")
+ 		$('#event_location').default_text("<%=word_for :location_default_text%>")
+		$('#event_location_url').default_text("<%=word_for :location_url_default_text%>")
+		$('#event_description').default_text("<%=word_for :description_default_text%>")
+	})
+	
+</script>
+<span class="span-74 margin-top-1 clearfix">
+	<span class="span-74 font35 yellow_2meet4 bold_font clearfix">
+    	<% if is_new %>
+			<%=word_for :create_event_page_name%>		
+		<% else %>
+			<%=word_for :edit_event_page_name%>	
+		<% end %>
+	</span>
+    <span class="span-74 margin-top-1 clearfix">
+    	<span class="span-74 height24 blueToBlack_bg clearfix">
+        	<span class="margin-left-4px font12 bold_font white height24">
+            	<%= word_for :title_tab%><a name="title_block"></a>
+            </span>
+        </span>
+        <span class="span-74 height-3 margin-top-4px light_blue_bg clearfix">
+        	<span class="span-6 font12 medium_dark_gray bold_font align_center" style="margin-top:8px;">
+            	<%= word_for :title%>
+            </span>
+            <span class="span-68 clearfix" style="margin-top:2px;">
+				<input id="event_title" type="text" class="dark_gray span-67 input_type" value="<%=event.title%>" onkeyup="event_form_validator.validate(this);" />
+            </span>
+        </span>
+		<span class="span-74 height-3 medium_gray_bg margin-top-4px clearfix">
+			<span class="span-6 font12 dark_gray bold_font align_center" style="margin-top:8px;">
+            	<%= word_for :type%>
+            </span>
+			<span class="span-15 clearfix">
+				<select id="event_category_id" class="height-2 margin-top-5px span-14">
+					<%
+						Category.all().each do |category|
+					%>
+							<option value="<%=category.id%>" <%='selected' if event.category_id == category.id%>><%=category.name%></option>
+					<%
+						end
+					%>
+            	</select>
+			</span>
+		</span>
+    </span>
+    <span class="span-74 margin-top-1 clearfix">
+    	<span class="span-74 height24 blueToBlack_bg clearfix">
+        	<span class="margin-left-4px font12 bold_font white height24">
+            	<%= word_for :select_date_tab%><a name="available_date_block"></a>
+            </span>
+        </span>
+		<span class="span-74 margin-top-4px  clearfix">
+			<a href="#" class="create_mode <%='hilight' if event.mode == Event::MODE_TIME%>" id="time_mode_button" onclick="change_mode('<%=Event::MODE_TIME%>');return false;">Time Mode</a>
+			<a href="#" class="create_mode margin-left-1 <%='hilight' if event.mode == Event::MODE_DAY%>" id="day_mode_button" onclick="change_mode('<%=Event::MODE_DAY%>');return false;">Day Mode</a>
+			
+		</span>  
+        <span class="span-74 margin-top-4px margin-left day_and_time_pick clearfix" style="<%='display:none;' if event.mode != Event::MODE_TIME%>" id="time_mode_panel">
+			<span class="span-35 clearfix" style="margin-left:7px;">
+            	<span id="calendar"></span>
+				<a href="#" onclick="$('#calendar').day_selector_reset();return false;" class="gray_button margin-left-1 margin-top-1">
+					<%=word_for :reset_button%>
+				</a>
+			</span>
+            <span class="span-37 clearfix" style="margin-left:10px; margin-top:10px;">
+				<span id="timeline" class="timeline">
+				</span>						
+			</span>
+		</span>
+		<span class="span-74 margin-top-4px margin-left day_and_time_daymode_pick clearfix" style="<%='display:none;' if event.mode != Event::MODE_DAY%>" id="day_mode_panel">
+			<span class="span-35 clearfix" style="margin-left:192px;">
+            	<span id="calendar_day"></span>
+				<a href="#" onclick="$('#calendar_day').day_selector_reset();return false;" class="gray_button margin-left-1 margin-top-1">
+					<%=word_for :reset_button%>
+				</a>
+			</span>
+		</span>
+    </span>
+    <span class="span-74 margin-top-1 clearfix">
+    	<span class="span-74 height24 blueToBlack_bg clearfix">
+        	<span class="margin-left-4px font12 bold_font white height24">
+            	<%= word_for :invite_friend_tab%><a name="invite_friend_block"></a>
+            </span>
+        </span>
+
+        <span class="span-74 margin-top-4px white_bg clearfix" style="height:360px">
+        	<span  id="jfmfs-container"></span>
+        </span>
+		<span class="span-73 margin-left-1 margin-top-1">
+			<input id="notify_friend_checkbox_0" checked type="checkbox" onclick="$('#notify_friend_checkbox_1')[0].checked = this.checked;"> <%= word_for :notify_friend%>
+		</span>
+		<a href="javascript:submit_event();" id="event_submit_button_0" class="facebook_button margin-top-1 event_submit_button">
+				<% if is_new %>
+					<%= word_for :add_button%>
+				<% else %>
+					<%= word_for :edit_button%>
+				<% end %>
+			</a>	
+		</a>
+    </span>
+	<span class="span-74 margin-top-1 clearfix">
+    	<span class="span-74 height24 blueToBlack_bg clearfix">
+        	<span class="margin-left-4px font12 bold_font white height24">
+            	<%= word_for :description_tab%><a name="map_and_detail_block"></a>
+            </span>
+        </span>
+		<span class="span-72 margin-left-1 margin-top-1">
+			<span class="span-15 font14 bold_font white">
+				<%= word_for :description%>
+			</span>  
+			<span class="span-57">	
+				<textarea id="event_description" class="input_type_area span-55"><%=event.description%></textarea>
+			</span>
+		</span>
+		<span class="span-72 margin-left-1 margin-top-1">
+			<span class="span-15 font14 bold_font white">
+				<%= word_for :location%>
+			</span>  
+			<span class="span-57">
+				<span class="span-57">
+					<input id="event_location" type="text" class="span-55 input_type" value="<%=event.location%>" />
+                </span>
+				
+			</span>
+		</span>
+		<span class="span-72 margin-left-1 margin-top-1">
+			<span class="span-15 font14 bold_font white">
+				<%= word_for :location_url%>
+			</span>  
+			<span class="span-57">
+				<span class="span-57">
+					<input id="event_location_url" type="text" class="span-55 input_type" value="<%=event.location_url%>" />
+                </span>
+				<span class="span-55 margin-top-1">
+					<input id="notify_friend_checkbox_1" checked type="checkbox" onclick="$('#notify_friend_checkbox_0')[0].checked = this.checked;"> <%= word_for :notify_friend%>
+				</span>
+				<a href="javascript:submit_event();" id="event_submit_button_1" class="facebook_button margin-top-1 event_submit_button">
+					<% if is_new %>
+						<%= word_for :add_button%>
+					<% else %>
+						<%= word_for :edit_button%>
+					<% end %>
+				</a>
+			</span>
+		</span>
+	</span>
+</span>

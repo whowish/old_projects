@@ -1,0 +1,151 @@
+<%
+	type ||= "ACTION"
+	view_path ||= ""
+%>
+<%= javascript_include_tag "/foundation/flot/jquery.flot.js"%>
+<%=stylesheet_link_tag("/foundation/date_picker/jquery.ui.core.css")%>
+<%=stylesheet_link_tag("/foundation/date_picker/jquery.ui.theme.css")%>
+<%=stylesheet_link_tag("/foundation/date_picker/jquery.ui.datepicker.css")%>
+<%= javascript_include_tag "/foundation/date_picker/jquery.ui.core.js"%>
+<%= javascript_include_tag "/foundation/date_picker/jquery.ui.datepicker.js"%>
+<span style="display:block;margin-top:20px;">
+	<span style="display:block;font-size:30px;font-weight:bold;">
+		Activity by hour
+	</span>
+	<span style="height:30px;display:block;">
+		<input class="dark_gray span-15 postbox_input margin-left-1" style="margin-top:2px;"  id="view_date" type="text" value="<%=date.strftime('%d %b %Y')%>" onchange="location.href='?date='+$(this).val()+'&type=<%=type%>&view_path=<%=view_path%>'"/>
+		<input type="button" <%="disabled" if type=="ACTION"%> value="ACTION" onclick="location.href='?date=<%=date.strftime('%d %b %Y')%>&type=ACTION&view_path='">
+		<input type="button" <%="disabled" if type=="VIEW"%> value="VIEW" onclick="location.href='?date=<%=date.strftime('%d %b %Y')%>&type=VIEW&view_path='">
+		<input type="button" <%="disabled" if type=="UPDATE"%> value="UPDATE" onclick="location.href='?date=<%=date.strftime('%d %b %Y')%>&type=UPDATE&view_path='">
+		<select onchange="location.href='?date=<%=date.strftime('%d %b %Y')%>&type=<%=type%>&view_path='+$(this).val()">
+			<option value="">All</option>
+			<%
+				WebMetricsActivity.all(:conditions=>{:action_type=>type}).each do |activity|
+					v = "#{activity.controller},#{activity.action}"
+			%>
+				<option value="<%=v%>" <%="selected" if view_path == v%>>/<%=activity.controller%>/<%=activity.action%></option>
+			<%
+				end
+			%>
+		</select>
+	</span>
+	<span id="graph" style="height:400px;width:900px;display:block;margin-top:20px;">
+		
+	</span>
+</span>
+<script language="javascript">
+	$(function() {
+			$("#view_date").datepicker({
+				changeMonth: true,
+				changeYear: true,
+				dateFormat: 'dd M yy',
+				maxDate: 0
+		});
+	});
+	
+<%
+	@activity_hash = {}
+	WebMetricsActivity.all().each { |activity|
+		@activity_hash["/#{activity.controller}/#{activity.action}"] = activity.action_type
+	}
+	
+	data = []
+	(0..24).each { |i|
+		data.push({:index=>i,:guest_count=>0,:member_count=>0,:guest_activity_count=>0,:member_activity_count=>0})
+	}
+	
+	conds = {:date=>date.strftime("%Y-%m-%d")}
+	
+	if view_path != ""
+		c,a = view_path.split(",")
+		conds[:controller] = c
+		conds[:action] = a
+	end
+	
+	WebTraceActivityHour.all(:conditions=>conds,:order=>"hour ASC").each { |e|
+
+		if @activity_hash["/#{e.controller}/#{e.action}"] == type
+			data[e.hour][:guest_count] = data[e.hour][:guest_count] + e.guest_count
+			data[e.hour][:member_count] = data[e.hour][:member_count] + e.member_count
+			data[e.hour][:guest_activity_count] = data[e.hour][:guest_activity_count] + e.guest_activity_count
+			data[e.hour][:member_activity_count] = data[e.hour][:member_activity_count] + e.member_activity_count
+		end
+	}
+	
+	conds = {:date=>(date+86400).strftime("%Y-%m-%d"),:hour=>0}
+	
+	if view_path != ""
+		c,a = view_path.split(",")
+		conds[:controller] = c
+		conds[:action] = a
+	end
+
+	WebTraceActivityHour.all(:conditions=>conds).each { |e|
+		if @activity_hash["/#{e.controller}/#{e.action}"] == type
+			data[24][:guest_count] = data[24][:guest_count] + e.guest_count
+			data[24][:member_count] = data[24][:member_count] + e.member_count
+			data[24][:guest_activity_count] = data[24][:guest_activity_count] + e.guest_activity_count
+			data[24][:member_activity_count] = data[24][:member_activity_count] + e.member_activity_count
+		end
+	}
+%>	
+$.plot($("#graph"), [
+	{
+		label: "&nbsp; Guest Activity Count",
+		data: [
+			<%=data.map { |d| "[#{d[:index]},#{d[:guest_activity_count]}]"}.join(",")%>
+		],
+		lines: { show: true },
+		points: { show: true }
+	},
+	{
+		label: "&nbsp; Guest Count",
+		data: [
+			<%=data.map { |d| "[#{d[:index]},#{d[:guest_count]}]"}.join(",")%>
+		],
+		lines: { show: true },
+		points: { show: true }
+	},
+	{
+		label: "&nbsp; Member Activity Count",
+		data: [
+			<%=data.map { |d| "[#{d[:index]},#{d[:member_activity_count]}]"}.join(",")%>
+		],
+		lines: { show: true },
+		points: { show: true }
+	},
+	{
+		label: "&nbsp; Member Count",
+		data: [
+			<%=data.map { |d| "[#{d[:index]},#{d[:member_count]}]"}.join(",")%>
+		],
+		lines: { show: true },
+		points: { show: true }
+	}
+	],{
+		xaxis: {
+			min: 0,
+			max: 24,
+			show: true,
+			ticks:24,
+			tickFormatter: function (n,axis){
+				if (n == axis.max)
+					return "Time"
+				else
+					return n+":00"
+			}
+		},
+		yaxes: {
+			show: true,
+			position:"left",
+			minTickSize:1,
+			tickDecimals:0,
+			tickFormatter: function (n,axis){
+				if (n == axis.max)
+					return "Numbers"
+				else
+					return n
+			}
+		}
+	})
+</script>

@@ -1,0 +1,11 @@
+<span class="span-99 margin-top-1">
+	<%=render :partial=>"admin_statistics/menu"%>
+	<%
+		date = Time.utc(Time.now.utc.year,Time.now.utc.month,Time.now.utc.mday)
+		date = Time.parse(params[:date]) if params[:date] 
+
+		params[:type] ||= "ACTION"
+		params[:view_path] ||= ""
+	%>
+	<%=render :partial=>"web_metrics/activity_hour",:locals=>{:date=>date,:type=>params[:type],:controller=>params[:view_controller],:view_path=>params[:view_path]}%>
+</span>

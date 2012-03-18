@@ -1,0 +1,16 @@
+<%
+	about = About.first()
+%>
+<span class="span-100 clearfix">
+    <span class="span-92 clearfix margin-left-4 margin-bottom-2">
+         <span class="underBox">
+            <span class="contentBox">
+                <span class="span-92 clearfix">
+                    <%if about%>
+						<%=about.description%>
+					<%end%>
+                </span>
+            </span>
+        </span>
+    </span>
+</span>

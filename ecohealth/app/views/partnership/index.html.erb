@@ -1,0 +1,59 @@
+<span class="span-100 clearfix">
+    <span class="span-92 clearfix margin-left-4 margin-bottom-2">
+		<span class="underBox">
+            <span class="contentBox">
+            	<span class="span-90 margin-left-1 margin-top-1 margin-bottom-1">
+            		<%
+						Partner.all(:order=>"ordered_number ASC").each do |entity|
+					%>
+	            		<span class="span-90 margin-top-1 clearfix">
+							<span class="span-40 margin-top-1 clearfix">
+								<a href="<%=entity.url%>" target="_blank">
+									<img src="/uploads/<%=entity.original_image_path%>" />
+								</a>
+							</span>
+							<span class="span-48 margin-top-1 margin-left-1 clearfix">
+			 					<h1><%=entity.name%></h1>
+							</span>
+							<span class="span-89 height01 light_gray_bg margin-top-2">
+							</span>
+						</span>
+					<%
+						end
+					%>
+				</span>
+	            	<!--
+					<%
+						if false
+					%>
+						<span class="span-92 margin-bottom-1">
+							<span class="span-90 margin-top-1 eco_green margin-left-1 font18 display_block">
+								<%=word_for :partner_topic%>
+							</span>
+							<%
+								Partner.all(:order=>"country ASC").each do |entity|
+							%>
+								<span class="span-90 margin-top-1 margin-left-1 font16 dark_gray bold_font">
+									<span class="span-15">
+										<%=entity.country%>
+									</span>
+									<span class="span-70 font14 medium_dark_gray">
+										<%=entity.description.gsub(/\n/, '<br/>').gsub(/\b([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4})\b/i, '<a href="mailto:\1">\1</a>')%>
+									</span>
+									<<span class="span-70 font14 medium_dark_gray">
+										<%=entity.description.gsub(/\n/, '<br/>').gsub(/\b([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4})\b/i, '<a href="mailto:\1">\1</a>')%>
+									</span>
+								</span>
+							<%
+								end
+							%>
+						</span>
+					<%
+						end
+					%>
+					-->
+				
+			</span>
+		</span>
+	</span>
+</span>

@@ -1,0 +1,88 @@
+<%= javascript_include_tag "/foundation/flot/jquery.flot.js"%>
+<%=stylesheet_link_tag("/foundation/date_picker/jquery.ui.core.css")%>
+<%=stylesheet_link_tag("/foundation/date_picker/jquery.ui.theme.css")%>
+<%=stylesheet_link_tag("/foundation/date_picker/jquery.ui.datepicker.css")%>
+<%= javascript_include_tag "/foundation/date_picker/jquery.ui.core.js"%>
+<%= javascript_include_tag "/foundation/date_picker/jquery.ui.datepicker.js"%>
+<span style="display:block;margin-top:20px;">
+	<span style="display:block;font-size:30px;font-weight:bold;">
+		Unique users by hour
+	</span>
+	<span style="height:30px;display:block;">
+		<input class="dark_gray span-15 postbox_input margin-left-1" style="margin-top:2px;"  id="view_date" type="text" value="<%=date.strftime('%d %b %Y')%>" onchange="location.href='?date='+$(this).val()"/>
+	</span>
+	<span id="graph" style="height:400px;width:900px;display:block;margin-top:20px;">
+		
+	</span>
+</span>
+<script language="javascript">
+	$(function() {
+			$("#view_date").datepicker({
+				changeMonth: true,
+				changeYear: true,
+				dateFormat: 'dd M yy',
+				maxDate: 0
+		});
+	});
+	
+<%
+	w = WebTraceUniqueUserHour.all(:conditions=>{:date=>date.strftime("%Y-%m-%d")},:order=>"hour ASC")
+	last_hour = WebTraceUniqueUserHour.first(:conditions=>{:date=>(date+86400).strftime("%Y-%m-%d"),:hour=>0})
+	
+	if last_hour
+		last_hour.hour = last_hour.hour + 24
+		w.push(last_hour)
+	end
+%>	
+$.plot($("#graph"), [
+	{
+		label: "&nbsp; Unique visitors",
+		data: [
+			<%=w.map { |d| "[#{d.hour},#{d.unique_user_count}]"}.join(",")%>
+		],
+		lines: { show: true },
+		points: { show: true }
+	},
+	{
+		label: "&nbsp; Unique members",
+		data: [
+			<%=w.map { |d| "[#{d.hour},#{d.unique_member_count}]"}.join(",")%>
+		],
+		lines: { show: true },
+		points: { show: true }
+	},
+	{
+		label: "&nbsp; Unique IP Addresses",
+		data: [
+			<%=w.map { |d| "[#{d.hour},#{d.unique_ip_count}]"}.join(",")%>
+		],
+		lines: { show: true },
+		points: { show: true }
+	}
+	],{
+		xaxis: {
+			min: 0,
+			max: 24,
+			show: true,
+			ticks:24,
+			tickFormatter: function (n,axis){
+				if (n == axis.max)
+					return "Time"
+				else
+					return n+":00"
+			}
+		},
+		yaxes: {
+			show: true,
+			position:"left",
+			minTickSize:1,
+			tickDecimals:0,
+			tickFormatter: function (n,axis){
+				if (n == axis.max)
+					return "Numbers"
+				else
+					return n
+			}
+		}
+	})
+</script>

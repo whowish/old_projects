@@ -1,0 +1,103 @@
+
+<%
+	word = WhowishWord.first(:conditions=>{:word_id => params[:word_id].strip})
+%>
+<span style="display:block;float:left;width:480px;height:480px;margin-left:10px;">
+	&nbsp;<br/>
+	<b>Word ID:</b> <%=params[:word_id]%><br/>
+	<b>Params:</b> <%=params[:word_arg]%><br/><br/>
+	<textarea id="whowish_word_content" style="width:480px;height:250px;" name="<%=rand()%>"><%=CGI.escapeHTML(word.content) if word%></textarea>
+	<input type="button" onclick="whowish_word_save();" value="Save" style="padding:10px;"/><br/>
+	<span id="whowish_word_loading_label" style="display:none;">Loading...</span><br/>
+</span>
+
+<script language="javascript">
+	
+	var whowish_word_saving = false;
+	function whowish_word_start_loading() {
+		$('#whowish_word_loading_label').show();
+		whowish_word_saving = true;
+	}
+	
+	function whowish_word_stop_loading() {
+		$('#whowish_word_loading_label').hide();
+		whowish_word_saving = false;
+	}
+	
+	
+	function whowish_word_save() {
+		
+		if (whowish_word_saving) return;
+		whowish_word_start_loading();
+		
+		var new_content = CKEDITOR.instances.whowish_word_content.getData();
+		
+		$.ajax({
+			type: "POST",
+			url: '/whowish_word/change_word',
+			cache: false,
+			data: {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"word_id":"<%=params[:word_id]%>",
+				"content":new_content
+			},
+			success: function(data){
+				try {
+					if (data.ok == true) {
+						
+						var class_name = "edit_<%=params[:word_id]%>".replace(/([ #;&,.+*~\':"!^$[\]()=>|\/@])/g,'\\$1')
+						var all_labels = $('.'+class_name);
+						
+						for (var i = 0; i < all_labels.length; i++) {
+						
+							var the_container = $(all_labels[i]).parent().children('*:first')[0];
+							
+							try {
+								$(the_container).val(new_content);
+							} 
+							catch (e) {
+							}
+							try {
+								$(the_container).html(new_content);
+							} 
+							catch (e) {
+							}
+						}
+						
+						$(document).trigger('close.whowish_box');
+					}
+					else {
+						alert(data.error_message);
+					}
+
+				}
+				catch (e) {
+					alert(e);
+				}
+				
+				whowish_word_stop_loading();
+
+			},
+			error: function(req, status, e){
+				whowish_word_stop_loading();
+                if (req.status == 0) return;
+				alert('Cannot connect to the server. Please try again later.');
+			}
+		});
+	}
+	
+
+	var instance = CKEDITOR.instances['whowish_word_content'];
+	if(instance)
+	{
+	    CKEDITOR.remove(instance);
+	}
+
+	
+	CKEDITOR.replace('whowish_word_content', {
+		toolbar: [['Source'], ['Undo', 'Redo'], ['Bold', 'Italic', 'Underline', 'Strike', '-', 'TextColor', '-', 'Subscript', 'Superscript', '-', 'Link', 'Unlink', '-', 'Maximize']],
+		height: "250",
+		enterMode: CKEDITOR.ENTER_BR
+	});
+	
+</script>

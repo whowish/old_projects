@@ -1,0 +1,50 @@
+<%
+	entity = Article[params[:id]]
+	
+%>
+<span class="span-100 clearfix">
+	<span class="span-92 clearfix margin-left-4">
+		<form class="searchform">
+			<input class="searchfield" type="text" value="Search...">
+			<input class="searchbutton" type="button" value="Go">
+		</form>
+	</span>
+    <span class="span-92 clearfix margin-left-4 margin-top-2">
+		<%= render :partial=>"/course/side_profile",:locals=>{:member_id=>entity.member_id}%>
+		<span class="span-71 white_bg margin-left-1">
+			
+			<span class="span-69 margin-left-1">
+				<span class="span-69 margin-top-1 font14 medium_dark_gray bold_font clearfix">
+					<%=entity.course.title%>
+				</span>
+				<span class="span-69 font18 dark_gray bold_font clearfix">
+					<%=entity.title%>
+					<%
+		               if $member.id == entity.member_id or $member.is_admin
+		            %>
+						<a href="/article?id=<%=entity.id%>" style="float:right;" title="Edit">
+					     Edit
+						 </a>
+					<%
+						end
+					%>
+				</span>
+				<span class="span-69 margin-top-5px height01 light_gray_bg display_block">
+				</span>
+			</span>
+			
+			<span class="span-71 margin-top-1 clearfix">
+				<span class="article_content">
+					<%=entity.content%>
+				</span>
+			</span>
+			<span class="span-71 shadow_line">
+			</span>
+			<%=render :partial=>"/article_comment/comment_panel",:locals=>{:entity=>entity}%>
+			<span class="span-71 height-1 display_block clearfix">
+			</span>
+		</span>
+		<span class="span-92 height-2 display_block">
+		</span>
+    </span>
+</span>

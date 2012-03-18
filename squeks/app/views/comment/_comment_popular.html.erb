@@ -1,0 +1,60 @@
+<%
+	agree_comments = Comment.all(:conditions=>["figure_id = :figure_id and parent_id = :parent_id and agrees > disagrees AND status=:status",{:figure_id=>figure.id,:parent_id=>0,:status=>Comment::STATUS_ACTIVE}],:order=>"agrees desc",:offset=>0,:limit=>20)
+
+	disagree_comments = Comment.all(:conditions=>["figure_id = :figure_id and parent_id = :parent_id and disagrees > agrees AND status=:status",{:figure_id=>figure.id,:parent_id=>0,:status=>Comment::STATUS_ACTIVE}],:order=>"disagrees desc",:offset=>0,:limit=>20)
+
+	return "" if (agree_comments.length + disagree_comments.length) == 0
+%>
+<span class="span-68 margin-top-1">
+	<span class="comment_unit span-68 margin-top-1">
+		<span class="commentator span-33 margin-left-1">
+			<span class="span-33 height26 font16 bold_font whowish_green">
+				<span class="margin-left-5px">
+					<%=word_for :top_agree_comment%>
+				</span>
+			</span>
+			<span class="span-32 margin-left-5px margin-bottom-5px height01 medium_gray_bg display_block">
+			</span>
+			<%
+				if agree_comments.length > 2
+					x = rand(agree_comments.length-2)
+					agree_comments_random = agree_comments[x..x+1]
+				else
+					agree_comments_random = agree_comments
+				end
+
+				agree_comments_random.each do |comment|
+			%>
+				<%=render :partial=>"comment/comment_popular_unit",:locals=>{:comment=>comment}%>
+			<%
+				end
+			%>
+		</span>
+		<span class="commentator span-33 margin-left-1">
+			<span class="span-33 height26 font16 bold_font medium_gray">
+				<span class="margin-left-5px">
+					<%=word_for :top_disagree_comment%>
+				</span>
+			</span>
+			<span class="span-32 margin-left-5px margin-bottom-5px height01 medium_gray_bg display_block">
+			</span>
+			<%
+				if disagree_comments.length > 2
+					x = rand(disagree_comments.length-2)
+					disagree_comments_random = disagree_comments[x..x+1]
+				else
+					disagree_comments_random = disagree_comments
+				end
+				disagree_comments_random.each do |comment|
+			%>
+				<%=render :partial=>"comment/comment_popular_unit",:locals=>{:comment=>comment}%>
+			<%
+				end
+			%>
+		</span>
+		<span class="left_shadow">
+		</span>
+		<span class="right_shadow">
+		</span>
+	</span>
+</span>

@@ -1,0 +1,2 @@
+module CommentPendingHelper
+end

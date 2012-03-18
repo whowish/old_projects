@@ -1,0 +1,115 @@
+<%
+	@shown_images = ResearchImage.all(:conditions=>{:research_id=>@shown_entity.id},:order=>"ordered_number ASC")
+%>
+<span class="span-71 picture_slide_show">
+	<%
+		if @shown_images.length > 0
+	%>
+		<span style="display:block;width:710px;">
+			<img id="big_image" src="<%=get_thumbnail_url(@shown_images[0].original_image_path, 710, 0)%>" />
+		</span>
+		<%
+			if @shown_images.length > 1
+		%>
+			<span class="span-71" style="height:120px;">
+				<span id="image_previous_button" class="next_button" onclick="previous_image();">
+				</span>
+				<span class="span-62 thumb margin-right-1 margin-top-5px margin-left-1">
+					<span id="image_thumb_panel" style="white-space:nowrap;display:block;float:left;width:<%=@shown_images.length*120%>px;">
+						<%
+							@shown_images.each do |entity|
+						%>
+							<span style="cursor:pointer;" onclick="show_image('<%=get_thumbnail_url(entity.original_image_path, 710, 0)%>');">
+								<img src="<%=get_thumbnail_url(entity.original_image_path, 110, 110)%>"  />
+							</span>
+						<%
+							end
+						%>
+					</span>
+				</span>
+				<span id="image_next_button" class="prev_button" onclick="next_image();">
+				</span>
+			</span>
+			<%
+				end
+			%>
+	<span class="span-71 cross_line">
+	</span>
+	<%
+		end
+	%>
+</span>
+<span class="span-71">
+	<span class="span-69 margin-top-2 margin-left-1 medium_dark_green font22 bold_font display_block">
+		<%=@shown_entity.topic%>
+	</span>
+	<span class="span-69 content_indent margin-top-2 margin-bottom-1 margin-left-1 medium_dark_gray font12 display_block">
+		<%=@shown_entity.description%>
+	</span>
+</span>
+
+<script language="javascript">
+	function show_image(path)
+	{
+		$('#big_image').fadeOut(function() {
+			//$.get("/thumbnail/710x363/uploads/" + path,function() {
+				$('#big_image')[0].src = "";
+				$('#big_image')[0].src = path;
+				$('#big_image').fadeIn();
+			//});
+		});
+	}
+	
+	var sliding = false;
+	function next_image()
+	{
+		if (sliding) return;
+		
+		$('#image_previous_button').css('visibility','hidden');
+		$('#image_next_button').css('visibility','hidden');
+		
+		sliding = true;
+		$('#image_thumb_panel').animate({
+			'margin-left':'-=600'
+		},1000,function(){
+			sliding = false;
+			update_previous_next_button();
+		});
+	}
+	
+	function previous_image()
+	{
+		if (sliding) return;
+		
+		$('#image_previous_button').css('visibility','hidden');
+		$('#image_next_button').css('visibility','hidden');
+		
+		sliding = true;
+		$('#image_thumb_panel').animate({
+			'margin-left':'+=600'
+		},1000,function() {
+			sliding = false;
+			update_previous_next_button();
+		});
+	}
+	
+	function update_previous_next_button()
+	{
+		var margin_left = $('#image_thumb_panel').css('margin-left');
+		margin_left = parseInt(margin_left.substring(0,margin_left.length-2));
+		
+		var width = parseInt($('#image_thumb_panel').width());
+		
+		if (margin_left >= 0) $('#image_previous_button').css('visibility','hidden');
+		else $('#image_previous_button').css('visibility','visible');
+		
+		if ((width+margin_left) < 600) $('#image_next_button').css('visibility','hidden');
+		else $('#image_next_button').css('visibility','visible');
+		
+	}
+	
+	$(function() {
+		update_previous_next_button();
+	});
+
+</script>

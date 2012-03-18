@@ -1,0 +1,16 @@
+<% if $facebook.email == nil%>
+	<span class="span-15 clearfix white_bg">
+		<span class="span-15 dark_blue_bg height01"></span>
+		<span class="span-15 light_blue_bg dark_gray fontsize12 bold_font height20">
+			<span class="span-13 margin-left-1">
+				<%= word_for :notification_topic%>
+			</span>
+		</span>
+		<span class="span-13 margin-top-1 margin-left-1 margin-bottom-1">
+			<a target="_top" href="<%=generate_permission_url([FacebookCache::SCOPE_EMAIL],'http://apps.facebook.com/'+FACEBOOK_APP_NAME+'/profile/get_email')%>" class="fontsize10 normal_font">
+				<%=word_for(:email_notify)%>
+			</a>
+		</span>
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+<%end%>

@@ -1,0 +1,68 @@
+<span id="item_unit_<%=entity.id%>" class="swap-unit span-26 margin-swap_unit">
+	<span class="span-26  margin-swap_line">
+		
+		<span class="facebook_pic margin-swap_pic" style="background-image:url(<%=entity.get_thumbnail_item_image()%>)" onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=entity.id%>',background_color:'#1963BD'}); return false;">
+		</span>
+		
+		<span class="span-18 margin-left-1">
+			<span class="span-18">
+				<span class="span-18 height20">
+					<span class="float-left fontsize12 bold_font">
+						<a href="http://apps.facebook.com/<%=FACEBOOK_APP_NAME%>/item/view?item_id=<%=entity.id%>" target="_new_<%=entity.id%>" class="medium_dark_blue"
+							onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=entity.id%>',background_color:'#1963BD'}); return false;">
+							<%=trim_title(entity.title,20,20)%>
+						</a>
+					</span>
+					<span class="function_icon float-right light_medium_gray_bg">
+						<% if $facebook.facebook_id == entity.facebook_id%>
+							<a href="#" class="x_icon" id="item_delete_button_<%=entity.id%>" onclick="del_take_item_<%=entity.id%>();"></a>
+						<%else%>
+							<a href="#" class="flag_icon" onclick="$.whowish_box({title: 'Flag',url:'/flag?item_id=<%=entity.id%>'}); return false;"></a>
+						<%end%>
+					</span>
+				</span>
+				<span class="span-18 fontsize11 normal_font  medium_gray margin-top-1">
+					<%=trim_description(entity.id,entity.description,25,25,1)%>
+				</span>
+			</span>
+			<span class="span-18 height-2 margin-top-1">
+				<span class="float-left dark_blue_bg take" onclick="$.whowish_box({title: 'Swap Request',url:'/swap?junk_id=<%=entity.id%>&wish_id=<%=params[:wish_id]%>'}); return false;">
+						Want it? Swap!
+				</span>
+			</span>
+		</span>
+	</span>
+	<span class="span-26 light_medium_gray_bg height01 margin-swap_line">
+	</span>
+</span>
+<script language="javascript">
+	
+	function del_take_item_<%=entity.id%>()
+	{
+		if (confirm('Are you sure?') == true)
+		{
+			var data = {
+				signed_request: "<%=params[:signed_request]%>",
+				authenticity_token: "<%=form_authenticity_token%>",
+				"item_id": "<%=entity.id%>"
+			};
+			
+			
+			$.ajax({
+				type: "POST",
+				url: '/item/delete',
+				cache: false,
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						$('#item_unit_<%=entity.id%>').fadeOut(
+						function (){$('#item_unit_<%=entity.id%>').remove();})
+					}
+				},
+				error: function(){
+					
+				}
+			});
+		}
+	}
+	</script>

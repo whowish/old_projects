@@ -1,0 +1,40 @@
+<%
+	user = $facebook
+	user = get_facebook_info(params[:user_id]) if params[:user_id]
+	friends = FacebookCache.all(:conditions=>["facebook_id in (?)",user.all_friends],:order => "facebook_id ASC")
+%>
+<!-- LEFT COLUMN -->
+		<span class="span-15 right_border clearfix" style="background-color:#282828;">
+        	<%=render :partial=>"profile/side_profile"%>
+            <%=render :partial=>"profile/side_event_stat",:locals=>{:facebook_id=>user.facebook_id}%>
+            <%=render :partial=>"profile/side_friend"%>
+        </span>
+<!-- RIGHT COLUMN -->
+		<span class="span-59 left_border clearfix">
+			<span class="span-59 height24 clearfix fontsize18 bold_font light_gray_bg dark_gray">
+				&nbsp;&nbsp; <%=user.name%> &gt; <span class="profileArrow"></span><%= word_for :friend_topic,:all_friend=>friends.length%>
+			</span>
+			<span class="span-56 height01 medium_dark_gray_bg margin-bottom-1 margin-top-1 margin-left-2">
+			</span>
+			<span class="span-56">
+				<span class="span-55 margin-left-2">
+					<ul style="width:550px;list-style-type:none;">
+						<%friends.each do |friend|%>
+						<li style="list-style-type:none;float:left;display:block;">
+							<%friend_info = get_facebook_info(friend.facebook_id)%>
+							<a href="/profile?user_id=<%=friend.facebook_id%>">
+								<span class="facebook_pic" style="background-image:url(http://graph.facebook.com/<%=friend.facebook_id%>/picture?type=square);">
+								</span>
+							</a>
+							<span class="span-7 margin-left-1">
+		    					<span class="span-6" style="overflow:hidden;height:50px"><%=friend_info.get_badge('#FFFFFF')%></span>
+							</span>
+						</li>
+						<%end%>
+						
+					</ul>
+				</span>					
+			</span>
+		</span>
+
+

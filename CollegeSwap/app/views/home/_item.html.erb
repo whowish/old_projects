@@ -1,0 +1,89 @@
+<%
+	color_theme = get_color_theme(entity)
+	#font_color = "medium_dark_green"
+	#font_color = "dark_blue" if entity.item_type == Item::ITEM_TYPE_JUNK
+
+	#bg_color = "#78BD40";
+	#bg_color = "#1963BD" if entity.item_type == Item::ITEM_TYPE_JUNK
+	edit_title = "Edit Stuff I Want"
+	edit_title = "Edit Stuff I Can Trade" if entity.item_type == Item::ITEM_TYPE_JUNK
+	
+%>
+<span class="swap-unit span-40 margin-swap_unit" id="item_unit_<%=entity.id%>">
+	<span class="span-38  margin-swap_line">
+		<a href="http://<%=DOMAIN_NAME%>/item/view?item_id=<%=entity.id%>">
+			<span class="facebook_pic margin-swap_pic" style="background-image:url(<%=entity.get_thumbnail_item_image()%>);cursor:pointer;"
+				onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=entity.id%>',background_color:'<%=color_theme.bgColorCode%>'}); return false;">
+			</span>
+		</a>
+		<span class="span-31 margin-left-1">
+			<span class="span-31">
+				<span class="span-31 height20">
+					<span class="float-left fontsize12 bold_font">
+						<a href="http://<%=DOMAIN_NAME%>/item/view?item_id=<%=entity.id%>" class="<%=color_theme.textColor%>" onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=entity.id%>',background_color:'<%=color_theme.bgColorCode%>'}); return false;"><%=trim_title(entity.title,40,40)%></a>
+					</span>
+					<% if mode == MODE_SWAP_PAGE %>
+						<span class="function_icon float-right light_medium_gray_bg">
+							<% if $facebook.facebook_id == entity.facebook_id%>
+								<a href="#" class="edit_icon float-left" title="edit" id="item_edit_button_<%=entity.id%>" onclick="$.whowish_box({title: '<%=edit_title%>',url:'/item/?item_id=<%=entity.id%>&item_type=<%=entity.item_type%>',background_color:'<%=color_theme.bgColorCode%>'});return false;"></a>
+								<a href="#" class="x_icon float-left" title="delete" id="item_delete_button_<%=entity.id%>" onclick="$.whowish_box({title: 'Delete',url:'/item/confirm_delete?item_id=<%=entity.id%>',background_color:'#999999'});return false;"></a>
+							<%else%>
+								<a href="#" class="flag_icon" title="Flag as inappropriate" onclick="$.whowish_box({title: 'Flag',url:'/flag?item_id=<%=entity.id%>',background_color:'#EFC228'}); return false;"></a>
+							<%end%>
+						</span>
+					<% end %>
+				</span>
+				<span class="span-31 fontsize11 normal_font medium_gray" style="height:30px;margin-top:1px;">
+					<%=trim_description(entity.id,entity.description,50,80,2)%>
+				</span>
+			</span>
+			<% if mode == MODE_SWAP_PAGE %>
+				<span class="span-31 height-2 margin-top-1">
+					<% if $facebook.facebook_id == entity.facebook_id%>
+						<span class="float-left light_medium_gray_bg height20 ">
+							
+								<a href="#" class="fb_icon" title="post to wall" id="item_share_button_<%=entity.id%>" onclick="$.whowish_box({title: 'Share on Facebook',url:'/item/share?item_id=<%=entity.id%>'});return false;"></a>
+							
+								<% if entity.item_type == "WISH" %>
+									<a href="#" onclick="search_item({q:'<%=CGI.escape(entity.title)%>',item_type:'JUNK'});return false;" class="match_icon" style="border-left:4px solid white;" >
+								<% else %>
+									<a href="#" onclick="search_item({q:'<%=CGI.escape(entity.title)%>',item_type:'WISH'});return false;" class="match_icon" style="border-left:4px solid white;">
+								<% end %>
+								&nbsp;&nbsp;<%=word_for :find_a_match%>&nbsp;&nbsp;</a>
+							
+						</span>
+					<%end%>
+					<% if $facebook.facebook_id != entity.facebook_id and entity.status == Item::STATUS_ACTIVE%>
+							<% if entity.item_type == "WISH" %>
+								<a href="#" class="blue_button_small" onclick="$.whowish_box({title: 'Make a swap request!',url:'/take?requestor_item_id=<%=entity.id%>',background_color:'#999999'});return false;">
+									<%=word_for :got_it_swap%>
+								</a>
+							<% else %>
+								<a href="#" class="green_button_small" onclick="$.whowish_box({title: 'Make a swap request!',url:'/give?responder_item_id=<%=entity.id%>',background_color:'#999999'});return false;">
+									<%=word_for :want_it_swap%>
+								</a>
+							<% end %>
+						<% end %>
+				</span>
+			<% elsif mode == MODE_TAKE %>
+				<span class="span-31 height-2 margin-top-1">
+					<a href="#" class="green_button_small" onclick="$.whowish_box({title: 'Swap Request',url:'/swap?responder_item_id=<%=entity.id%>&requestor_item_id=<%=before_item_id%>'}); return false;">
+						<%=word_for :request_swap%>
+					</a>
+				</span>
+			<% elsif mode == MODE_GIVE %>
+				<span class="span-31 height-2 margin-top-1">
+					<a href="#" class="blue_button_small" onclick="$.whowish_box({title: 'Swap Request',url:'/swap?responder_item_id=<%=before_item_id%>&requestor_item_id=<%=entity.id%>'}); return false;">
+						<%=word_for :request_swap%>
+					</a>
+				</span>
+			<% end %>
+			
+		</span>
+	</span>
+	<span class="span-38 light_medium_gray_bg height01 margin-swap_line">
+	</span>
+</span>
+<div style="height:0px;clear:left;">&nbsp;</div>
+
+

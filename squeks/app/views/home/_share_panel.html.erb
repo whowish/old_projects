@@ -1,0 +1,54 @@
+<script language="javascript">
+
+</script>
+<style>
+    .switch {
+        display:inline-block;
+        width:30px;
+        height:20px;
+        margin:0;
+        padding:0;
+    }
+
+    .switch_label {
+        display:inline-block;
+        width:80px;
+        height:20px;
+        margin:0;
+        padding:0;
+    }
+
+    .switch_button {
+        display:inline-block;
+        width:10px;
+        height:10px;
+        background-color:#333333;
+    }
+</style>
+<span id="share_option_button" onclick="toggle_share_panel();">
+    Share
+</span>
+<span id="share_option_panel">
+<%
+    options = [{:id=>"love",:value=>true},
+                {:id=>"hate",:value=>true},
+                {:id=>"comment",:value=>true},
+                {:id=>"comment_agree",:value=>true},
+                {:id=>"comment_disagree",:value=>true}
+                ]
+
+   options.each do |option|
+%>
+    <span style="display:block;width:200px;vertical-align:bottom;">
+        <span id="share_<%=option[:id]%>_switch_button" onmousedown="$(this).toggle_switch_button(share_option_changed_callback);" class="switch">
+            <span class="switch_button"></span>
+        </span>
+        <span class="switch_label">
+          <%=word_for (option[:id]+"button").to_sym %>
+        </span>
+    </span>
+<%
+    end
+%>
+</span>
+</span>

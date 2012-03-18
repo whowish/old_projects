@@ -1,0 +1,16 @@
+<%
+	user = $facebook
+	user = get_facebook_info(params[:user_id]) if params[:user_id]
+%>
+
+<span class="span-15 height24 font12 light_blue_bg clearfix">
+	<span class="float-left display_block height24 facebook_blue_bg" style="width:6px;">
+    </span>
+    <span class="span-14 float-left display_block height24" style="margin-left:2px;">
+    	<%=user.get_badge()%>
+    </span>
+</span>
+
+<span class="span-15 clearfix">
+	<img src="<%=user.profile_picture_url('large')%>" width="150" alt="" />
+</span>

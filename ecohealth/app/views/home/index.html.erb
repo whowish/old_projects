@@ -1,0 +1,81 @@
+<%
+	@activities = Activity.all(:order=>"created_date DESC",:limit=>4)
+%>
+<script language="javascript">
+	function show_news(page)
+	{
+		var news_boxes = $('.news_box');
+		var to_be_shown = null;
+		var to_be_hidden = null;
+		
+		for (var i=0;i<news_boxes.length;i++)
+		{
+			if (i == page)
+			{
+				to_be_shown = news_boxes[i]
+			}
+			
+			if ($(news_boxes[i]).css('display') != 'none')
+			{
+				to_be_hidden = news_boxes[i];
+			}
+			
+		}
+		
+		$(to_be_hidden).fadeOut(function() {
+			$(to_be_shown).fadeIn();
+		});
+	}
+</script>
+<span class="span-100 clearfix">
+    <span class="span-78 clearfix margin-left-11">
+         <span class="underBox">
+            <span class="contentBox">
+            	<span class="span-76 clearfix">
+                    <span class="span-74 margin-top-1 margin-left-1 clearfix">
+                        <img src="/images/Ecohealth-Network.png" alt="" />
+                    </span>
+					<span class="span-74 margin-top-2 margin-left-1 clearfix">
+						<span class="span-74 font16 bold_font align_center medium_dark_green">
+							Ecohealth - One Health Around the World
+						</span>
+						<span class="span-74 height01 light_gray_bg clearfix">
+						</span>
+						<!-- Google News Element Code -->
+						<iframe frameborder=0 marginwidth=0 marginheight=0 border=0 style="border:0;margin:0;width:728px;height:90px;" src="http://www.google.com/uds/modules/elements/newsshow/iframe.html?rsz=large&format=728x90&q=ECOHEALTH%20OR%20%22vector-borne%20diseases%22%20OR%20%22emerging%20infectious%20diseases%22%20&element=true" scrolling="no" allowtransparency="true"></iframe>
+					</span>
+                    <span class="span-74 display_block clearfix" style="height:10px;">
+					</span>
+                </span>
+            </span>
+        </span>
+    </span>
+</span>
+<span class="span-100 clearfix margin-top-2" style="position:relative;">
+	<img src="/images/map.png" />
+	<%
+		pos = {
+			"bangladesh"=>[340,31],"bhutan"=>[326,7],"cambodia"=>[590,81],
+			"south china"=>[505,20],"india"=>[281,45],"indonesia"=>[728,155],
+			"laos"=>[523,44],"maldives"=>[177,98],"malaysia"=>[524,113],
+			"myanmar"=>[422,48],"nepal"=>[283,16],"pakistan"=>[203,26],
+			"singapore"=>[609,120],"sri lanka"=>[341,93],"philippines"=>[782,68],
+			"thailand"=>[489,67],"vietnam"=>[622,57]
+		}
+
+		Country.all.each do |country|
+			
+			x = -100
+			y = -100
+
+			if pos[country.name.downcase]
+				x = pos[country.name.downcase][0]
+				y = pos[country.name.downcase][1]
+			end
+			
+	%>
+		<a href="/activity?country_id=<%=country.id%>" class="map_label" style="left:<%=x%>px;top:<%=y%>px;"><%=country.name%></a>
+	<%
+		end
+	%>
+</span>

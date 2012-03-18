@@ -1,0 +1,35 @@
+<%
+	commentor = Member.first(:conditions=>{:id=>entity.member_id})
+%>
+<span id="comment_view_<%=entity.id%>">
+<li>
+	<span class="profile_picture float-left">
+		<img src="../images/thumb_default_pic.jpg" alt="" />
+	</span>
+	<span class="span-62 margin-left-1">
+		<span class="span-62 font12">
+			<a href="#">
+				<%=commentor.name%>
+			</a>
+			<%
+               if $member.id == entity.member_id or $member.is_admin
+            %>
+				<a href="#" style="float:right;" title="Delete" onclick="delete_comment(this,'<%=entity.id%>');return false;">
+			     Delete
+				 </a>
+			<%
+				end
+			%>
+		</span>
+		<span class="span-62 margin-top-5px">
+			<%=entity.content%>
+		</span>
+		<span class="span-62 margin-top-5px font11 medium_gray">
+			<%=Time.at(entity.created_date.to_i).strftime("%d %b %Y")%> &middot;
+			<a href="#">
+				Agree
+			</a>
+		</span>
+	</span>
+</li>
+</span>

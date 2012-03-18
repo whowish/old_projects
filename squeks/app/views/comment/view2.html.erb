@@ -1,0 +1,10 @@
+<%
+	comment = Comment.first(:conditions=>{:id=>params[:comment_id]})
+	figure = Figure.first(:conditions=>{:id=>comment.figure_id})
+%>
+
+<%=render :partial=>"home/thumbnail_unit",:locals=>{:figure=>figure}%>
+<span class="span-68 margin-top-3">
+<%=render :partial=>"/comment/comment_view" , :locals=>{:comment=>comment,:show_sub_comment=>true}%>
+</span>
+<%= render :partial=>"comment/comment_javascript", :locals=>{:figure=>figure}%>

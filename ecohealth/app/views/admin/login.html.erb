@@ -1,0 +1,12 @@
+<%
+	if @error
+%>
+	<span style="color:red;"><%=@error%></span>
+<%
+	end
+%>
+<form action="/admin/do_login" method="post">
+	<input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+	Password: <input type="password" name="password">
+	<input type="submit" value="Login">
+</form>

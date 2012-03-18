@@ -1,0 +1,114 @@
+<%
+	partners = Partner.all()
+%>
+<%=stylesheet_link_tag("admin_activity.css")%>
+<%= javascript_include_tag "/whowish_foundation_asset/swfupload/ajaxupload.js"%>
+<script language="javascript">
+	function edit_partner(sender,id)
+	{
+		try {
+			$(sender).loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_partner/edit',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"id": id,
+					"country": $('#partner_country_'+id).val(),
+					"name": $('#partner_name_'+id).val(),
+					"url": $('#partner_url_'+id).val(),
+					"desc": $('#partner_description_'+id).val(),
+					"ordered_number": $('#partner_ordered_number_'+id).val()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+						}
+						else {
+							$(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('partner', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('partner',e);
+			alert(e);
+		}
+	}
+	function delete_partner(sender,id)
+	{
+		$(sender).loading_button(true);
+		if (!confirm('Are you sure you want to delete it?')) return;
+		
+		try {
+			
+			$.ajax({
+				type: "POST",
+				url: '/admin_partner/delete',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"id": id
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+							$('#partner_unit_'+id).fadeOut(
+							function (){$('#partner_unit_'+id).remove();})
+						}
+						else {
+							$(sender).loading_button(false);
+                            $(sender).ruby_box(true,data.error_message);
+						}
+					} 
+					catch (e) {
+						$(sender).loading_button(false);
+						$.error_log('partner', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('partner',e);
+			alert(e);
+		}
+	}
+</script>
+<span class="span-68">
+	<span class="row header">
+		<span class="toolbox_container header">&nbsp;</span>
+		<span class="name_container header">&nbsp;</span>
+	</span>
+	<%partners.each do |partner|%>
+		<%=render :partial=>"/admin_partner/partner_unit",:locals=>{:partner=>partner}%>
+	<%end%>
+	<span id="new_partner"></span>
+	<%=render :partial=>"/admin_partner/add_partner"%>
+</span>
+

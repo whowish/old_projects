@@ -1,0 +1,171 @@
+<%
+	invited_events = EventFriend.all(:conditions=>{:facebook_id=>$facebook.facebook_id,:status=>EventFriend::STATUS_PENDING},:limit=>10,:order=>"event_id ASC")
+	if invited_events[0]
+		show_invited_event = Event.first(:conditions=>{:id=>invited_events[0].event_id})
+		event_owner = get_facebook_info(show_invited_event.facebook_id) if show_invited_event
+	end
+
+	if show_invited_event
+%>
+<script language="javascript">
+	function submit_response(sender,response,event_id)
+	{
+		
+		var selected_time = []
+		
+		try {
+			$(sender).loading_button(true);
+			$.ajax({
+				type: "POST",
+				url: '/event/save_response',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					signed_request:"<%=params[:signed_request]%>",
+					"event_id": event_id,
+					"available_dates": selected_time.join(',')
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							$(sender).loading_button(false);
+							$('#invited_event_status_'+event_id).html('Rejected')
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$(sender).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}
+							
+							$(sender).loading_button(false);
+						}
+					} 
+					catch (e) {
+						$.error_log('response_event', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('response_event',e);
+			alert(e);
+		}
+	}		
+</script>	
+	
+<span >
+	<span class="span-17 height-22 facebook_id_home" style="background-image:url(<%=event_owner.profile_picture_url('large')%>) !important;"> 
+	
+	</span>
+	<span class="span-30 height-20 margin-left-1 margin-top-1 clearfix">
+	  <span class="span-30 font35 bold_font white" style="overflow:hidden;white-space:nowrap;">
+	   	<%=event_owner.name%>
+	  </span>
+	  <span class="span-30 font26 bold_font white margin-top--8px">
+	    <%=word_for(:invite)%>
+	  </span>
+	  <span class="span-30 font26 bold_font white margin-top-1" style="overflow:hidden;white-space:nowrap;">
+	    <%=show_invited_event.title%>
+	   </span>
+	</span>
+</span>
+<span style="display:none;background-image:url(/images/home/invitedBoxbg.png);">
+	<span class="span-47 height-18 margin-left-1 margin-top-1 clearfix" style="overflow:hidden;position:relative;">
+		<span id="sliding_invited_event_panel" class="height-18" style="white-space:nowrap;position:absolute;left:0px;top:0px;width:<%=470*invited_events.length%>px;">
+			<%
+				invited_events.each do |event_friend|
+					event = Event.first(:conditions=>{:id=>event_friend.event_id})
+					event_owner = get_facebook_info(event.facebook_id)
+			%>
+				<span style="display:inline-block;position:relative;" class="span-47 height-18">
+					<span class="span-47 font35 bold_font white">
+						<%=event_owner.name%>
+					</span>
+			  		<span class="span-47 font26 bold_font white margin-top--8px">
+			    		<%=word_for(:invite)%>
+			    	</span>
+			  		<span class="span-47 font26 bold_font white margin-top-1" style="overflow:hidden;white-space:nowrap;">
+			            <a href="/event/view?event_id=<%=event.id%>&force_edit=yes" class="white"><%=event.title%></a>
+			        </span>
+			        <span class="span-47 margin-top-2">
+			        	<a href="/event/view?event_id=<%=event.id%>&force_edit=yes" class="green_button"onclick="$(this).loading_button(true);"><%=word_for(:accept_button)%></a>
+			            <a href="#" class="orange_button margin-left-1" onclick="submit_response(this,'REJECT',<%=event.id%>);return false;"><%=word_for(:reject_button)%></a>
+						<span id="invited_event_status_<%=event.id%>" class="margin-left-1" style="height:30px;line-height:30px;">
+							
+						</span>
+			        </span>
+				</span>
+			<%
+				end
+			%>
+		</span>
+	</span>
+	<span class="span-47 font11 margin-top-1 margin-left-1 height20 clearfix">
+		<span class="float-left">
+        	<a href="/profile" class="white"><%=word_for(:view_all)%></a>
+        </span>
+        <span class="float-right">
+        	<a href="#" class="white" id="previous_invited_event_button" onclick="previous_invited_event();return false;"><%=word_for(:prev)%></a> 
+    		<a href="#" class="white" id="next_invited_event_button" onclick="next_invited_event();return false;"><%=word_for(:next)%></a>
+        </span>
+	</span>
+</span>
+<script language="javascript">
+	function next_invited_event() {
+		$('#sliding_invited_event_panel').animate({
+		    left: '-=470'
+		  }, 100, function() {
+		  	update_invited_event_button();
+		  });
+	}
+
+	function previous_invited_event() {
+		$('#sliding_invited_event_panel').animate({
+		    left: '+=470'
+		  }, 100, function() {
+		  	update_invited_event_button();
+		  });
+	}
+	
+	function update_invited_event_button()
+	{
+		var pos = 	$('#sliding_invited_event_panel').position();
+		
+		if (pos.left >= -20) $('#previous_invited_event_button').css({"visibility":"hidden"})
+		else $('#previous_invited_event_button').css({"visibility":"visible"})
+		
+		//alert( pos.left + "  " + $('#sliding_invited_event_panel').width())
+		
+		if (pos.left <= (470-$('#sliding_invited_event_panel').width()+20)) $('#next_invited_event_button').css({"visibility":"hidden"})
+		else $('#next_invited_event_button').css({"visibility":"visible"})
+	}
+	
+	update_invited_event_button();
+</script>
+<%
+	else
+%>
+	<span>
+<%
+		i = 0
+		$facebook.all_friends.shuffle.each do |facebook_id|
+			i += 1
+			break if i > 50
+%><a href="/profile?user_id=<%=facebook_id%>"><span style="cursor:pointer;background-image:url(http://graph.facebook.com/<%=facebook_id%>/picture?type=square);width:49px;height:44px;display:inline-block;margin:0px 0px 0px 0px;padding: 0px 0px 0px 0px;"></span></a><%
+		end
+%>
+	</span>
+<%
+	end
+%>

@@ -1,0 +1,134 @@
+<%
+	order_issue = PaymentIssue.first(:conditions=>{:order_id=>order.id})
+	transfer = ConfirmTransfer.first(:conditions=>{:order_id=>order.id})
+	app = App.first(:conditions=>{:app_id=>order.app_id})
+	cus_member = Member.first(:conditions=>{:facebook_id=>order.facebook_id})
+%>
+<span id="admin_order_unit_<%=order.id%>">
+	<span class="span-96 margin-top-1 clearfix" >
+		<span class="span-2 font12 medium_dark_gray bold_font align_center" style="margin-top:8px;">
+    		<input id="chkbox_order_<%=order.id%>" type="checkbox" value="<%=order.id%>" />
+    	</span>
+		<span class="span-93 margin-left-1">
+			<span class="span-93 clearfix">
+				<span class="span-52 font14 dark_gray bold_font">
+					<%= word_for :order,:id=>order.id%> - <%=app.name%> (<%=cus_member.name%>)
+				</span>
+				<span class="float-left margin-left-1 font14 friendmage_red bold_font">
+					<%=order.price.to_i%> <%= word_for :currency%>
+				</span>
+				<span class="float-right font14 <%if order.status == Order::STATUS_CANCELLED%><%='friendmage_red'%><%else%><%='dark_blue'%><%end%> bold_font">
+					<%= word_for order.get_symbol_status%>
+				</span>
+			</span>
+			<span class="span-93 height01 margin-top-5px light_medium_gray_bg clearfix">
+			</span>
+			<span class="span-93 margin-top-5px clearfix">
+				<span class="span-93 font12 medium_dark_gray clearfix">
+					<span class="span-52">
+						<span class="span-6">
+							<%= word_for :address%>
+						</span>
+						<span class="span-46 bold_font dark_gray">
+							<%=order.recipient_name%><br />
+							<%=order.address_identifier%> <%= word_for :address_street%> <%=order.address_street%>
+							<br />
+							<%= word_for :address_subdistrict%> <%=order.address_subdistrict%> 
+							<%= word_for :address_district%> <%=order.address_district%>
+							<br />
+							<%= word_for :address_province%> <%=order.address_province%> 
+							<%= word_for :address_postal_code%> <%=order.address_postal_code%> 
+							<br />
+						</span>
+					</span>
+					<span class="span-40 margin-left-1">
+						<span class="span-40">
+							<span class="span-40">
+								<%= word_for :order_date%> 
+								<span class="bold_font dark_gray">
+									<%if order.created_date%>
+										<%=get_thai_date(order.created_date)%> <%=order.created_date.strftime("%H:%M")%>
+									<%else%>
+										-
+									<%end%>
+								</span>
+								<span class="span-40">
+									<%= word_for :print_date%> 
+									<span class="bold_font dark_gray">
+										<%if order.print_time%>
+											<%=get_thai_date(order.print_time)%> <%=order.print_time.strftime("%H:%M")%>
+										<%else%>
+											-
+										<%end%>
+									</span>
+									<span class="span-40">
+										<%= word_for :ship_date%> 
+										<span class="bold_font dark_gray">
+											<%if order.ship_time%>
+												<%=get_thai_date(order.ship_time)%> <%=order.ship_time.strftime("%H:%M")%>
+											<%else%>
+												-
+											<%end%>
+										</span>
+										<span class="span-40">
+											<%= word_for :order_key%> 
+											<span class="bold_font dark_gray">
+												<%=order.key%>
+											</span>
+											<span class="span-40">
+												<%= word_for :paypal_key%> 
+												<span class="bold_font dark_gray">
+													<%if order.paypal_pay_key%>
+														<%=order.paypal_pay_key%>
+													<%else%>
+														-
+													<%end%>
+												</span>
+											</span>
+										</span>
+									</span>
+								</span>
+							</span>
+						</span>
+					</span>
+				</span>
+				<%if transfer%>
+				<span class="span-93 font12 dark_gray clearfix margin-top-1">
+					<span class="span-93">
+						<span>
+							<%= word_for :transfer_price%> <%=transfer.transfer_price%>
+						</span>
+						<span class="margin-left-1">
+							<%= word_for :confirm_transfer_date%> <%=get_thai_date(transfer.created_date)%> <%=transfer.created_date.strftime("%H:%M")%>
+						</span>
+						<%if transfer.member_tel%>
+							<span class="margin-left-1">
+								<%= word_for :tel%> <%=transfer.member_tel%>
+							</span>
+						<%end%>
+					</span>
+				</span>
+				<%end%>
+				<%if order_issue%>
+				<span class="span-93 font12 friendmage_red clearfix margin-top-1">
+					<span class="span-93">
+						<%= word_for :issue%> <%=order_issue.issue%>
+					</span>
+				</span>
+				<%end%>
+				<%if order.status == Order::STATUS_PENDING_CANCELLED%>
+					<%=render :partial=>"/admin/cancel_unit",:locals=>{:order=>order}%>
+				<%end%>
+				<span class="margin-top-1 clearfix">
+					<%if order.status != Order::STATUS_CREATING or order.status != Order::STATUS_PENDING or order.status != Order::STATUS_CUSTOMER_CONFIRM_TRANSFER%>
+						<a href="#"class="gray_button_small margin-left-1" id="regenerate_button_<%=order.id%>" onclick="regenerate_image(this,'<%=order.key%>');return false;">
+							<%= word_for :regenarate_image%>
+						</a>
+					<%end%>
+				</span>
+			</span>
+		</span>
+	</span>
+	<span class="span-96 height01 medium_gray_bg margin-top-1">
+	</span>
+</span>

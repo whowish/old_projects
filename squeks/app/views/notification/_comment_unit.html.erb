@@ -1,0 +1,45 @@
+<%
+	member = @facebook_data[@notification.facebook_id]
+	member_name = (@notification.is_anonymous) ? "#{member.anonymous_name}" : member.name
+	image_url = @figure_data[@notification.figure_id].get_thumbnail_image_url
+
+	comment_url = "/comment/view/#{@notification.comment_id}"
+	comment_url = "/comment/view/#{@comment_data[@notification.comment_id].parent_id}" if @comment_data[@notification.comment_id].parent_id > 0
+	
+%>
+<span class="span-66 margin-left-1 margin-top-1">
+	<span class="span-5 height-5">
+		<a href="<%=comment_url%>">
+			<img src="<%=image_url%>" />
+		</a>
+	</span>
+	<span class="span-60 margin-left-5px">
+		<%if @notification.is_anonymous%>
+			<span class="span-60 font11 bold_font dark_gray">
+				<%=member_name%>
+			</span>
+		<%else%>
+            <a class="span-60 font11 squeks_blue bold_font" href="/profile?user_id=<%=@notification.facebook_id%>"><%=member_name%></a>
+		<%end%>
+		
+		<span class="span-60 font10 normal_font dark_gray">
+			<%if @notification.action == Notification::ACTION_AGREE and @notification.data == CommentAgree::TYPE_AGREE%>
+				<%=word_for :action_agree,:comment_data=>CGI.escapeHTML(truncate_bytes(@comment_data[@notification.comment_id].comment,150)+"...")%>
+			<%elsif @notification.action == Notification::ACTION_AGREE and @notification.data == CommentAgree::TYPE_DISAGREE%>
+				<%=word_for :action_disagree,:comment_data=>CGI.escapeHTML(truncate_bytes(@comment_data[@notification.comment_id].comment,150)+"...")%>
+			<%elsif @notification.action == Notification::ACTION_REPLY%>
+				<%=word_for :action_reply,:comment_data=>CGI.escapeHTML(truncate_bytes(@comment_data[@notification.comment_id].comment,150)+"...")%>
+			<%end%>
+		</span>
+		<a href="<%=comment_url%>" class="span-60 font11 huneysuckle_pink bold_font">
+			<%=@figure_data[@notification.figure_id].title%>
+		</a>
+	</span>
+	<span class="span-60 margin-left-5px">
+		<span class="comment_icon">
+		</span>
+		<span class="margin-left-5px font10 normal_font medium_gray">
+			<%=semantic_time(@notification.created_date)%>
+		</span>
+	</span>
+</span>

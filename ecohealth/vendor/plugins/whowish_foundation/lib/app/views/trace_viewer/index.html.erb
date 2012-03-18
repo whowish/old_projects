@@ -1,0 +1,100 @@
+<style type="text/css">
+	td {
+		white-space:nowrap;
+		font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+		vertical-align:top;
+	}
+	
+	th {
+		font-weight:bold;
+		font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+	}
+	
+	.active {
+		text-decoration:none;
+		color:black;
+	}
+</style>
+<%
+	params[:offset] = 0 if !params[:offset]
+	params[:limit] = 10 if !params[:limit]
+
+	params[:offset] = params[:offset].to_i
+	params[:limit] = params[:limit].to_i
+
+	count = Trace.count()
+	traces = Trace.all(:order=>"id DESC",:offset=>params[:offset],:limit=>params[:limit])
+%>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Trace viewer</title>
+	</head>
+	<body>
+		<%=params[:offset]+1%> - <%=[params[:offset]+params[:limit],count].min%> of <%=count%> traces<br/>
+		<%
+			number_of_pages = (count.to_f/params[:limit].to_f).ceil
+		
+			(1..number_of_pages).each do |i|
+		%>
+			<a href="?offset=<%=params[:limit]*(i-1)%>&limit=<%=params[:limit]%>" <%='class="active"' if params[:limit]*(i-1) == params[:offset]%>><%=i%></a>
+		<%
+			end
+		%>
+		<table border="1" cellpadding="2" cellspacing="2">
+			<tr>
+				<th>Unique ID</th>
+				<th>Location</th>
+				<th>Facebook ID</th>
+				<th>Controller</th>
+				<th>Action</th>
+				<th>Time</th>
+				<th>Data</th>
+				<th>Browser</th>
+			</tr>
+<%
+		last_unique_id = ""
+		background_color = "#EDEDED";
+		traces.each do |trace|
+			unique_id = (trace.ip_address.split('-')[1][2..-1] rescue trace.ip_address)
+
+			if last_unique_id != unique_id
+				#switch_color
+				(background_color = "#EDEDED" if background_color == "#FFFFFF") or background_color = "#FFFFFF"
+			end
+
+			last_unique_id = unique_id
+%>
+		<tr style="background-color:<%=background_color%>">
+			<td title="<%=trace.ip_address%>"><%=unique_id%></td>
+			<td><%=(locateIp(trace.ip_address.split('-')[0]) if trace.ip_address)%></td>
+			<td>
+				<%
+					if trace.facebook_id != "Unknown"
+				%>
+					<a href="http://www.facebook.com/profile.php?id=<%=trace.facebook_id%>" target="_blank"><%=get_facebook_info(trace.facebook_id).name rescue 'Unknown'%></a>
+				<%
+					else
+				%>
+					Unknown
+				<%
+					end
+				%>
+			</td>
+			<td><%=trace.controller_name%></td>
+			<td><%=trace.action_name%></td>
+			<td><%=semantic_time trace.accessed_date%></td>
+			<td><%=trace.params%></td>
+			<td title="<%=trace.browser%>"><span style="height:20px;width:300px;overflow:hidden;display:block;"><%=trace.browser%></span></td>
+		</tr>
+<%
+		end
+%>
+	</table>
+	
+
+
+
+	</body>
+</html>

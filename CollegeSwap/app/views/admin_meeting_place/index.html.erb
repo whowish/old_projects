@@ -1,0 +1,31 @@
+<%
+ 	params[:name] ||= ""
+	colleges = []
+	if params[:name] != ""
+		sql = "name like :college_name and status = :status and id = college_id" 
+   	 	colleges = College.all(:conditions=>[sql ,{:college_name=>"%%"+params[:name]+"%%",:status=>College::STATUS_APPROVED}])
+	end
+%>
+<span class="search_nav">
+	<span class="span-15 margin-left-2" style="margin-top:10px;">
+		Search College:
+	</span>
+		
+	<span class="span-54 roundcorner_6px white_bg height24 margin-left-1" style="margin-top:8px;">
+		<input type="text" class="search_input span-46 margin-left-1" id="search_college" value="<%=params[:name]%>"
+			onkeypress="if(event.keyCode==13)search_college();"
+		/>
+		<span class="search_button" onclick="search_college();return false;">
+			Search
+		</span>
+	</span>
+</span>
+<%colleges.each do |college|%>
+	<%= render :partial=>"/admin_meeting_place/meeting_place_unit", :locals=>{:college=>college}%>
+<%end%>
+
+<script language="javascript">
+	function search_college(options) {
+		location.href = '/admin_meeting_place?name='+encodeURI($('#search_college').val());			
+	}
+</script>

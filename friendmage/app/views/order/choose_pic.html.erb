@@ -1,0 +1,118 @@
+<%
+	params[:app_id] = "aaa"
+%>
+<%if $facebook.is_guest%>
+	<%=render :partial=>"/order/login"%>
+<%else%>
+	<span class="span-98 clearfix">
+		<%=render :partial=>"/order/instruction",:locals=>{:number=>1}%>
+		<span class="span-60 margin-left-10 clearfix">
+			<span class="span-60">
+				<span class="span-60 margin-top-2 font18 bold_font dark_gray whiteShadow clearfix">
+					Choose Friend List
+				</span>
+				<span class="span-60 height01 medium_gray_bg margin-top-1">
+				</span>
+				<span class="span-60 margin-top-1 font12 bold_font dark_gray clearfix">
+					Connected as Tanun Niyomjit ,
+					<span class="medium_dark_gray">
+						you have 10000000 friends
+					</span>
+				</span>
+				<span class="span-60 margin-top-1 font12 bold_font medium_dark_gray clearfix">
+					<span class="span-60">
+						<a href="#margin1" class="option_photo">
+							<img src="../images/options.jpeg" alt=""  />
+						</a>
+						<a href="#margin1" class="option_photo">
+							<img src="../images/options-1.jpeg" alt=""  />
+						</a>
+						<a href="#margin1" class="option_photo">
+							<img src="../images/options-2.jpeg" alt=""  />
+						</a>
+						<a href="#margin1" class="option_photo">
+							<img src="../images/options-3.jpeg" alt=""  />
+						</a>
+					</span>
+					<span class="span-60 medium_dark_gray font12 bold_font margin-top-5px">
+						<span class="option_photo ">
+							<input type="checkbox" name="margin" value="none"> 
+							All
+						</span>
+						<span class="option_photo ">
+							<input type="checkbox" name="margin" value="small">
+							OV74
+						</span>
+						<span class="option_photo ">
+							<input type="checkbox" name="margin" value="medium" />							SWU
+						</span>
+						<span class="option_photo ">
+							<input type="checkbox" name="margin" value="large"> 
+							Family
+						</span>
+					</span>
+				</span>
+			</span>
+			<span class="span-60 margin-top-2">
+                <a href="#" class="gray_button30px" id="order_submit_button" onclick="submit_order();return false;">
+                    <%= word_for :next%>
+                </a>
+            </span>
+		</span>
+	</span>
+	
+	 <script language="javascript">
+        function submit_order()
+        {
+            try {
+                $('#order_submit_button').loading_button(true);
+
+                $.ajax({
+                    type: "POST",
+                    url: '/order/create',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+						app_id:"<%=params[:app_id]%>",
+						friend_list_id:"",
+						album_id:""
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+                                try
+                                {
+                                    top.location.href = data.redirect_url;
+
+                                } catch(e) {
+                                    
+                                }
+                            }
+                            else {
+                                $('#order_submit_button').loading_button(false);
+                                $('#order_submit_button').ruby_box(true,data.error_message);
+                            }
+
+                        }
+                        catch (e) {
+                            $('#order_submit_button').loading_button(false);
+                            $.error_log('submit_order', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $('#order_submit_button').loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $('#order_submit_button').loading_button(false);
+                $.error_log('submit_order',e);
+                alert(e);
+            }
+        }
+    </script>
+<%end%>

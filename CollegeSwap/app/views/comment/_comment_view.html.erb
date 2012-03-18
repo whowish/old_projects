@@ -1,0 +1,21 @@
+<%
+	commentor = get_facebook_info( comment.facebook_id)
+	
+%>
+<span class="comment_unit span-46 light_gray_bg margin-bottom-1 margin-left-2" id="comment_view_<%=comment.id%>">
+	<span class="span-5 margin-left-1 margin-top-1">
+		<span class="facebook_pic2 margin-profile_comment_box" style="background-image: url(<%=commentor.profile_picture_url%>);">
+		</span>
+	</span>
+	<span class="span-39 fontsize12 normal_font margin-top-1 margin-left-1">
+		<%=commentor.get_badge%>
+	</span>
+	<span class="span-39 fontsize11 normal_font margin-comment_foot margin-left-1">
+		<span class="span-39 dark_gray normal_font fontsize11">
+			<%=comment.comment%>
+		</span>
+		<span class="float-left medium_dark_gray">
+			<%=semantic_time(comment.created_date)%>
+		</span>
+	</span>
+</span>

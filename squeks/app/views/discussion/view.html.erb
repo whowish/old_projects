@@ -1,0 +1,9 @@
+<%
+	@discussion = Discussion.first(:conditions=>{:id=>params[:discussion_id]}) if params[:discussion_id]
+    if @discussion
+	
+%>
+    <%=render :partial=>"/discussion/view_page",:locals=>{:discussion=>@discussion}%>
+<%else%>
+	<%=render :partial=>"/discussion/not_found"%>
+<%end%>

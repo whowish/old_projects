@@ -1,0 +1,78 @@
+<script language="javascript">
+
+	function submit_send_mail(sender)
+	{
+		try {
+			$(sender).loading_button(true);
+			$.ajax({
+				type: "POST",
+				url: '/take/send_remind_email',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"responder_id": "<%=responder.facebook_id%>",
+					"message": $('#remind_message').val(),
+					"item_title": "<%=item.title%>"
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							
+							$(document).trigger('close.whowish_box');
+						}
+						else {
+							for (var i in data.error_message) {
+								try {
+									$('#remind_' + i).ruby_box(true,data.error_message[i]);
+								} 
+								catch (e) {
+								
+								}
+							}
+							
+							$(sender).loading_button(false);
+							$(document).trigger('close.whowish_box');
+						}
+					} 
+					catch (e) {
+						$.error_log('submit_response', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$(sender).loading_button(false);
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$(sender).loading_button(false);
+			$.error_log('submit_response',e);
+			alert(e);
+		}
+	}		
+	
+</script>
+
+<span class="span-50 margin-top-1 margin-bottom-1">
+	<span class="span-44 margin-left-3 bold_font fontsize12 dray_gray">
+		<%=word_for :there_is_nothing,:name=>responder.name,:pronoun=>get_objective_pronoun(responder)%>
+	</span> 
+</span> 
+
+<span class="span-48 margin-swap_unit light_gray_bg  margin-bottom-2">
+	<span class="span-48 margin-top-1">
+		<textarea class=" margin-top-1 margin-bottom-1 span-45 margin-left-1 comment_zone" id="remind_message"></textarea>
+	</span>
+	
+	<span class="span-50 margin-bottom-1">
+		<a href="#" id="accept_submit_button_<%=request.id%>"
+					class="green_button" style="margin-left:10px;"
+					onclick="submit_send_mail(this);return false;"> 
+			<%=word_for :send_email%>
+		</a>
+				
+	</span>
+</span>

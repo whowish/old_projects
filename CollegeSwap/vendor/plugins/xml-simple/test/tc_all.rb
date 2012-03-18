@@ -1,0 +1,10 @@
+require 'test/unit'
+require 'tc_file_in'
+require 'tc_string_in'
+require 'tc_perl_in'
+require 'tc_perl_out'
+require 'tc_perl_storable'
+require 'tc_perl_mem_share'
+require 'tc_perl_mem_copy'
+require 'tc_curtis'
+

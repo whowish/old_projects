@@ -1,0 +1,81 @@
+<%
+	 category = Category.first(:conditions=>{:id => entity.category_id})
+	 owner_event = get_facebook_info(entity.facebook_id)
+	 event_time = []
+
+	 if defined? date
+		 duration = []
+	     sql = "event_id = ? and DATE(settled_date) = DATE(?)"
+		 event_time = EventSettledDate.all(:conditions=>[sql,entity.id,date],:order=>"settled_date asc")
+ 	 end
+%>
+	<span class="span-46 font14 bold_font margin-bottom-1">
+		<a href="/event/view?event_id=<%=entity.id%>" class="dark_gray" title="<%=entity.title%>">
+			<%=entity.title%>
+		</a>
+	    <span class="font11 medium_dark_gray bold_font">
+	    	created by
+	    </span>
+	    <a href="/profile?user_id=<%=owner_event.facebook_id%>" class="font11"><%=owner_event.name%></a>
+	</span>
+	
+	<span class="span-46 margin-bottom-1 clearfix">
+		<%
+			if event_time.length > 0
+
+				time_interval = []
+				i = 0
+				
+				while i < event_time.length
+					j = i + 1
+					while j < event_time.length
+						break if event_time[j].settled_date.hour != (event_time[j-1].settled_date.hour + 1)
+						j += 1
+					end
+
+					time_interval.push({:from=>event_time[i].settled_date,:to=>event_time[j-1].settled_date})
+					
+					i = j;
+				end
+		%>
+		<span class="span-7 font10 normal_font medium_dark_gray height20">
+			<%
+				time_interval.each do |time|
+			%>
+				<%=time[:from].strftime("%I").to_i.to_s%><%=time[:from].strftime("%p")%>
+				-
+				<%=time[:to].strftime("%I").to_i.to_s%><%=time[:to].strftime("%p")%>
+			<%
+				end
+			%>
+		</span>
+		<%
+			end
+		%>
+		<span class="span-37">
+			<span class="<%=category.class_name%>" title="<%=category.name%>">
+			</span>
+			<span class="span-34 margin-left-1 fontsize11 dark_gray margin-top-4px">
+				<%
+					shown_friend_number = 3				
+
+					friends = EventFriend.all(:conditions=>{:event_id => entity.id},:order=>"rand()")
+					friends = friends.push(owner_event)
+					shown_friends = friends[0..2]
+					shown_friends.each do |friend|
+						tail = ""
+						tail = "," if friend != shown_friends.last or friends.length > shown_friend_number
+				%>
+						<a href="/profile?user_id=<%=friend.facebook_id%>" style="text-decoration:none;color:#333333;font-weight:normal;"><%=friend.name%></a><%=tail%>
+				<%
+					end
+
+					if friends.length > shown_friend_number
+				%>
+					and <a href="/event/view?event_id=<%=entity.id%>" style="text-decoration:none;"><%=friends.length-3%> people</a> invited
+				<% end %>
+			</span>
+		</span>
+		<div style="height:0px;clear:left;">&nbsp;</div>
+	</span>
+		

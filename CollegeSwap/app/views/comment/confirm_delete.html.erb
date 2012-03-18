@@ -1,0 +1,57 @@
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+</script>
+<span class="span-50 margin-bottom-1">
+	<span class="span-50 light_green_bg dark_gray fontsize12 bold_font height20 margin-bottom-1">
+		&nbsp;&nbsp; <%=word_for(:confirm)%>
+	</span>
+	<span class="span-50 margin-top-1 margin-bottom-1">
+		<span class="red_button margin-left-1" id="delete_button_<%=params[:comment_id]%>"  onclick="delete_comment_<%=params[:comment_id]%>();">
+			<%=word_for(:delete_button)%>
+		</span>
+		<span class="green_button margin-left-1" id="cancel_button_<%=params[:comment_id]%>"  onclick="cancel_del();">
+			<%=word_for(:cancel_button)%>
+		</span>
+	</span>
+	<div style="height:0px;clear:left;">&nbsp;</div>
+</span>
+
+<script language="javascript">
+	
+	function delete_comment_<%=params[:comment_id]%>()
+	{
+		$('#delete_button_<%=params[:comment_id]%>').loading_button(true);
+			var data = {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"comment_id": "<%=params[:comment_id]%>"
+			};
+			
+			
+			$.ajax({
+				type: "POST",
+				url: '/comment/delete',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						$('#comment_view_<%=params[:comment_id]%>').fadeOut(
+						function (){$('#comment_view_<%=params[:comment_id]%>').remove();})
+					}
+					$(document).trigger('close.whowish_box');
+				},
+				error: function(req,status,e){
+				    if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again.')
+				}
+			});
+		
+	}
+	
+	function cancel_del()
+	{
+		$(document).trigger('close.whowish_box');
+	}
+
+</script>
+

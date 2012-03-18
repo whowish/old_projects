@@ -1,0 +1,19 @@
+<span class="span-50">
+	<%
+		albums.each do |album|
+	%>
+			<span class="span-50 margin-top-1" id="album_<%=album['aid']%>">
+				<span class="span-5" style="height:50px;overflow:hidden;border:1px solid #000000;">
+					<img src="<%=album['cover_image_url']%>" width="75">
+				</span>
+				<span class="span-42 margin-left-1" style="line-height:40px;white-space:nowrap;">
+					<a href="<%=album['link']%>" target="_<%=album['aid']%>"><%=album['name']%> (<%=album['size']%>)</a>
+				</span>
+				<span class="span-42 margin-left-1" style="line-height:10px;white-space:nowrap;">
+					<a href="#" onclick="add_album(\"album_<%=album['aid']%>\");return false;">Add</a>
+				</span>
+			</span>
+	<%
+		end
+	%>
+</span>

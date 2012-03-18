@@ -1,0 +1,41 @@
+<%
+	random_figure = Figure.first(:conditions=>{:status=>Figure::STATUS_ACTIVE},:order=>"rand()")
+%>
+<span class="span-50 margin-left-1">
+	<span class="span-50 font12 bold_font squeks_blue">
+		<%=word_for :head%>
+	</span>
+	<span class="span-50 margin-top-5px font11 normal_font medium_gray">
+		<%=word_for :description%>
+	</span>
+	<span class="span-50 margin-top-1">
+		<a href="/home/<%=random_figure.id%>" class="squeks_button round_corner-4">
+			<%=word_for :start%>
+		</a>
+	</span>
+</span>
+<span class="span-50 margin-top-2 margin-left-1">
+	<span class="span-50 font12 bold_font squeks_blue">
+		<span class="float-left line_height26px">
+			<%=word_for :tip%>
+		</span>
+		<span class="float-left margin-left-1">
+			<a href="#" onclick="$.whowish_box({url:'/misc/faq',background_color:'#54a8e3'});" class="feed_tab" style="border:solid 1px #54a8e3;">
+				<span class="faq_icon">
+				</span>
+				<span class="float-left margin-left-5px">
+					<%=word_for :faq%>
+				</span>
+			</a>
+		</span>
+	</span>
+	
+	<span class="span-50 margin-top-5px font11 normal_font medium_gray">
+		<%=word_for :tip_description%>
+	</span>
+	<span class="span-50">
+		<img src="/images/tip3.png" alt=""  />
+	</span>
+</span>
+	
+

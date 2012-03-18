@@ -1,0 +1,22 @@
+<span class="span-60">
+	<span class="span-6">
+		<%= word_for :address%>
+	</span>
+	<span class="span-52 bold_font dark_gray">
+		<%=order.recipient_name%><br />
+		<%=order.address_identifier%> <%= word_for :address_street%> <%=order.address_street%>
+		<br />
+		<%= word_for :address_subdistrict%> <%=order.address_subdistrict%> 
+		<%= word_for :address_district%> <%=order.address_district%>
+		<br />
+		<%= word_for :address_province%> <%=order.address_province%> 
+		<%= word_for :address_postal_code%> <%=order.address_postal_code%> 
+		<br />
+	</span>
+</span>
+<span class="span-60 margin-top-1 margin-bottom-1">
+	<span class="float-left padding_horizontal_8px height20 friendmage_red_bg font14 bold_font white">
+		<%=order.price.to_i%> <%= word_for :currency%> 
+	</span>
+</span>
+<div style="height:0px;clear:left;">&nbsp;</div>

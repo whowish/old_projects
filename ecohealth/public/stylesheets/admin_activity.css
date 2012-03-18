@@ -1,0 +1,67 @@
+.sortable {
+	position:relative;
+}
+.x_icon {
+  background: url("/images/close.png") no-repeat scroll left top transparent;
+  cursor: pointer;
+  display: block;
+  height: 24px;
+  margin: -12px 0 0 88px;
+  position: absolute;
+  width: 24px;
+}
+
+.upload_thumbnail {
+	position:relative;
+	width:100px;
+	height:100px;
+	display:block;
+	border:1px solid #000000;	
+	cursor:move;
+	margin-top:10px;
+}
+
+.row {
+	display:inline-block;
+	width:800px;
+	margin-top:5px;
+	float:left;
+	white-space:nowrap;
+}
+.row.header {
+	border-bottom: 1px solid #999999;
+}
+.header {
+	font-weight:bold;
+}
+.toolbox_container {
+	display:inline-block;
+	width:100px;
+	float:left;
+}
+
+.country_container {
+	display:inline-block;
+	width:100px;
+	float:left;
+}
+
+.name_container {
+	display:inline-block;
+	width:400px;
+	float:left;
+}
+
+.date_container {
+	
+	display:inline-block;
+	width:180px;
+	float:left;
+}
+
+.partner_image_container {
+	
+	display:inline-block;
+	width:180px;
+	float:left;
+}

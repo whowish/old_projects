@@ -1,0 +1,38 @@
+<span class="span-60 font12 dark_gray">
+<b>Who and What and is Friendmage?</b>
+<br/><br/>
+Friendmage™ is a service of Whowish, Thailand’s #1 developer of useful and fun Facebook applications. With Friendmage you can order a poster or calendar that is filled with the profile pictures of all your Facebook friends. You can also customize your item to include only the friends that you want. All it takes is a few simple clicks! Payment is easy via PayPal, ATM transfer, or credit card. Delivery is fast and guaranteed.
+<br/><br/>
+<b>What do you do with my Facebook data?</b>
+<br/><br/>
+Friendmage is as concerned about protecting your privacy as you are. We use Facebook Connect to access the profile pictures of your friends. Then we print these publicly available profile pictures on to your Friends Poster or Calendar. We don’t store your data or share it with anyone.
+<br/><br/>
+<b>How long do I have to wait to get my Facebook poster or calendar?</b>
+<br/><br/>
+It usually takes about 3 business days for your item to be printed. Delivery then usually takes about another two days via EMS. So, you can expect to receive your friends poster or calendar within 1-2 weeks. 
+<br/><br/>
+<b>Where do you ship Facebook posters and calendars to?</b>
+<br/><br/>
+Currently, we only ship Facebook friends posters and calendars within Thailand. We hope to be able to ship internationally in the future, so check back with us!
+<br/><br/>
+<b>How can I contact your directly with a question or comment?</b>
+<br/><br/>
+Please send us an email at service@whowish.com! <br/>or call us at +66 8 1155 1215 (Thai) or +66 8 5438 1555 (Eng)
+<br/><br/>
+<b>How to pay?</b>
+<br/><br/>
+You can pay through PayPal, credit card or ATM transfer to the following bank account:
+<br/><br/>
+<span class="span-60 font12 dark_gray">
+<%
+	banks = Bank.all()
+	banks.each do |b|
+%>
+ 	<%=render :partial=>"/order/bank_unit",:locals=>{:bank=>b}%>
+<%end%>
+</span>
+<br/><br/>
+<span class="span-60 font12 dark_gray margin-top-2" >
+*** if you choose to pay with an ATM transfer, after you finish the transfer you must come back to "My Order" (on top right of the page) and press "Confirm Payment" button. We only ship the product after you have confirmed payment.
+</span>
+</span>

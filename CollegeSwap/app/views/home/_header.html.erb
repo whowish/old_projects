@@ -1,0 +1,70 @@
+<%
+	connection = ActiveRecord::Base.connection
+	inbox_num_alert = Request.count(:conditions=>{:responder_facebook_id=>$facebook.facebook_id,:status=>Request::STATUS_PENDING});
+	inbox_num_alert += Request.count(:conditions=>{:requestor_facebook_id=>$facebook.facebook_id,:is_read=>0,:status=>[Request::STATUS_ACCEPTED,Request::STATUS_REJECTED]});
+
+	notification_num_alert = Notification.count(:conditions=>{:notified_facebook_id=>$facebook.facebook_id,:is_read=>0});		
+%>
+<div id="user-nav" class="clearfix">
+	<span class="span-100 clearfix">
+		<a href="/">
+			<span class="csLogo">
+			</span>
+		</a>
+		<span class=" float-right margin-right-1 clearfix" >
+			<ul class="float-left medium_dark_gray height24 fontsize14 line_height26px" style="margin-top:18px;">
+				<li>
+					<a class="tab light_font <%='actived' if params[:controller] == 'home'%>" href="/">
+						<span>
+							<%=word_for :home%>
+						</span>
+					</a>
+				</li>
+				<%
+					if !$facebook.is_guest
+				%>
+					<li>
+						<a class="tab light_font <%='actived' if params[:controller] == 'notification'%>" href="/notification">
+							<span style="position:relative;">
+								<%=word_for :notification%>
+								<% if notification_num_alert > 0 %>
+									<span class="notification_count"><%=notification_num_alert%></span>
+								<% end %>
+							</span>
+						</a>
+					</li>
+					<li>
+						<a class="tab light_font <%='actived' if params[:controller] == 'inbox'%>" href="/inbox">
+							<span style="position:relative;">
+								<%=word_for :inbox%>
+								<% if inbox_num_alert > 0 %>
+									<span class="notification_count"><%=inbox_num_alert%></span>
+								<% end %>
+							</span>
+						</a>
+					</li>
+					<li>
+						<a class="tab light_font <%='actived' if params[:controller] == 'myswappage'%>" href="/myswappage">
+							<span>
+								<%=word_for :my_swap_list%>
+							</span>
+						</a>
+					</li>
+				<%
+					end
+				%>
+				<li>
+					<a class="tab light_font" href="#" onclick="$.whowish_box({title:'Help',url:'/misc/help',background_color:'#1963BD'});return false;">
+						<span>
+							<%=word_for :help%>
+						</span>
+					</a>
+				</li>
+			</ul>
+			<a class="add_stuff_button" onclick="$.whowish_box({url:'/item?item_type=WISH'});return false;">
+			</a>
+			<a class="add_trade_button" onclick="$.whowish_box({url:'/item?item_type=JUNK',background_color:'#1963BD'});return false;">
+			</a>
+		</span>
+	</span>
+</div>

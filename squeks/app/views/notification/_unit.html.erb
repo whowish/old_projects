@@ -1,0 +1,7 @@
+<li>
+	<%if @notification.action == Notification::ACTION_AGREE or @notification.action == Notification::ACTION_REPLY%>
+		<%=render :partial=>"/notification/comment_unit"%>
+	<%else%>
+		<%=render :partial=>"/notification/bid_unit"%>
+	<%end%>
+</li>

@@ -1,0 +1,192 @@
+<%
+	params[:offset] ||= 0
+    params[:limit] ||= 10
+	params[:sort] ||= "date"
+
+    params[:offset] = params[:offset].to_i
+    params[:limit] = params[:limit].to_i
+
+	related_discussion = DiscussionFigure.all(:conditions=>{:figure_id=>figure.id})
+	sql = "id in (:id) and status = :status"
+	sql_params = {:id=>related_discussion.map{|s| s.discussion_id},:status=>Discussion::STATUS_ACTIVE}
+
+	if params[:sort] == "date"
+		order_by = "created_date DESC"
+	else
+    	order_by = "loves+hates DESC"
+	end
+
+	count = Discussion.count(:conditions=>[sql,sql_params])
+	discussions = Discussion.all(:conditions=>[sql,sql_params],:order=>order_by,:offset=>params[:offset],:limit=>params[:limit])
+%>
+<span id="discussion_panel_<%=figure.id%>">
+	<span class="float-left margin-top-2 height20">
+        <span class="float-left font14 bold_font dark_gray">
+            <%=word_for :sort_by%>
+        </span>
+
+        <span class="comment_filter font12 margin-left-1">
+            <ul class="medium_dark_gray">
+                <li>
+                    <a class="<%=(params[:sort] == 'date')?'selected':'tab'%>" href="#" onclick="go_to_discussion_offset(0,'date');return false;">
+						<span>
+							<%=word_for(:date)%>
+						</span>
+					</a>
+                </li>
+                <li>
+                    <a class="<%=(params[:sort] == 'rating')?'selected':'tab'%>" href="#" onclick="go_to_discussion_offset(0,'rating');return false;">
+						<span>
+							<%=word_for(:rating)%>
+						</span>
+					</a>
+                </li>
+            </ul>
+        </span>
+    </span>
+	<span class="span-98 margin-top-2" >
+		<span class="span-68 float-left figure_header squeks_blue_bg " >
+			<a href="#" class="font14 white margin-left-1" style="white-space:nowrap;overflow:hidden;line-height:28px;">
+				<%=word_for :discussion%>
+			</a>
+			<span class="float-right">
+				<a href="/discussion/add/<%=figure.id%>" target="_add_discussion_<%=figure.id%>" class="facebook_button margin-left-5px font14 white">
+					<%=word_for :new%>
+				</a>
+			</span>
+		</span>
+		
+		<span class="span-68 search_result clearfix">
+			<ul>
+				<%discussions.each do |discussion|%>
+					<li class="span-68 light_medium_gray_bg">
+						<%=render :partial=>"/discussion/discussion_unit",:locals=>{:discussion=>discussion}%>
+					</li>
+				<%end%>
+			</ul>
+		</span>
+		<%
+			if count == 0
+		%>
+		<span class="firstChild span-68 white_bg">
+			<span class="span-67 margin-left-5px margin-bottom-5px">
+				<span class="span-27 font12 bold_font">
+					<a href="/discussion" target="_add_discussion_<%=figure.id%>" class="dark_gray">
+						<%=word_for :no_discussion%>
+					</a>
+				</span>
+			</span>
+		</span>
+		<%end%>
+	</span>
+	<%
+	    if count > params[:limit].to_i
+	%>
+	<span class="span-68 clearfix margin-top-1">
+	    <span class="span-68 clearfix">
+	
+	    </span>
+	    <span class="span-68">
+	        <span class="margin-left-4px total_page squeks_blue_bg">
+	        	<%=word_for :paging, :from=>(params[:offset].to_i+1), :to=>([(params[:offset].to_i+params[:limit].to_i),count].min),:total=>count%>
+	        </span>
+	        <span class="page_number">
+	            <ul>
+	            	<%
+						pages = []
+	
+						current_page = (params[:offset] / params[:limit])+1
+	
+						number_of_pages = (count.to_f/params[:limit].to_f).ceil
+						if number_of_pages > 10
+							pages = [current_page]
+	
+							
+							# span on current page
+							(1..5).each { |i|
+								pages.unshift(current_page-i) if (current_page-i) >= 1
+								pages.push(current_page+i)  if (current_page+i) <= number_of_pages
+							}
+	
+	
+							# add head and tail
+							[3,2,1].each { |i|
+								logger.debug { "#{i} #{pages.first}" }
+								pages = pages.unshift(i) if i < pages.first
+								pages = pages.push(number_of_pages - i + 1) if (number_of_pages - i + 1) > pages.last
+							}
+							
+						else
+							pages = (1..number_of_pages)
+						end
+	
+						last = 0
+						pages.each do |i|
+						
+							if i > (last+1)
+					%>
+								<li>...</li>
+					<%
+							end
+					%>
+							<li><a href="#" onclick="go_to_discussion_offset(<%=params[:limit]*(i-1)%>);return false;" <%='class="active"' if i == current_page%>><%=i%></a></li>
+					<%
+							last = i
+						end
+					%>
+	            </ul>
+	        </span>
+	    </span>
+	    <span class="span-20 clearfix">
+	    </span>
+	</span>
+	<%
+	    end
+	%>
+</span>
+<script language="javascript">
+	
+	function go_to_discussion_offset(offset,sort)
+        {
+            try {
+                $.ajax({
+                    type: "POST",
+                    url: '/discussion/view_all',
+                    cache: false,
+                    data: {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        figure_id:"<%=figure.id%>",
+                        offset: offset,
+						sort: sort
+                    },
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+
+                                $("#discussion_panel_"+<%=figure.id%>).replaceWith(data.html);
+                              
+                                $("#discussion_panel_"+<%=figure.id%>).fadeIn();
+                            }
+                            else {
+
+                            }
+
+                        }
+                        catch (e) {
+                          
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                
+                alert(e);
+            }
+        }
+</script>

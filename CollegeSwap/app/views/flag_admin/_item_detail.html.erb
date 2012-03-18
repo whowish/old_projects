@@ -1,0 +1,111 @@
+<span id="item_flow_content_<%=item.id%>" class="span-80">
+	<span class="span-80 margin-top-1">
+		<%=render :partial=>"home/search_result_unit",:locals=>{:item=>item,:show_button=>false}%>
+	</span>
+	<span class="span-78 margin-left-1 margin-top-1">
+		<span class="span-78 margin-bottom-2">
+			<span class="span-76" >All Flags : <%=item.flags%></span> 
+		</span>
+		<%	flags = Flag.all(:conditions=>{:item_id=>item.id},:order=>"created_date ASC")
+			flags.each do |flag| %>
+			<%if flag.reason != nil and flag.reason != "" %>
+				<span class="span-78 medium_dark_gray light_blue_bg  " >
+					<%user = get_facebook_info(flag.facebook_id)%>
+					<span class="span-76  margin-left-1 margin-top-1 margin-bottom-1 bold_font"><a href="http://apps.facebook.com/<%=FACEBOOK_APP_NAME%>/myswappage?user_id=<%=user.facebook_id%>"  target="_new_profile_<%=user.facebook_id%>" class="medium_dark_green"><%=user.name%></a> says : <%=flag.reason%></span> 
+				</span>
+				
+				<span class="span-78 medium_dark_gray light_blue_bg margin-bottom-1"  >
+					<span class="span-76 margin-left-1 margin-bottom-1" >about <%=semantic_time(flag.created_date)%></span> 
+				</span>
+			<%end%>
+		<%end%>
+	
+		<span class="span-78 margin-bottom-2">
+			<span class="span-10" >&nbsp;</span> 
+			<span class="span-36">
+				<span class="swap_button" style="background-color:#F03838;" id="abuse_submit_button_<%=item.id%>"  onclick="submit_abuse_<%=item.id%>();">
+					Abuse
+				</span>
+				<span class="span-2" >&nbsp;</span>
+				<span class="swap_button  whowish_green_bg" id="not_abuse_submit_button_<%=item.id%>"  onclick="submit_not_abuse_<%=item.id%>();">
+					Not Abuse
+				</span>
+			</span>
+		</span>
+	</span>
+</span>
+
+<script language="javascript">
+	function submit_abuse_<%=item.id %>()
+	{
+			try {
+				var data = {
+					authenticity_token: "<%=form_authenticity_token%>",
+					"item_id": "<%=item.id%>"
+				};
+				
+				$('#abuse_submit_button_<%=item.id%>').loading_button(true);
+				$.ajax({
+					type: "POST",
+					url: '/flag_admin/abuse',
+					cache: false,
+					headers:{"Connection":"close"},
+					data: data,
+					success: function(response){
+						if (response.ok == true) {
+							$('#item_flow_content_<%=item.id%>').fadeOut(function(){
+								$('#item_flow_content_<%=item.id%>').remove();
+							})
+						}
+						else {
+							$('#abuse_submit_button_<%=item.id%>').loading_button(false);
+						}
+					},
+					error: function(){
+					
+					}
+				});
+			}
+			catch (e)
+			{
+				$('#abuse_submit_button_<%=item.id%>').loading_button(false);
+				$.error_log('abuse_item',e);
+				alert(e);
+			}
+	}
+	function submit_not_abuse_<%=item.id %>()
+	{
+		try {
+			var data = {
+				authenticity_token: "<%=form_authenticity_token%>",
+				"item_id": "<%=item.id%>"
+			};
+			$('#not_abuse_submit_button_<%=item.id%>').loading_button(true);
+			$.ajax({
+				type: "POST",
+				url: '/flag_admin/not_abuse',
+				cache: false,
+				headers:{"Connection":"close"},
+				data: data,
+				success: function(response){
+					if (response.ok == true) {
+						$('#item_flow_content_<%=item.id%>').fadeOut(function(){
+							$('#item_flow_content_<%=item.id%>').remove();
+						})
+					}
+					else {
+							$('#not_abuse_submit_button_<%=item.id%>').loading_button(false);
+						}
+				},
+				error: function(){
+				
+				}
+			});
+		}catch (e)
+			{
+				$('#not_abuse_submit_button_<%=item.id%>').loading_button(false);
+				$.error_log('not_abuse_item',e);
+				alert(e);
+			}
+		}
+</script>

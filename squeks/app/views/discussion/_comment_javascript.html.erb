@@ -1,0 +1,234 @@
+<script language="javascript">
+	event_form_validator = {
+	    validate: function (input_obj) {
+			if (input_obj.id in this.validatees)
+				(this.validatees[input_obj.id])(input_obj);
+			else 
+				alert("event_form_validator does not validate '" + input_obj.id+"'");
+	    },
+		validate_form: function() {
+			var bool = true;
+			
+			for (var i in this.validatees)
+			{
+				bool = (this.validatees[i])(jQuery("#"+i)[0]) && bool;
+			}
+	
+			return bool;
+		},
+		validatees : {
+			"discussion_comment" : function (input_obj) {
+				return validate_input_obj(input_obj,get_string_errors);
+			}
+		
+		}
+	}
+
+
+	UNIQUE_COMMENT_ID = 0;
+	function submit_discussion_comment()
+	{
+		if (!event_form_validator.validate_form()) {
+			return;
+		}
+		
+		try {
+			$('#discussion_comment_submit_button').loading_button(true);
+			
+			$.ajax({
+				type: "POST",
+				url: '/discussion/save_comment',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					discussion_id:"<%=discussion.id%>",
+					"comment": $('#discussion_comment').val(),
+					"share_on_facebook":get_share_option_value().share_comment,
+                    "is_anonymous":get_anonymous_value()
+
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+							
+							$('#discussion_comment_submit_button').loading_button(false);
+							$('#new_discussion_comment').after('<span id="new_discussion_comment_'+UNIQUE_COMMENT_ID+'" style="display:none;">'+data.html+'</span>');
+							
+							$('#new_discussion_comment_'+UNIQUE_COMMENT_ID).fadeIn();
+							
+							$('#discussion_comment').val('');
+							UNIQUE_COMMENT_ID++;
+							
+							
+						}
+						else {
+							$('#discussion_comment_submit_button').loading_button(false);
+                            if (data.error_message == "<%=MUST_LOGIN_ERROR%>")
+                            {
+                                $('#must_login_balloon').hide();
+                                $('#must_login_balloon').fadeIn();
+                            }
+                            else
+                            {
+                                $('#discussion_comment').ruby_box(true,data.error_message);
+                            }
+						}
+						
+					} 
+					catch (e) {
+						$('#discussion_comment_submit_button').loading_button(false);
+						$.error_log('submit_discussion_comment', e);
+						alert(e);
+					}
+					
+				},
+				error: function(req, status, e){
+					$('#discussion_comment_submit_button').loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#discussion_comment_submit_button').loading_button(false);
+			$.error_log('submit_discussion_comment',e);
+			alert(e);
+		}
+	}
+
+    function submit_discussion_sub_comment(parent_id)
+	{
+		if ($('#discussion_sub_comment_'+parent_id).val() == "") {
+			$('#discussion_sub_comment_'+parent_id).ruby_box(true,'The comment is empty');
+			return;
+		}
+
+		try {
+			$('#discussion_sub_comment_button_'+parent_id).loading_button(true);
+
+			$.ajax({
+				type: "POST",
+				url: '/discussion/save_sub_comment',
+				cache: false,
+				data: {
+					authenticity_token: "<%=form_authenticity_token%>",
+					parent_id: parent_id,
+					"comment": $('#discussion_sub_comment_'+parent_id).val(),
+					"share_on_facebook":get_share_option_value().share_comment,
+                    "is_anonymous":get_anonymous_value()
+				},
+				success: function(data){
+					try {
+						if (data.ok == true) {
+							if (data.redirect_url != undefined) {
+								top.location.href = data.redirect_url;
+								return;
+							}
+
+							$('#discussion_sub_comment_button_'+parent_id).loading_button(false);
+							$('#new_discussion_sub_comment_anchor_'+parent_id).before('<span id="new_discussion_sub_comment_'+UNIQUE_COMMENT_ID+'" style="display:none;">'+data.html+'</span>');
+
+							$('#new_discussion_sub_comment_'+UNIQUE_COMMENT_ID).fadeIn();
+
+							$('#discussion_sub_comment_'+parent_id).val('');
+							UNIQUE_COMMENT_ID++;
+							
+							
+						}
+						else {
+							$('#discussion_sub_comment_button_'+parent_id).loading_button(false);
+
+                            if (data.error_message == "<%=MUST_LOGIN_ERROR%>")
+                            {
+                                $('#must_login_balloon').hide();
+                                $('#must_login_balloon').fadeIn();
+                            }
+                            else
+                            {
+							    $('#discussion_sub_comment_'+parent_id).ruby_box(true,data.error_message);
+                            }
+
+						}
+
+					}
+					catch (e) {
+						$('#discussion_sub_comment_button_'+parent_id).loading_button(false);
+						$.error_log('submit_discussion_sub_comment', e);
+						alert(e);
+					}
+
+				},
+				error: function(req, status, e){
+					$('#discussion_sub_comment_button_'+parent_id).loading_button(false);
+                     if (req.status == 0) return;
+					alert('Cannot connect to the server. Please try again later.');
+				}
+			});
+		} catch (e)
+		{
+			$('#discussion_sub_comment_button_'+parent_id).loading_button(false);
+			$.error_log('submit_discussion_sub_comment',e);
+			alert(e);
+		}
+	}
+
+
+    function discussion_comment_agree(comment_id,new_type)
+    {
+        try {
+            $('[id^=discussion_comment_agree_' + comment_id+']').loading_button(true,{word:"&nbsp;"});
+
+            $.ajax({
+                type: "POST",
+                url: '/discussion/agree',
+                cache: false,
+                data: {
+                    authenticity_token: "<%=form_authenticity_token%>",
+                    "comment_id": comment_id,
+                    "type":new_type,
+					"share_on_facebook":get_share_option_value().share_comment_agree,
+                    "is_anonymous":get_anonymous_value()
+                },
+                success: function(data){
+                    try {
+                        if (data.ok == true) {
+                            var agrees = $('[id^=discussion_comment_agree_' + comment_id+']');
+							for (i=0;i<agrees.length;i++) {
+								$(agrees[i]).replaceWith(data.agree_button);
+							}
+							
+                        }
+                        else {
+                            $('[id^=discussion_comment_agree_' + comment_id+']').loading_button(false);
+                            if (data.error_message == "<%=MUST_LOGIN_ERROR%>")
+                            {
+                                $('#must_login_balloon').hide();
+                                $('#must_login_balloon').fadeIn();
+                            }
+                        }
+
+                    }
+                    catch (e) {
+                        $('[id^=discussion_comment_agree_' + comment_id+']').loading_button(false);
+                        alert(e);
+                    }
+
+                },
+                error: function(req, status, e){
+                    $('[id^=discussion_comment_agree_' + comment_id+']').loading_button(false);
+                     if (req.status == 0) return;
+                    alert('Cannot connect to the server. Please try again later.');
+                }
+            });
+        } catch (e)
+        {
+            $('[id^=discussion_comment_agree_' + comment_id+']').loading_button(false);
+            alert(e);
+        }
+    }
+
+</script>

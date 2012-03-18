@@ -1,0 +1,106 @@
+<%
+	show_button = true if show_button == nil;
+	
+	color_theme = get_color_theme(item)
+%>
+<span class="span-80 search_result_unit margin-bottom-1" id="search_item_unit_<%=item.id%>">
+	<span class="span-79 margin-swap_unit">
+		<span class="span-79 margin-swap_line">
+			<a href="http://<%=DOMAIN_NAME%>/item/view?item_id=<%=item.id%>">
+				<span class="facebook_pic margin-swap_pic" style="cursor:pointer;background-image:url(<%=item.get_thumbnail_item_image()%>)"
+				onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=item.id%>',background_color:'<%=color_theme.bgColorCode%>'}); return false;">
+				</span>
+			</a>
+			<span class="span-71 margin-left-1">
+				<span class="span-71 fontsize11 normal_font  medium_gray">
+					<span class="span-69 height20">
+						<span class="float-left">
+							<a href="http://www.facebook.com/profile.php?id=<%=item.facebook_id%>" target="_new_<%=item.facebook_id%>" title="Go to facebook profile"><span class="facebook_profile_link"></span></a>
+							<a class="dark_gray" href="/myswappage?user_id=<%=item.facebook_id%>" title="Go to swap page"><%=item.owner_name%></a>
+							<span class="fontsize11 normal_font medium_gray">
+								<%if item.owner_university != ""%>
+									<%if defined?(location)%>
+										<a href="#" onclick="submit_college('<%=item.owner_university%>');return false;"><%= '('+item.owner_university+')' %></a>
+									<%else%>
+										<a href="/home?college_name=<%=item.owner_university%>"><%= '('+item.owner_university+')' %></a>
+									<%end%>
+								<%end%>
+							</span>
+							<span  class="dark_gray">
+								
+									<% if item.item_type == Item::ITEM_TYPE_WISH %>
+										<%=word_for :want%>
+									<% else %>
+										<% if item.category_id == 4 %>
+											<%=word_for :can%>
+										<% else %>
+											<%=word_for :has%>
+										<% end %>
+									<% end %>
+							</span>
+						</span>
+					</span>
+					<span class="span-2 function_icon">
+						<% if show_button == true and $facebook.facebook_id != item.facebook_id %>
+							<a href="#" class="flag_icon" title="Flag as inappropriate" onclick="$.whowish_box({title: 'Flag',url:'/flag?item_id=<%=item.id%>',background_color:'#EFC228'}); return false;"></a>
+						<% end %>
+					</span>
+				</span>
+				<span class="span-71 fontsize12 bold_font">
+					<span class="span-69 fontsize14" style="white-space:normal;overflow:hidden;">
+						<a class="<%=color_theme.textColor%>" href="http://<%=DOMAIN_NAME%>/item/view?item_id=<%=item.id%>" target="_new_<%=item.id%>"  onclick="$.whowish_box({title: 'View',url:'/item/view?item_id=<%=item.id%>',background_color:'<%=color_theme.bgColorCode%>'}); return false;">
+							<%=trim_title(item.title,75,75)%>
+						</a>
+						<%
+							if item.value != nil
+						%>
+							<span class="span-69 fontsize11 normal_font medium_dark_gray"><%=word_for :est_value%> <%=format_currency_by_country_code(item.country_code,item.value)%></span>
+						<%
+							end
+						%>
+					</span>
+				</span>
+				<span class="span-71 fontsize11 normal_font  medium_dark_gray" style="white-space:normal;overflow:hidden;">
+					<%=trim_description(item.id,item.description,75,150,2)%>
+				</span>
+				<span class="span-71 height-2 margin-top-1">
+					<% if show_button == true and $facebook.facebook_id != item.facebook_id %>
+						<% if item.item_type == Item::ITEM_TYPE_WISH %>
+							<a href="#" class="blue_button_small" onclick="$.whowish_box({title: 'Make a swap request!',url:'/take?requestor_item_id=<%=item.id%>',background_color:'#999999'});return false;">
+								<%=word_for :got_it_swap%>
+							</a>
+						<% else %>
+							<a href="#" class="green_button_small" onclick="$.whowish_box({title: 'Make a swap request!',url:'/give?responder_item_id=<%=item.id%>',background_color:'#999999'});return false;">
+								<%=word_for :want_it_swap%>
+							</a>
+						<% end %>
+					<% end %>
+					<span class="span-47 height-2 margin-left-1 fontsize11 normal_font" style="line-height:20px;">
+						<%if item.expiration_date != nil%>
+							<span class="red">
+								<%if (item.expiration_date - Time.now) > 0 %>
+									<%=semantic_time(item.expiration_date)%>
+								<%else%>
+									<%=word_for :expired%>
+								<%end%>
+							</span>
+						<%else%>
+							<span class="medium_gray">
+								<%=word_for :posted%> <%=semantic_time(item.created_date)%> 
+							</span>
+						<%end%>
+					</span>
+				</span>
+			</span>
+		</span>
+		<span class="height01 span-79 margin-swap_line medium_gray_bg">
+		</span>
+	</span>
+</span>
+
+<script language="javascript">
+	function submit_college(name)
+	{
+		search_item({college_name:name});
+	}
+</script>

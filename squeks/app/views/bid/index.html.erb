@@ -1,0 +1,178 @@
+<%
+	@figure = Figure.first(:conditions=>{:id=>params[:figure_id]})
+	price_to_be_bid = @figure.value + 1
+	facebook_id = @figure.manager_facebook_id
+	bid_start_time = @figure.bid_start_time
+
+	@bid = BidRequest.first(:conditions=>{:figure_id=>@figure.id,:status=>"SUCCESSFUL"})
+
+	if @bid
+		price_to_be_bid = @bid.value + 1 
+		facebook_id = @bid.facebook_id
+	else
+		bid_start_time = nil
+	end
+%>
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title, :name=>@figure.title%>");
+</script>
+
+<span id="bid_box">
+	<span id="bid_panel">
+		<span class="span-50">
+			<span class="span-50">
+				<%if @bid%>
+					<%=render :partial=>"/bid/highest_bid_unit"%>
+				<%else%>
+					<%=render :partial=>"/bid/manager_unit"%>
+				<%end%>
+				
+			</span>
+		</span>
+		<span class="span-6">
+			&nbsp;
+		</span>
+		<!--<span id="bid_button" class="orange_button margin-left-5px margin-bottom-1" onclick="confirm_bid();">
+			<%= word_for :bid%>
+		</span>-->
+		<div style="height:0px;clear:left;">&nbsp;</div>
+	</span>
+
+	<span class="span-50 white_bg" id="confirm_bid_panel">
+		<span class="span-50 verticle_shadow">
+		</span>
+		<span class="span-48 margin-left-1 margin-top-1">
+			<span class="span-48 font14 squeks_blue bold_font">
+				<%= word_for :your_bid%> <%= word_for :bid_start,:number=>price_to_be_bid%>
+			</span>
+			<span class="span-48 font11 medium_dark_gray light_font margin-top-5px">
+				<%= word_for :bid_privacy%>
+			</span>
+			<span class="span-48 margin-top-5px">
+				<input type="text" class="text_input span-20" id="bid_value" /> 
+			</span>
+			<span class="span-48 margin-top-1">
+				<!--<span class="facebook_button" id="confirm_bid_button_loading">
+					<%= word_for :confirm%> 
+				</span>--> 
+				<span class="facebook_button" id="confirm_bid_button" onclick="bid(this);">
+					<%= word_for :confirm%> 
+				</span>
+				<!--<span class="gray_button margin-left-1" onclick="cancel_bid();">
+					<%= word_for :cancel%> 
+				</span>-->
+			</span>
+		</span>
+		<span class="span-50 clearfix height-1 display_block">
+		</span>
+	</span>
+	<br/>
+	<%
+		if $facebook.is_guest
+	%>
+		<script language="javascript">
+			function confirm_bid()
+			{
+				$('#must_login_balloon').hide();
+				$('#must_login_balloon').fadeIn();
+			}
+			
+			function bid()
+			{
+				$('#must_login_balloon').hide();
+				$('#must_login_balloon').fadeIn();
+			}
+		</script>
+	<%
+		else
+	%>
+		<script language="javascript">
+			function confirm_bid()
+			{
+				$('#bid_button').hide();
+				$('#confirm_bid_button').hide();
+				$('#confirm_bid_button_loading').show();
+				$('#confirm_bid_panel').fadeIn(function() {
+					count_down_confirm_bid_button(2,$('#confirm_bid_button').html());
+				});
+			}
+			
+			function count_down_confirm_bid_button(count,word)
+			{
+				word = $.trim(word);
+				if (count < 0) {
+					$('#confirm_bid_button').html(word);
+					$('#confirm_bid_button').show();
+					$('#confirm_bid_button_loading').hide();
+				}
+				else {
+					$('#confirm_bid_button_loading').html(word + ' (' + count + ')');
+					setTimeout("count_down_confirm_bid_button(" + (count - 1) + ",'" + word + "');", 1000);
+				} 
+			}
+			
+			function cancel_bid()
+			{
+				$('#confirm_bid_button').hide();
+				$('#confirm_bid_button_loading').show();
+				$('#bid_button').show();
+				$('#bid_panel').fadeIn();
+				$('#confirm_bid_panel').hide();
+			}
+			
+			function bid(sender) {
+				try {
+					$(sender).loading_button(true);
+					
+					$.ajax({
+						type: "POST",
+						url: '/bid/make',
+						cache: false,
+						data: {
+							authenticity_token: "<%=form_authenticity_token%>",
+							"figure_id":"<%=@figure.id%>",
+							"value": $('#bid_value').val()
+						},
+						success: function(data){
+							try {
+								if (data.ok == true) {
+									$('#bid_box').html(data.html);
+									update_squeks_credit(data.credits,data.previous_credits);
+									$('#figure_value').html(format_price(data.value));
+								}
+								else {
+									
+									if (data.error_message == "<%=MUST_LOGIN_ERROR%>") {
+										$('#must_login_balloon').hide();
+										$('#must_login_balloon').fadeIn();
+									}
+									else {
+										$('#bid_value').ruby_box(true, data.error_message);
+									}
+								}
+								
+								$(sender).loading_button(false);
+							} 
+							catch (e) {
+								$(sender).loading_button(false);
+								alert(e);
+							}
+							
+						},
+						error: function(req, status, e){
+							$(sender).loading_button(false);
+		                     if (req.status == 0) return;
+							alert('Cannot connect to the server. Please try again later.');
+						}
+					});
+				} catch (e)
+				{
+					$(sender).loading_button(false);
+					alert(e);
+				}
+			}
+		</script>
+	<%
+		end
+	%>
+</span>

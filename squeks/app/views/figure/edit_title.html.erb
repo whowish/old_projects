@@ -1,0 +1,96 @@
+<%
+	figure = Figure.first(:conditions=>{:id=>params[:figure_id]})
+	languages = Language.all()
+%>
+<script language="javascript">
+	$.whowish_box_title_text("<%=word_for :whowish_box_title%>");
+	
+</script>
+<span class="span-49 margin-all-5px">
+	<%languages.each do |language|%>
+        <span class="span-49 margin-top-1">
+            <span class="font12 squeks_blue bold_font">
+                <%= word_for :title,:language=>language.name%>
+            </span>
+            <span class="span-49 margin-top-5px">
+                <input id="figure_title_<%=language.code%>" type="text" class="text_input span-49" value="<%=figure['title_'+language.code.downcase]%>" />
+            </span>
+        </span>
+	<%end%>
+	<span class="span-49 margin-top-1">
+        <a href="#" id="edit_title_button" class="margin-left-5px font14 bold_font huneysuckle_pink squeks_button"
+            onclick="edit_title_figure(this);return false;">
+            <%= word_for :edit_title%>
+        </a>
+		<a href="#" class="margin-left-5px font14 bold_font huneysuckle_pink squeks_gary_button"
+            onclick="cancel_edit_title();return false;">
+            <%= word_for :cancel_edit_title%>
+        </a>
+    </span>
+</span>
+<script language="javascript">
+		function cancel_edit_title()
+		{
+			$(document).trigger('close.whowish_box');
+		}
+        function edit_title_figure(sender)
+        {
+            try {
+
+                $(sender).loading_button(true);
+                data = {
+                        authenticity_token: "<%=form_authenticity_token%>",
+                        "figure_id":"<%=figure.id%>"
+                }
+
+                <%languages.each do |language|%>
+               	 	data["title_<%=language.code.downcase%>"] = $('#figure_title_<%=language.code%>').val();
+				<%end%>
+             
+ 
+                $.ajax({
+                    type: "POST",
+                    url: '/figure/edit',
+                    cache: false,
+                    data: data,
+                    success: function(data){
+                        try {
+                            if (data.ok == true) {
+								$(document).trigger('close.whowish_box');
+                                $('#span_figure_title').html(data.title);  
+								$('#figure_title_head').html(data.title); 
+                            }
+                            else {
+                                $(sender).loading_button(false);
+                                for (var i in data.error_message) {
+                                    try {
+                                        $('#figure_' + i).ruby_box(true,data.error_message[i]);
+                                    }
+                                    catch (e) {
+
+                                    }
+                                }
+                            }
+
+                        }
+                        catch (e) {
+                            $(sender).loading_button(false);
+                            $.error_log('submit_figure', e);
+                            alert(e);
+                        }
+
+                    },
+                    error: function(req, status, e){
+                        $(sender).loading_button(false);
+                         if (req.status == 0) return;
+                        alert('Cannot connect to the server. Please try again later.');
+                    }
+                });
+            } catch (e)
+            {
+                $(sender).loading_button(false);
+                $.error_log('submit_figure',e);
+                alert(e);
+            }
+        }
+ </script>

@@ -1,0 +1,60 @@
+<li class="span-28 light_medium_gray_bg">
+	<span class="firstChild span-28 white_bg" id="suggested_unit_<%=entity.id%>">
+		<span class="figure_thumb">
+			<img src="<%=entity.get_thumbnail_image_url%>" alt="" />
+		</span>
+		<span class="span-21 margin-top-5px margin-left-5px">
+			<span class="span-21 font12 bold_font">
+				<a href="<%=entity.get_url%>" class="squeks_blue" target="_blank_<%=entity.id%>">
+					<%=entity.title%>
+				</a>
+			</span>
+			<span class="span-21 small-meter">
+				<%
+                	love_width, hate_width = calculate_love_hate_width(entity.loves,entity.hates,208)
+	            %>
+	            <!--==== (width(210) - pinkMargin(2) = 208px =================================================-->
+	            <span class="pink-meter-small" style="width:<%=love_width%>px;">
+	            </span>
+	            <span class="gray-meter-small" style="width:<%=hate_width%>px;">
+	            </span>
+			</span>
+			<span class="span-21 height20">
+	            <%
+	                figure_love = FigureLove.first(:conditions=>{:figure_id=>entity.id,:facebook_id=>$facebook.facebook_id})
+	
+	                if figure_love \
+	                    and (figure_love.love_type == FigureLove::TYPE_LOVE \
+	                    or figure_love.love_type == FigureLove::TYPE_HATE)
+	                    if figure_love.love_type == FigureLove::TYPE_LOVE
+	            %>
+	                    You love this
+	            <%
+	                    elsif figure_love.love_type == FigureLove::TYPE_HATE
+	            %>
+	                    You hate this
+	            <%
+	                    end
+	                else
+	            %>
+	                <a href="#" class="float-left" onclick="submit_love(this,'<%=FigureLove::TYPE_LOVE%>',<%=entity.id%>);return false;">
+	                    <span class="love_icon_small">
+	                    </span>
+	                    <span class="font11 huneysuckle_pink bold_font" style="margin-left:2px;">
+	                        <%=word_for :love_button%>
+	                    </span>
+	                </a>
+	                <a href="#" class="float-left margin-left-1" onclick="submit_love(this,'<%=FigureLove::TYPE_HATE%>',<%=entity.id%>);return false;">
+	                    <span class="hate_icon_small">
+	                    </span>
+	                    <span class="font11 medium_dark_gray bold_font" style="margin-left:2px;">
+	                        <%=word_for :hate_button%>
+	                    </span>
+	                </a>
+	            <%
+	                end
+	            %>
+        	</span>												
+		</span>
+	</span>
+</li>

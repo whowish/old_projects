@@ -1,0 +1,27 @@
+<%
+    image_like = FigureImageLike.first(:conditions=>{:facebook_id=>$member.facebook_id,:figure_image_id=>image.id})
+
+   if !image_like or image_like.like_type == FigureImageLike::TYPE_CANCEL
+%>
+    <a href="#" class="vote_up_icon" title="Like the picture" onclick="vote_image(<%=image.id%>,'<%=FigureImageLike::TYPE_LIKE%>');return false;">
+    </a>
+    <a href="#" class="vote_down_icon" title="Dislike the picture" onclick="vote_image(<%=image.id%>,'<%=FigureImageLike::TYPE_DISLIKE%>');return false;">
+    </a>
+    <span class="vote_count">
+        <%=word_for :vote_count, :number=>(image.likes - image.dislikes)%>
+    </span>
+<%
+    elsif image_like.like_type == FigureImageLike::TYPE_LIKE
+%>
+    <span class="vote_count">
+        <%=word_for :you_like_vote_count, :number=>(image.likes-image.dislikes)%>
+    </span>
+<%
+    elsif image_like.like_type == FigureImageLike::TYPE_DISLIKE
+%>
+    <span class="vote_count">
+        <%=word_for :you_dislike_vote_count, :number=>(image.likes-image.dislikes)%>
+    </span>
+<%
+    end
+%>

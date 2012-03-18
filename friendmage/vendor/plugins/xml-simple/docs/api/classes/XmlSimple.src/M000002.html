@@ -1,0 +1,62 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>xml_in (XmlSimple)</title>
+<link rel=StyleSheet href="../.././rdoc-style.css" type="text/css" media="screen" />
+</head>
+<body bgcolor="white">
+<pre><span class="cmt"># File lib/xmlsimple.rb, line 148</span>
+  <span class="kw">def</span> xml_in(string = <span class="kw">nil</span>, options = <span class="kw">nil</span>)
+    handle_options(<span class="str">'in'</span>, options)
+
+    <span class="cmt"># If no XML string or filename was supplied look for scriptname.xml.</span>
+    <span class="kw">if</span> string.nil?
+      string = File::basename($0)
+      string.sub!(<span class="re">/\.[^.]+$/</span>, <span class="str">''</span>)
+      string += <span class="str">'.xml'</span>
+
+      directory = File::dirname($0)
+      @options[<span class="str">'searchpath'</span>].unshift(directory) <span class="kw">unless</span> directory.nil?
+    <span class="kw">end</span>
+
+    <span class="kw">if</span> string.instance_of?(String)
+      <span class="kw">if</span> string =~ <span class="re">/&lt;.*?&gt;/</span>m
+        @doc = parse(string)
+      <span class="kw">elsif</span> string == <span class="str">'-'</span>
+        @doc = parse($stdin.readlines.to_s)
+      <span class="kw">else</span>
+        filename = find_xml_file(string, @options[<span class="str">'searchpath'</span>])
+
+        <span class="kw">if</span> @options.has_key?(<span class="str">'cache'</span>)
+          @options[<span class="str">'cache'</span>].each { |scheme|
+            <span class="kw">case</span>(scheme)
+            <span class="kw">when</span> <span class="str">'storable'</span>
+              content = @@cache.restore_storable(filename)
+            <span class="kw">when</span> <span class="str">'mem_share'</span>
+              content = @@cache.restore_mem_share(filename)
+            <span class="kw">when</span> <span class="str">'mem_copy'</span>
+              content = @@cache.restore_mem_copy(filename)
+            <span class="kw">else</span>
+              raise ArgumentError, &quot;Unsupported caching scheme: &lt;#{scheme}&gt;.&quot;
+            <span class="kw">end</span>
+            <span class="kw">return</span> content <span class="kw">if</span> content
+          }
+        <span class="kw">end</span>
+        
+        @doc = load_xml_file(filename)
+      <span class="kw">end</span>
+    <span class="kw">elsif</span> string.kind_of?(IO)
+      @doc = parse(string.readlines.to_s)
+    <span class="kw">else</span>
+      raise ArgumentError, &quot;Could not parse object of type: &lt;#{string.type}&gt;.&quot;
+    <span class="kw">end</span>
+
+    result = collapse(@doc.root)
+    result = @options[<span class="str">'keeproot'</span>] ? merge({}, @doc.root.name, result) : result
+    put_into_cache(result, filename)
+    result
+  <span class="kw">end</span></pre>
+</body>
+</html>

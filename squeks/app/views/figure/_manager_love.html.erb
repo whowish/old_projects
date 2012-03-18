@@ -1,0 +1,18 @@
+<%
+	manager_love = FigureLove.first(:conditions=>{:facebook_id=>figure.manager_facebook_id,:figure_id=>figure.id})
+	if manager_love
+		if manager_love.love_type == FigureLove::TYPE_LOVE
+			icon = "love_icon_small"
+			title = "The current owner love " + figure.title
+		elsif manager_love.love_type == FigureLove::TYPE_HATE
+			icon = "hate_icon_small"
+			title = "The current owner hate " + figure.title
+		end 
+	end
+%>
+<span id="manager_love_unit_<%=figure.id%>" class="white_bg" style="display:inline-block;">
+	<%if manager_love%>
+		<span class="float-left <%=icon%>" title="<%=title%>" style="margin-left:2px;margin-right:2px;">
+    	</span>
+	<%end%>
+</span>

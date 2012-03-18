@@ -1,0 +1,22 @@
+<span class="span-30 margin-left-1 margin-top-1">
+	<span class="span-5 height-5">
+		<a href="<%=@figure_data[entity.figure_id].get_url%>">
+			<img src="<%=@figure_data[entity.figure_id].get_thumbnail_image_url%>" alt=""  />
+		</a>
+	</span>
+	<span class="span-24 margin-left-5px" style="overflow:hidden;">
+		<span class="span-24 font10 normal_font dark_gray" style="white-space:nowrap;overflow:hidden;">
+			<%=word_for :you_win_bid%>
+		</span>
+		<a href="<%=@figure_data[entity.figure_id].get_url%>" class="span-24 font11 huneysuckle_pink bold_font" style="white-space:nowrap;overflow:hidden;">
+			<%=@figure_data[entity.figure_id].title%>
+		</a>
+	</span>
+	<span class="span-24 margin-left-5px">
+		<span class="squeks_coin_value">
+		</span>
+		<span class="margin-left-5px font10 normal_font medium_gray">
+			<%=semantic_time(entity.created_date)%>
+		</span>
+	</span>
+</span>
